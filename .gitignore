@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Build output
+unpackage/
+
+# IDE
+.hbuilderx/
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Sensitive files
+uniCloud-aliyun/cloudfunctions/appService/default-data.js
+uniCloud-aliyun/cloudfunctions/appService/appService.param.json
+
+# Database files
+*.sqlite
+*.db
+
+# Temporary files
+*.tmp
+*.temp
+.cache/

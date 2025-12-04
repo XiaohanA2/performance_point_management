@@ -1,0 +1,9 @@
+{
+  "name": "appservice",
+  "version": "1.0.0",
+  "description": "绩效积分系统云函数",
+  "main": "index.js",
+  "dependencies": {
+    "xlsx": "^0.18.5"
+  }
+}

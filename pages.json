@@ -1,0 +1,99 @@
+{
+	"pages": [
+		{
+			"path": "pages/login/login",
+			"style": {
+				"navigationBarTitleText": "登录",
+				"navigationBarBackgroundColor": "#0f766e",
+				"navigationBarTextStyle": "white"
+			}
+		},
+		{
+			"path": "pages/dashboard/dashboard",
+			"style": {
+				"navigationBarTitleText": "工作台",
+				"navigationBarBackgroundColor": "#ffffff",
+				"navigationBarTextStyle": "black"
+			}
+		},
+		{
+			"path": "pages/history/history",
+			"style": {
+				"navigationBarTitleText": "提报记录",
+				"navigationBarBackgroundColor": "#ffffff",
+				"navigationBarTextStyle": "black"
+			}
+		},
+		{
+			"path": "pages/leaderboard/leaderboard",
+			"style": {
+				"navigationBarTitleText": "龙虎榜",
+				"navigationBarBackgroundColor": "#ffffff",
+				"navigationBarTextStyle": "black"
+			}
+		},
+		{
+			"path": "pages/admin/admin",
+			"style": {
+				"navigationBarTitleText": "后台管理",
+				"navigationBarBackgroundColor": "#ffffff",
+				"navigationBarTextStyle": "black"
+			}
+		},
+		{
+			"path": "pages/profile/profile",
+			"style": {
+				"navigationBarTitleText": "账号管理",
+				"navigationBarBackgroundColor": "#ffffff",
+				"navigationBarTextStyle": "black"
+			}
+		},
+		{
+			"path": "pages/user-details/user-details",
+			"style": {
+				"navigationBarTitleText": "用户提报记录",
+				"navigationBarBackgroundColor": "#ffffff",
+				"navigationBarTextStyle": "black"
+			}
+		}
+	],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "绩效积分",
+		"navigationBarBackgroundColor": "#F8F8F8",
+		"backgroundColor": "#F5F7FA",
+		"backgroundTextStyle": "light"
+	},
+	"tabBar": {
+		"color": "#8c8c8c",
+		"selectedColor": "#0f766e",
+		"backgroundColor": "#ffffff",
+		"borderStyle": "black",
+		"list": [
+			{
+				"pagePath": "pages/dashboard/dashboard",
+				"text": "工作台",
+				"iconPath": "static/tab-home.png",
+				"selectedIconPath": "static/tab-home-selected.png"
+			},
+			{
+				"pagePath": "pages/history/history",
+				"text": "提报记录",
+				"iconPath": "static/tab-history.png",
+				"selectedIconPath": "static/tab-history-selected.png"
+			},
+			{
+				"pagePath": "pages/leaderboard/leaderboard",
+				"text": "龙虎榜",
+				"iconPath": "static/tab-leaderboard.png",
+				"selectedIconPath": "static/tab-leaderboard-selected.png"
+			},
+			{
+				"pagePath": "pages/profile/profile",
+				"text": "账号管理",
+				"iconPath": "static/tab-profile.png",
+				"selectedIconPath": "static/tab-profile-selected.png"
+			}
+		]
+	}
+}
