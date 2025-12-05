@@ -193,8 +193,8 @@
     </scroll-view>
 
     <view v-if="!isAdmin" class="unauth">
-      <text>仅管理员可访问此页面</text>
-      <button class="light-btn" @click="gotoLogin">切换账号</button>
+      <text>{{ (!currentUser || (currentUser && currentUser.role === 'guest')) ? '请先登录' : '仅管理员可访问此页面' }}</text>
+      <button class="light-btn" @click="gotoLogin">{{ (!currentUser || (currentUser && currentUser.role === 'guest')) ? '立即登录' : '切换账号' }}</button>
     </view>
 
     <view v-if="showUserModal" class="modal-overlay">

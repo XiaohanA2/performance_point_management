@@ -1,19 +1,19 @@
 {
 	"pages": [
 		{
-			"path": "pages/login/login",
-			"style": {
-				"navigationBarTitleText": "登录",
-				"navigationBarBackgroundColor": "#0f766e",
-				"navigationBarTextStyle": "white"
-			}
-		},
-		{
 			"path": "pages/dashboard/dashboard",
 			"style": {
 				"navigationBarTitleText": "工作台",
 				"navigationBarBackgroundColor": "#ffffff",
 				"navigationBarTextStyle": "black"
+			}
+		},
+		{
+			"path": "pages/login/login",
+			"style": {
+				"navigationBarTitleText": "登录",
+				"navigationBarBackgroundColor": "#0f766e",
+				"navigationBarTextStyle": "white"
 			}
 		},
 		{

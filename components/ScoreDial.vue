@@ -4,7 +4,7 @@
       <view class="score-dial__badge">
         <image src="/static/logo.png" mode="aspectFit" style="width: 40rpx; height: 40rpx;" />
       </view>
-      <text class="score-dial__subtitle">个人信息看板</text>
+      <text class="score-dial__subtitle">个人积分看板</text>
     </view>
 
     <text class="score-dial__label">{{ quarter }} 累计积分</text>

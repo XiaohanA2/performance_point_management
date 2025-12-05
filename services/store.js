@@ -218,7 +218,12 @@ export const StoreService = {
   },
 
   getCurrentUser() {
-    return getStorage(STORAGE_KEYS.CURRENT_USER);
+    const user = getStorage(STORAGE_KEYS.CURRENT_USER);
+    // 游客模式：未登录时返回游客对象
+    if (!user) {
+      return { id: 'guest', name: '游客', role: 'guest', status: 'active' };
+    }
+    return user;
   },
 
   setCurrentUser(user) {
@@ -229,6 +234,11 @@ export const StoreService = {
 
   logout() {
     setStorage(STORAGE_KEYS.CURRENT_USER, null);
+  },
+
+  isLoggedIn() {
+    const user = getStorage(STORAGE_KEYS.CURRENT_USER);
+    return !!user && user.id !== 'guest';
   },
 
   getCurrentQuarter() {

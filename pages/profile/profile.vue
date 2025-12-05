@@ -22,7 +22,13 @@
       </view>
     </view>
 
-    <view class="section">
+    <!-- 登录按钮（游客模式） -->
+    <view v-if="user?.role === 'guest'" class="login-section">
+      <button class="primary-btn" @click="gotoLogin">立即登录</button>
+    </view>
+
+    <!-- 修改密码（仅登录用户可见） -->
+    <view v-else class="section">
       <text class="section-title">修改密码</text>
       <view class="form-card">
         <view class="form-item">
@@ -39,9 +45,9 @@
         </view>
         <button class="primary-btn" @click="handleChangePassword">确认修改</button>
       </view>
-    </view>
 
-    <button class="logout-btn" @click="handleLogout">退出登录</button>
+      <button class="logout-btn" @click="handleLogout">退出登录</button>
+    </view>
   </view>
 </template>
 
@@ -61,9 +67,6 @@ export default {
   },
   onShow() {
     this.user = StoreService.getCurrentUser();
-    if (!this.user) {
-      uni.redirectTo({ url: '/pages/login/login' });
-    }
   },
   computed: {
     userRoleLabel() {
@@ -72,6 +75,9 @@ export default {
     }
   },
   methods: {
+    gotoLogin() {
+      uni.navigateTo({ url: '/pages/login/login' });
+    },
     async handleChangePassword() {
       if (!this.form.oldPassword || !this.form.newPassword || !this.form.confirmPassword) {
         uni.showToast({ title: '请完整填写', icon: 'none' });
@@ -102,7 +108,7 @@ export default {
         success: res => {
           if (!res.confirm) return;
           StoreService.logout();
-          uni.reLaunch({ url: '/pages/login/login' });
+          this.user = StoreService.getCurrentUser();
         }
       });
     }

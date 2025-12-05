@@ -3,7 +3,7 @@
     <ScoreDial
       v-if="currentUser"
       :score="stats.totalScore"
-      :name="currentUser.name"
+      :name="currentUser ? currentUser.name : ''"
       :rank="myRank"
       :quarter="currentQuarter"
     />
@@ -33,6 +33,13 @@
           <text class="stats-card__value">{{ stats.microScore }}</text>
         </view>
       </view>
+    </view>
+
+    <!-- 游客模式登录按钮 -->
+    <view v-if="currentUser && currentUser.role === 'guest'" class="login-prompt">
+      <button class="primary-btn" @click="gotoLogin">
+        登录后可使用提报功能
+      </button>
     </view>
 
     <view class="section-header">
@@ -112,10 +119,7 @@
       </view>
     </view>
 
-    <view v-if="!currentUser" class="auth-placeholder">
-      <text>请登录后使用业务提报功能。</text>
-      <button class="light-btn" @click="gotoLogin">前往登录</button>
-    </view>
+    <!-- 这个区域已经被游客模式登录按钮替代，不再需要 -->
 
     <view v-if="showRules" class="rule-overlay" @click.self="showRules = false">
       <view class="rule-modal">
@@ -244,17 +248,20 @@ export default {
         this.rules = StoreService.getRules();
         this.ruleDescriptionSections = StoreService.getRuleDescriptionSections();
         this.currentQuarter = StoreService.getCurrentQuarter();
-        if (!user) {
-          this.currentUser = null;
+        this.currentUser = user;
+        if (user && user.role === 'guest') {
           this.stats = { totalScore: 0, personalScore: 0, microScore: 0 };
           this.myRank = 0;
           return;
         }
-        this.currentUser = user;
-        this.stats = StoreService.calculateScoreForEmployee(user.id);
-        const leaderboard = StoreService.getLeaderboard();
-        this.myRank =
-          leaderboard.find(entry => entry.employeeId === user.id)?.rank || leaderboard.length || 0;
+        if (user) {
+          this.stats = StoreService.calculateScoreForEmployee(user.id);
+          const leaderboard = StoreService.getLeaderboard();
+          this.myRank = leaderboard.find(entry => entry.employeeId === user.id)?.rank || leaderboard.length || 0;
+        } else {
+          this.stats = { totalScore: 0, personalScore: 0, microScore: 0 };
+          this.myRank = 0;
+        }
       } catch (error) {
         uni.showToast({ title: error.message || '数据加载失败', icon: 'none' });
       }
@@ -272,7 +279,7 @@ export default {
       return !!this.collapsedPanels[id];
     },
     handleSubmit(rule, payload) {
-      if (!this.currentUser) {
+      if (!this.currentUser || this.currentUser.role === 'guest') {
         this.gotoLogin();
         return;
       }
@@ -413,6 +420,20 @@ export default {
 
 .section-header .light-btn {
   margin-left: auto;
+}
+
+.login-prompt {
+  padding: 0 32rpx;
+  margin-bottom: 24rpx;
+}
+
+.primary-btn {
+  width: 100%;
+  background: #0f766e;
+  color: #fff;
+  border-radius: 24rpx;
+  padding: 20rpx 0;
+  font-size: 28rpx;
 }
 
 .category-group {

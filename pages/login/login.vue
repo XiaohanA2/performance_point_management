@@ -32,8 +32,11 @@
           登录
         </button>
 
-        <view class="form-links">
-          <text @click="handleForgotPassword">忘记密码？</text>
+        <view class="form-footer">
+          <view class="form-links">
+            <text @click="handleShowNote" class="note-btn">&nbsp;&nbsp;&nbsp;登录说明</text>
+            <text @click="handleForgotPassword" class="forgot-btn">忘记密码？</text>
+          </view>
         </view>
       </view>
     </view>
@@ -52,8 +55,7 @@ export default {
     };
   },
   onShow() {
-    const user = StoreService.getCurrentUser();
-    if (user) {
+    if (StoreService.isLoggedIn()) {
       uni.switchTab({ url: '/pages/dashboard/dashboard' });
     }
   },
@@ -92,6 +94,13 @@ export default {
       uni.showModal({
         title: '找回密码',
         content: '请联系管理员重置密码。',
+        showCancel: false
+      });
+    },
+    handleShowNote() {
+      uni.showModal({
+        title: '登录说明',
+        content: '如果您不是直接业务人员，请联系管理员录入信息后登录',
         showCancel: false
       });
     }
@@ -189,11 +198,23 @@ export default {
   display: block;
 }
 
+.form-footer {
+  margin-top: 20rpx;
+}
+
 .form-links {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   font-size: 24rpx;
   color: #0f766e;
   margin-top: 8rpx;
+}
+
+.note-btn {
+  text-align: left;
+}
+
+.forgot-btn {
+  text-align: right;
 }
 </style>

@@ -18,7 +18,7 @@
       <text class="history-subtitle">共 {{ mySubmissions.length }} 条业务记录</text>
     </view>
 
-    <view v-if="!currentUser" class="empty-state">
+    <view v-if="!currentUser || (currentUser && currentUser.role === 'guest')" class="empty-state">
       <text>请先登录后查看您的提报记录</text>
       <button class="light-btn" @click="gotoLogin">前往登录</button>
     </view>
