@@ -283,8 +283,8 @@ export default {
           type: this.editForm.type
         });
         uni.showToast({ title: '修改成功', icon: 'success' });
-        this.showEditModal = false;
         await this.fetchData();
+        this.showEditModal = false;
       } catch (error) {
         uni.showToast({ title: error.message || '修改失败', icon: 'none' });
       }

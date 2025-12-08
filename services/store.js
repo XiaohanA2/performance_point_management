@@ -76,6 +76,9 @@ const state = createInitialState();
 // 缓存计算结果
 const calculateCache = new Map();
 
+// 全局标志，用于标记是否需要刷新数据
+let needRefresh = false;
+
 const getStorage = key => {
   try {
     const raw = uni.getStorageSync(key);
@@ -213,7 +216,10 @@ export const StoreService = {
   },
 
   async ensureReady() {
-    if (state.initialized) return state;
+    if (state.initialized) {
+      await this.ensureFreshData(); // 检查并获取最新数据
+      return state;
+    }
     return this.bootstrap();
   },
 
@@ -586,6 +592,15 @@ export const StoreService = {
   clearCache() {
     calculateCache.clear();
     state.cacheTimestamp = 0;
+    needRefresh = true; // 标记需要刷新数据
+  },
+  
+  // 确保获取最新数据
+  async ensureFreshData() {
+    if (needRefresh || Date.now() - state.cacheTimestamp > 30000) { // 30秒自动刷新
+      await this.bootstrap({ force: true });
+      needRefresh = false;
+    }
   }
 };
 

@@ -72,24 +72,57 @@ async function ensureDefaults() {
   }
 }
 
+// 分页获取所有数据的辅助函数
+async function getAllData(collection, query = {}) {
+  let allData = [];
+  let lastId = null;
+  let hasMore = true;
+  
+  while (hasMore) {
+    let q = collection;
+    if (Object.keys(query).length > 0) {
+      q = q.where(query);
+    }
+    if (lastId) {
+      q = q.gt('_id', lastId);
+    }
+    
+    const res = await q.limit(1000).get();
+    if (res.data.length === 0) {
+      hasMore = false;
+    } else {
+      allData = allData.concat(res.data);
+      lastId = res.data[res.data.length - 1]._id;
+      if (res.data.length < 1000) {
+        hasMore = false;
+      }
+    }
+  }
+  
+  return allData;
+}
+
 async function bootstrap() {
   await ensureDefaults();
   const settingsRes = await collections.settings.doc('global').get();
   const settingsDoc = settingsRes.data[0] || { ...DEFAULT_SETTINGS };
   const currentQuarter = settingsDoc.currentQuarter || CURRENT_QUARTER;
-  const [usersRes, branchesRes, rulesRes, submissionsRes] = await Promise.all([
-    collections.users.get(),
-    collections.branches.get(),
-    collections.rules.get(),
-    collections.submissions.where({ quarter: currentQuarter }).get()
+  
+  // 使用分页查询获取所有数据，避免默认100条限制
+  const [usersData, branchesData, rulesData, submissionsData] = await Promise.all([
+    getAllData(collections.users),
+    getAllData(collections.branches),
+    getAllData(collections.rules),
+    getAllData(collections.submissions, { quarter: currentQuarter })
   ]);
+  
   return {
-    users: usersRes.data.map(sanitizeUser),
-    branches: branchesRes.data,
-    rules: rulesRes.data,
+    users: usersData.map(sanitizeUser),
+    branches: branchesData,
+    rules: rulesData,
     settings: settingsDoc,
     currentQuarter,
-    submissions: submissionsRes.data
+    submissions: submissionsData
   };
 }
 

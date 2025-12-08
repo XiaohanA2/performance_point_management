@@ -8,8 +8,8 @@
       </view>
       <view class="header-actions">
         <button class="action-chip" @click="handleExport">导出 Excel</button>
+        <button class="action-chip" @click="handleImportTemplate">导入业绩</button>
         <button class="action-chip danger" @click="handleReset">清空本季度</button>
-        <button class="action-chip" @click="gotoProfile">账号设置</button>
         <button class="action-chip" @click="handleLogout">退出登录</button>
       </view>
     </view>
@@ -459,6 +459,39 @@
         </view>
       </view>
     </view>
+
+    <!-- 导入业绩弹窗 -->
+    <view v-if="showImportModal" class="modal-overlay">
+      <view class="modal">
+        <view class="modal-header">
+          <text>导入业绩</text>
+          <view class="modal-close" @click="closeImportModal">
+            <uni-icons type="closeempty" :size="28" color="#fff" />
+          </view>
+        </view>
+        <view class="modal-body">
+          <view class="form-item">
+            <text class="form-label">步骤1：下载模板</text>
+            <button class="primary-btn" @click="downloadImportTemplate">下载Excel模板</button>
+            <text class="form-tip">根据当前用户和业务类型生成的模板，请勿修改表头格式</text>
+          </view>
+          <view class="form-item">
+            <text class="form-label">步骤2：选择文件</text>
+            <button class="ghost-btn" @click="selectImportFile">选择Excel文件</button>
+            <text v-if="selectedFileName" class="file-name">{{ selectedFileName }}</text>
+            <text class="form-tip">支持.xlsx和.csv格式，文件大小不超过10MB</text>
+          </view>
+          <view class="form-item">
+            <text class="form-label">步骤3：导入数据</text>
+            <button class="primary-btn" @click="handleImportData" :disabled="!selectedFileName">开始导入</button>
+            <text class="form-tip">导入前请确保数据格式正确，导入后将覆盖对应季度数据</text>
+          </view>
+        </view>
+        <view class="modal-footer">
+          <button class="ghost-btn" @click="closeImportModal">取消</button>
+        </view>
+      </view>
+    </view>
   </view>
 </template>
 
@@ -567,12 +600,21 @@ export default {
     },
     filteredOverviewData() {
       const keyword = this.searchKeyword.trim().toLowerCase();
-      if (!keyword) return this.overviewData;
-      return this.overviewData.filter(
+      let filtered = this.overviewData.filter(
         item =>
-          item.employee.name.toLowerCase().includes(keyword) ||
-          item.employee.branch.toLowerCase().includes(keyword)
+          (!keyword || item.employee.name.toLowerCase().includes(keyword) ||
+          item.employee.branch.toLowerCase().includes(keyword))
       );
+      
+      // 按排名升序排列
+      return filtered.sort((a, b) => {
+        const rankA = this.getRank(a.employee.id);
+        const rankB = this.getRank(b.employee.id);
+        if (rankA === '-' && rankB === '-') return 0;
+        if (rankA === '-') return 1;
+        if (rankB === '-') return -1;
+        return rankA - rankB;
+      });
     },
     ruleSections() {
       return RULE_SECTIONS.map(section => ({
@@ -592,6 +634,71 @@ export default {
         return acc;
       }, {});
     }
+  },
+  data() {
+    return {
+      currentUser: StoreService.getCurrentUser(),
+      activeTab: 'overview',
+      tabs: [
+        { key: 'overview', label: '业绩汇总' },
+        { key: 'users', label: '用户管理' },
+        { key: 'rules', label: '业务规则' },
+        { key: 'branches', label: '支行管理' },
+        { key: 'settings', label: '季度管理' }
+      ],
+      searchKeyword: '',
+      overviewData: [],
+      leaderboard: [],
+      users: [],
+      branches: StoreService.getBranches(),
+      rules: StoreService.getRules(),
+      ruleDescriptionSections: StoreService.getRuleDescriptionSections(),
+      currentQuarter: StoreService.getCurrentQuarter(),
+      selectedQuarter: StoreService.getCurrentQuarter(),
+      quarterOptions: ['2025Q4', '2026Q1', '2026Q2', '2026Q3', '2026Q4', '2027Q1', '2027Q2', '2027Q3', '2027Q4', '2028Q1', '2028Q2', '2028Q3', '2028Q4'],
+      settings: StoreService.getSettings(),
+      showUserModal: false,
+      showRuleModal: false,
+      showRuleDescriptionModal: false,
+      editingUser: null,
+      editingRule: null,
+      userForm: {
+        name: '',
+        phone: '',
+        branch: '',
+        role: 'manager'
+      },
+      roleOptions: ['客户经理', '管理员'],
+      branchIndex: 0,
+      roleIndex: 0,
+      userSearch: '',
+      branchForm: { id: '', name: '' },
+      editingBranch: null,
+      showBranchModal: false,
+      ruleForm: ruleFormDefaults(),
+      ruleDescriptionForm: [],
+      iconOptions: ['home', 'cart', 'wallet', 'shop', 'flag', 'redo', 'gear', 'compose', 'star'],
+      colorOptions: ['#0f766e', '#2563eb', '#db2777', '#f97316', '#0ea5e9', '#8b5cf6', '#14b8a6', '#f43f5e'],
+      ruleCategoryOptions: [
+        { value: 'personal', label: '个贷业务' },
+        { value: 'micro', label: '小微业务' }
+      ],
+      ruleGroupOptions: {
+        personal: [
+          { value: 'mortgage', label: '抵押类' },
+          { value: 'credit', label: '信用类' }
+        ],
+        micro: [
+          { value: 'mortgage', label: '抵押类' },
+          { value: 'credit', label: '信用类' },
+          { value: 'offline', label: '线下特色' }
+        ]
+      },
+      // 导入业绩相关
+      showImportModal: false,
+      selectedFileName: '',
+      selectedFile: null
+    };
   },
   async onShow() {
     await this.refresh();
@@ -1376,8 +1483,535 @@ export default {
         }
       });
     },
-    gotoProfile() {
-      uni.switchTab({ url: '/pages/profile/profile' });
+    // 导入业绩相关方法
+    handleImportTemplate() {
+      this.showImportModal = true;
+    },
+    closeImportModal() {
+      this.showImportModal = false;
+      this.selectedFileName = '';
+      this.selectedFile = null;
+    },
+    downloadImportTemplate() {
+      // 构建导入模板数据
+      const headers = ['客户经理姓名', '网点', '季度'];
+      
+      // 根据业务规则添加动态列
+      this.ruleSections.forEach(section => {
+        section.rules.forEach(rule => {
+          const baseName = `${rule.name}`;
+          headers.push(`${baseName}-新增笔数`);
+          headers.push(`${baseName}-新增授信金额`);
+          if (rule.hasStockOption) {
+            headers.push(`${baseName}-${rule.stockLabel || '存量'}笔数`);
+            headers.push(`${baseName}-${rule.stockLabel || '存量'}授信金额`);
+          }
+        });
+      });
+      
+      // 添加所有用户的数据行作为示例
+      const sampleData = [];
+      this.users.forEach(user => {
+        const row = [
+          user.name,
+          user.branch,
+          this.currentQuarter
+        ];
+        
+        // 为每个业务规则添加示例数据
+        this.ruleSections.forEach(section => {
+          section.rules.forEach(rule => {
+            // 新增业务示例
+            row.push(0); // 新增笔数
+            row.push(0); // 新增授信金额
+            
+            // 存量/转贷示例
+            if (rule.hasStockOption) {
+              row.push(0); // 存量笔数
+              row.push(0); // 存量授信金额
+            }
+          });
+        });
+        
+        sampleData.push(row);
+      });
+      
+      // 构建CSV内容，确保使用UTF-8编码
+      // 添加BOM头，确保Excel等软件能正确识别UTF-8编码
+      const bom = '\ufeff';
+      const csvContent = bom + [
+        headers.join(','),
+        ...sampleData.map(row => row.join(','))
+      ].join('\n');
+      
+      // 生成文件名
+      const filename = `业绩导入模板_${this.currentQuarter}_${Date.now()}.csv`;
+      
+      // 使用现有导出功能保存文件
+      this.saveAndShareExcel(csvContent, filename, 'csv');
+    },
+    selectImportFile() {
+      // 使用uni.chooseMessageFile，这是微信小程序兼容更好的文件选择API
+      uni.chooseMessageFile({
+        count: 1,
+        type: 'file',
+        // 只允许选择文档类型，提高成功率
+        extension: ['csv', 'xlsx'],
+        success: res => {
+          console.log('文件选择成功，返回结果：', res);
+          const file = res.tempFiles[0];
+          console.log('选中的文件：', file);
+          
+          // 验证文件类型
+          const fileName = file.name.toLowerCase();
+          if (!fileName.endsWith('.csv') && !fileName.endsWith('.xlsx')) {
+            uni.showToast({ title: '请选择.csv或.xlsx格式的文件', icon: 'none' });
+            return;
+          }
+          
+          this.selectedFileName = file.name;
+          this.selectedFile = file;
+        },
+        fail: error => {
+          console.error('选择文件失败', error);
+          uni.showToast({ title: '选择文件失败：' + error.errMsg, icon: 'none' });
+        }
+      });
+    },
+    async handleImportData() {
+      if (!this.selectedFile) {
+        uni.showToast({ title: '请先选择文件', icon: 'none' });
+        return;
+      }
+      
+      // 确认是否清空当前季度数据
+      uni.showModal({
+        title: '导入确认',
+        content: '导入数据将覆盖当前季度的所有提报记录，是否继续？',
+        confirmText: '继续导入',
+        confirmColor: '#ef4444',
+        cancelText: '取消',
+        success: async (res) => {
+          if (!res.confirm) return;
+          
+          uni.showLoading({ title: '正在导入...' });
+          
+          try {
+            console.log('开始导入，文件信息：', this.selectedFile);
+            
+            // 1. 读取文件内容
+            const fileContent = await this.readFileContent(this.selectedFile);
+            console.log('文件内容读取成功，长度：', fileContent?.length);
+            console.log('文件内容前100字符：', fileContent?.substring(0, 100));
+            
+            // 2. 解析文件（根据文件类型选择不同的解析方式）
+            let data;
+            if (this.selectedFile.name.endsWith('.csv')) {
+              data = this.parseCsv(fileContent);
+              console.log('CSV解析成功，表头：', data.headers, '数据行数：', data.rows.length);
+            } else {
+              // 对于xlsx文件，需要引入专门的解析库，这里简化处理
+              throw new Error('暂不支持.xlsx格式，请使用.csv格式');
+            }
+            
+            // 3. 动态解析表头和数据
+            const { headers, rows } = data;
+            
+            // 4. 清空当前季度的所有提报记录
+            console.log('开始清空当前季度提报记录...');
+            await this.clearCurrentQuarterSubmissions();
+            console.log('当前季度提报记录清空完成');
+            
+            // 5. 动态匹配业务规则和数据列
+            const importResults = await this.processImportData(headers, rows);
+            
+            // 6. 保存导入结果
+            await this.saveImportedData(importResults);
+            
+            uni.showModal({
+              title: '导入成功',
+              content: `成功导入 ${importResults.successCount} 条数据，跳过 ${importResults.skipCount} 条数据`,
+              showCancel: false,
+              success: async () => {
+                await this.refresh();
+                this.closeImportModal();
+              }
+            });
+          } catch (error) {
+            console.error('导入失败详细信息：', error);
+            console.error('错误堆栈：', error.stack);
+            uni.showToast({ title: '导入失败：' + error.message, icon: 'none', duration: 3000 });
+          } finally {
+            uni.hideLoading();
+          }
+        }
+      });
+    },
+    // 读取文件内容
+    readFileContent(file) {
+      return new Promise((resolve, reject) => {
+        try {
+          console.log('文件信息：', file);
+          
+          // 微信小程序中，chooseMessageFile返回的文件是临时文件
+          // 需要先将临时文件保存到本地，然后再读取
+          const tempFilePath = file.path;
+          if (!tempFilePath) {
+            reject(new Error('文件路径无效'));
+            return;
+          }
+          
+          console.log('临时文件路径：', tempFilePath);
+          
+          if (typeof wx !== 'undefined' && wx.getFileSystemManager) {
+            const fs = wx.getFileSystemManager();
+            
+            // 生成一个本地临时文件路径
+            const localFilePath = wx.env.USER_DATA_PATH + '/' + file.name;
+            console.log('本地临时文件路径：', localFilePath);
+            
+            // 首先将临时文件复制到本地
+            fs.copyFile({
+              srcPath: tempFilePath,
+              destPath: localFilePath,
+              success: () => {
+                console.log('文件复制成功，开始读取本地文件');
+                
+                // 然后读取本地文件
+                fs.readFile({
+                  filePath: localFilePath,
+                  encoding: 'utf8',
+                  success: res => {
+                    console.log('读取本地文件成功，返回结果：', res);
+                    console.log('文件数据类型：', typeof res.data);
+                    console.log('文件数据长度：', res.data?.length);
+                    
+                    if (res.data && res.data.length > 0) {
+                      console.log('文件内容前100字符：', res.data.substring(0, 100));
+                      resolve(res.data);
+                    } else {
+                      // 如果UTF-8读取失败，尝试使用binary编码
+                      console.log('UTF-8读取为空，尝试使用binary编码');
+                      fs.readFile({
+                        filePath: localFilePath,
+                        encoding: 'binary',
+                        success: binaryRes => {
+                          console.log('binary读取成功，返回结果：', binaryRes);
+                          console.log('binary数据长度：', binaryRes.data?.length);
+                          
+                          if (binaryRes.data && binaryRes.data.length > 0) {
+                            // 修复编码转换问题，使用更可靠的方式处理
+                            try {
+                              // 微信小程序中，使用另一种方式处理编码
+                              // 直接返回binary数据，后续解析时处理
+                              resolve(binaryRes.data);
+                            } catch (encodeError) {
+                              console.error('编码转换失败：', encodeError);
+                              // 直接返回binary数据
+                              resolve(binaryRes.data);
+                            }
+                          } else {
+                            reject(new Error('文件内容为空'));
+                          }
+                        },
+                        fail: binaryErr => {
+                          console.error('binary读取失败：', binaryErr);
+                          reject(new Error('文件读取失败：' + binaryErr.errMsg));
+                        }
+                      });
+                    }
+                  },
+                  fail: readErr => {
+                    console.error('读取本地文件失败：', readErr);
+                    reject(new Error('文件读取失败：' + readErr.errMsg));
+                  }
+                });
+              },
+              fail: copyErr => {
+                console.error('文件复制失败：', copyErr);
+                reject(new Error('文件复制失败：' + copyErr.errMsg));
+              }
+            });
+          } else {
+            reject(new Error('当前环境不支持文件操作'));
+          }
+        } catch (innerError) {
+          console.error('readFileContent内部错误：', innerError);
+          reject(new Error('文件读取过程中发生错误：' + innerError.message));
+        }
+      });
+    },
+    // 解析CSV文件
+    parseCsv(content) {
+      console.log('开始解析CSV，内容类型：', typeof content, '内容长度：', content?.length);
+      
+      // 增强的内容检查
+      if (content === null || content === undefined) {
+        throw new Error('文件内容为空值');
+      }
+      if (typeof content !== 'string') {
+        throw new Error('文件内容不是字符串，而是：' + typeof content);
+      }
+      if (content.trim() === '') {
+        throw new Error('文件内容为空字符串');
+      }
+      
+      // 处理可能的BOM头（Byte Order Mark）
+      // 修复：处理多种可能的BOM头格式
+      let cleanContent = content;
+      // 移除UTF-8 BOM头
+      if (cleanContent.startsWith('\ufeff')) {
+        cleanContent = cleanContent.substring(1);
+      }
+      // 移除其他可能的BOM头
+      cleanContent = cleanContent.replace(/^\uFEFF|^\u00BB\u00BF/g, '');
+      
+      // 修复：正确处理换行符，支持\r\n和\n
+      const lines = cleanContent.split(/\r?\n/).filter(line => line.trim());
+      if (lines.length === 0) {
+        throw new Error('文件内容为空或仅包含空行');
+      }
+      
+      // 解析表头
+      const headers = lines[0].split(',').map(header => header.trim());
+      if (headers.length === 0) {
+        throw new Error('表头解析失败，可能是文件格式错误');
+      }
+      
+      // 解析数据行
+      const rows = lines.slice(1).map(line => {
+        // 修复：正确处理带有引号的字段
+        const cells = this.parseCsvLine(line);
+        return cells.map(cell => cell.trim());
+      });
+      
+      console.log('CSV解析完成，表头：', headers, '数据行数：', rows.length);
+      return { headers, rows };
+    },
+    // 解析CSV行，处理带有引号的字段
+    parseCsvLine(line) {
+      const cells = [];
+      let currentCell = '';
+      let inQuotes = false;
+      
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        const nextChar = line[i + 1];
+        
+        if (char === '"') {
+          if (inQuotes && nextChar === '"') {
+            // 转义引号："" 表示单个引号
+            currentCell += '"';
+            i++;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (char === ',' && !inQuotes) {
+          // 分隔符，结束当前单元格
+          cells.push(currentCell);
+          currentCell = '';
+        } else {
+          currentCell += char;
+        }
+      }
+      
+      // 添加最后一个单元格
+      cells.push(currentCell);
+      return cells;
+    },
+    // 动态处理导入数据
+    async processImportData(headers, rows) {
+      let successCount = 0;
+      let skipCount = 0;
+      
+      // 检查必要参数
+      if (!headers || !Array.isArray(headers) || headers.length === 0) {
+        throw new Error('表头解析失败');
+      }
+      if (!rows || !Array.isArray(rows)) {
+        throw new Error('数据行解析失败');
+      }
+      
+      // 修复：处理编码问题，不严格检查表头名称，而是通过列索引来获取数据
+      // 假设前3列分别是：客户经理姓名、网点、季度
+      const nameIndex = 0;
+      const branchIndex = 1;
+      const quarterIndex = 2;
+      
+      // 验证必要的表头
+      // 确保使用我们导出的UTF-8模板，这样表头名称能正确匹配
+      const requiredHeaders = ['客户经理姓名', '网点', '季度'];
+      let hasRequiredHeaders = true;
+      for (const header of requiredHeaders) {
+        if (headers.indexOf(header) === -1) {
+          console.warn(`缺少必要的表头：${header}`);
+          hasRequiredHeaders = false;
+        }
+      }
+      
+      if (!hasRequiredHeaders) {
+        console.warn('使用系统导出的UTF-8模板可以获得更好的导入效果');
+      }
+      
+      // 构建业务规则列名映射
+      const ruleColumnMap = {};
+      
+      // 修复：由于编码问题，不直接匹配表头名称
+      // 而是通过列索引来匹配业务规则
+      // 从第3列开始，每2或4列对应一个业务规则
+      // 格式：[新增笔数, 新增金额] 或 [新增笔数, 新增金额, 存量笔数, 存量金额]
+      
+      // 确保ruleSections存在
+      if (this.ruleSections && Array.isArray(this.ruleSections)) {
+        let currentColumnIndex = 3; // 从第4列开始（索引为3）
+        
+        this.ruleSections.forEach(section => {
+          if (section.rules && Array.isArray(section.rules)) {
+            section.rules.forEach(rule => {
+              // 新增业务列
+              const newCountIndex = currentColumnIndex;
+              const newAmountIndex = currentColumnIndex + 1;
+              
+              if (newCountIndex < headers.length && newAmountIndex < headers.length) {
+                ruleColumnMap[rule.id] = ruleColumnMap[rule.id] || {};
+                ruleColumnMap[rule.id].new = { count: newCountIndex, amount: newAmountIndex };
+              }
+              
+              // 存量/转贷业务列（如果有）
+              if (rule.hasStockOption) {
+                const stockCountIndex = currentColumnIndex + 2;
+                const stockAmountIndex = currentColumnIndex + 3;
+                
+                if (stockCountIndex < headers.length && stockAmountIndex < headers.length) {
+                  ruleColumnMap[rule.id] = ruleColumnMap[rule.id] || {};
+                  ruleColumnMap[rule.id].stock = { count: stockCountIndex, amount: stockAmountIndex };
+                }
+                
+                // 移动4列
+                currentColumnIndex += 4;
+              } else {
+                // 移动2列
+                currentColumnIndex += 2;
+              }
+            });
+          }
+        });
+      }
+      
+      // 处理每一行数据
+      for (const row of rows) {
+        try {
+          // 获取用户信息，使用固定索引
+          const userName = row[nameIndex];
+          const branchName = row[branchIndex];
+          const quarter = row[quarterIndex] || this.currentQuarter;
+          
+          // 验证用户信息
+          if (!userName || !branchName) {
+            skipCount++;
+            continue;
+          }
+          
+          // 查找用户
+          console.log('处理行数据，用户名：', userName, '网点：', branchName, '季度：', quarter);
+          
+          // 修复：使用更宽松的用户匹配条件，确保所有用户都能被正确导入
+          const normalizedUserName = userName.trim().toLowerCase();
+          const normalizedBranchName = branchName.trim().toLowerCase();
+          
+          // 尝试1：精确匹配（用户名+网点）
+          let user = this.users.find(u => 
+            u.name.trim().toLowerCase() === normalizedUserName && 
+            u.branch.trim().toLowerCase() === normalizedBranchName
+          );
+          
+          // 尝试2：只匹配用户名
+          if (!user) {
+            user = this.users.find(u => u.name.trim().toLowerCase() === normalizedUserName);
+          }
+          
+          // 尝试3：模糊匹配用户名
+          if (!user) {
+            user = this.users.find(u => u.name.trim().toLowerCase().includes(normalizedUserName));
+          }
+          
+          if (user) {
+            console.log('找到匹配的用户：', user.name, 'ID:', user.id);
+          } else {
+            // 如果找不到匹配的用户，记录详细日志
+            console.warn('未找到匹配的用户，跳过该行数据：', userName, branchName);
+            console.warn('可用用户列表：', this.users.map(u => `${u.name}(${u.branch})`));
+            skipCount++;
+            continue;
+          }
+          
+          // 收集所有需要导入的提报记录
+              const submissionsToImport = [];
+              
+              for (const [ruleId, columns] of Object.entries(ruleColumnMap)) {
+                // 处理新增业务
+                if (columns.new) {
+                  const count = Number(row[columns.new.count]) || 0;
+                  const amount = Number(row[columns.new.amount]) || 0;
+                  if (count > 0 || amount > 0) {
+                    submissionsToImport.push({ employeeId: user.id, ruleId, type: 'new', count, amount, quarter });
+                  }
+                }
+                
+                // 处理存量/转贷业务
+                if (columns.stock) {
+                  const count = Number(row[columns.stock.count]) || 0;
+                  const amount = Number(row[columns.stock.amount]) || 0;
+                  if (count > 0 || amount > 0) {
+                    submissionsToImport.push({ employeeId: user.id, ruleId, type: 'stock', count, amount, quarter });
+                  }
+                }
+              }
+              
+              // 批量处理提报记录，限制并发
+              for (const submission of submissionsToImport) {
+                await this.createSubmission(submission.employeeId, submission.ruleId, submission.type, submission.count, submission.amount, submission.quarter);
+                successCount++;
+                
+                // 每处理10条记录，添加短暂延迟，避免云函数调用频率限制
+                if (successCount % 10 === 0) {
+                  await new Promise(resolve => setTimeout(resolve, 100));
+                }
+              }
+        } catch (error) {
+          console.error('处理行数据失败', error);
+          skipCount++;
+        }
+      }
+      
+      return { successCount, skipCount };
+    },
+    // 创建提报记录
+    async createSubmission(employeeId, ruleId, type, count, amount, quarter) {
+      await StoreService.addSubmission({
+        employeeId,
+        ruleId,
+        type,
+        count,
+        amount,
+        quarter
+      });
+    },
+    // 保存导入的数据
+    // 清空当前季度的所有提报记录
+    async clearCurrentQuarterSubmissions() {
+      const quarter = this.currentQuarter;
+      const currentSubmissions = StoreService.getSubmissions().filter(sub => sub.quarter === quarter);
+      
+      // 逐个删除当前季度的提报记录
+      for (const submission of currentSubmissions) {
+        await StoreService.deleteSubmission(submission.id);
+      }
+    },
+    
+    async saveImportedData(results) {
+      // 这里可以添加额外的保存逻辑，比如记录导入日志等
+      console.log('导入结果', results);
     },
     handleLogout() {
       StoreService.logout();
