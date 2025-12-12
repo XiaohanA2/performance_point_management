@@ -5,7 +5,7 @@
         <uni-icons type="medal" size="40" color="#fbbf24" />
       </view>
       <text class="hero-title">龙虎榜</text>
-      <text class="hero-subtitle">第 {{ currentQuarter }} 季度积分排名</text>
+      <text class="hero-subtitle">{{ currentQuarter }} 季度积分排名</text>
     </view>
 
     <view class="leaderboard-content">

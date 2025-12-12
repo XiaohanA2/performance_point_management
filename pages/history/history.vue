@@ -23,7 +23,7 @@
       <button class="light-btn" @click="gotoLogin">前往登录</button>
     </view>
 
-    <view v-else-if="mySubmissions.length === 0" class="empty-state">
+    <view v-else-if="Object.keys(groupedSubmissions).length === 0" class="empty-state">
       <view class="empty-icon">
         <uni-icons type="time" size="48" color="#cbd5f5" />
       </view>
@@ -31,127 +31,67 @@
       <button class="light-btn" @click="gotoDashboard">前往提报</button>
     </view>
 
-    <view v-else class="history-list">
-      <view v-for="sub in mySubmissions" :key="sub.id" class="history-card">
-        <view class="history-card__bar" :class="getRule(sub.ruleId)?.category" />
-        <view class="history-card__body">
-          <view class="history-card__info">
-            <view class="history-card__icon" :style="{ backgroundColor: getRule(sub.ruleId)?.color }">
-              <IconHelper :name="getRule(sub.ruleId)?.icon || 'circle'" :size="26" />
-            </view>
-            <view class="history-card__info-content">
-              <text class="history-card__title">{{ getRule(sub.ruleId)?.name }}</text>
-              <view class="history-card__meta">
-                <view class="history-card__meta-top">
-                  <text class="tag tag--gray">
-                    {{ getDetails(sub).typeLabel }}
-                  </text>
-                  <text class="history-card__count">{{ sub.count }} 笔 / {{ sub.amount }} 万</text>
+    <view v-else class="submission-groups">
+      <!-- 按日期分组 -->
+      <view v-for="(dateGroup, dateKey) in groupedSubmissions" :key="dateKey" class="submission-date-group">
+        <!-- 日期标题 -->
+        <view class="submission-date-header">
+          <text class="submission-date">{{ dateKey }}</text>
+          <text class="day-total">共 {{ dateGroup.length }} 条记录</text>
+        </view>
+        
+        <!-- 该日期下的记录列表 -->
+        <view class="submission-list">
+          <view v-for="sub in dateGroup" :key="sub.id" class="history-card">
+            <view class="history-card__bar" :class="getRule(sub.ruleId)?.category" />
+            <view class="history-card__body">
+              <view class="history-card__info">
+                <view class="history-card__info-content">
+                  <view class="submission-rule-info">
+                    <text class="submission-category" :class="getCategoryColorClass(getRuleCategory(sub.ruleId))">
+                      {{ getRuleCategory(sub.ruleId) }}
+                    </text>
+                    <text class="history-card__title">{{ getRule(sub.ruleId)?.name }}</text>
+                  </view>
+                  <view class="submission-meta">
+                    <text class="submission-type type-gray">
+                      {{ getDetails(sub).typeLabel }}
+                    </text>
+                    <text class="submission-time">{{ formatTime(sub.timestamp) }}</text>
+                  </view>
                 </view>
-                <text class="history-card__time">{{ getDetails(sub).date }}</text>
               </view>
+              <view class="history-card__stats">
+                <text class="history-card__count">{{ sub.count }} 笔 / {{ sub.amount }} 万</text>
+                <text class="history-card__score highlight">+{{ getDetails(sub).totalPoints }} 分</text>
+              </view>
+              <button class="edit-btn" v-if="canModify(sub)" @click="handleEdit(sub)">编辑</button>
             </view>
           </view>
-          <view class="history-card__score">
-            <text class="history-card__score-value">+{{ getDetails(sub).totalPoints }} 分</text>
-          </view>
-        </view>
-        <view class="history-card__actions" v-if="canModify(sub)">
-          <button class="action-btn" @click="handleEdit(sub)">
-            <uni-icons type="compose" size="16" color="#0f766e" />
-            编辑
-          </button>
-          <button class="action-btn danger" @click="handleDelete(sub)">
-            <uni-icons type="trash" size="16" color="#ef4444" />
-            删除
-          </button>
         </view>
       </view>
     </view>
 
-    <view v-if="showEditModal" class="edit-overlay">
-      <view class="edit-modal">
-        <view class="edit-modal__header">
-          <text>编辑提报</text>
-          <view class="edit-modal__close" @click="cancelEdit">
-            <uni-icons type="closeempty" :size="28" color="#fff" />
-          </view>
-        </view>
-        <view class="edit-modal__body">
-          <view class="edit-summary">
-            <view class="edit-icon" :style="{ backgroundColor: getRule(editingSubmission.ruleId)?.color }">
-              <IconHelper :name="getRule(editingSubmission.ruleId)?.icon || 'circle'" :size="20" />
-            </view>
-            <view>
-              <text class="edit-title">{{ getRule(editingSubmission.ruleId)?.name }}</text>
-              <text class="edit-subtitle">
-                {{ getRule(editingSubmission.ruleId)?.category === 'personal' ? '个贷业务' : '小微业务' }}
-              </text>
-            </view>
-          </view>
-
-          <view v-if="getRule(editingSubmission.ruleId)?.hasStockOption" class="edit-segmented">
-            <view
-              class="edit-segment"
-              :class="{ active: editForm.type === 'new' }"
-              @click="editForm.type = 'new'"
-            >
-              新增
-            </view>
-            <view
-              class="edit-segment"
-              :class="{ active: editForm.type === 'stock' }"
-              @click="editForm.type = 'stock'"
-            >
-              {{ getRule(editingSubmission.ruleId)?.stockLabel || '存量' }}
-            </view>
-          </view>
-
-          <view class="edit-form-grid">
-            <view class="form-item">
-              <text class="form-label">笔数</text>
-              <input
-                class="form-input"
-                type="number"
-                v-model="editForm.count"
-                placeholder="输入业务笔数"
-                placeholder-style="font-size:24rpx;color:#cbd5e1"
-              />
-            </view>
-            <view class="form-item">
-              <text class="form-label">授信金额（万元）</text>
-              <input
-                class="form-input"
-                type="digit"
-                v-model="editForm.amount"
-                placeholder="输入授信金额"
-                placeholder-style="font-size:24rpx;color:#cbd5e1"
-              />
-            </view>
-          </view>
-
-          <view class="preview-box">
-            <text class="preview-label">修改后积分</text>
-            <text class="preview-value">+{{ calculatePreviewScore() }} 分</text>
-          </view>
-        </view>
-        <view class="edit-modal__footer">
-          <button class="modal-btn ghost" @click="cancelEdit">取消</button>
-          <button class="modal-btn primary" @click="confirmEdit">确认修改</button>
-        </view>
-      </view>
-    </view>
+    <SubmissionEditModal
+      v-if="showEditModal"
+      :editingSubmission="editingSubmission"
+      :rules="rules"
+      @cancel="cancelEdit"
+      @confirm="confirmEdit"
+      @delete="handleDeleteSubmission"
+    />
   </view>
 </template>
 
 <script>
 import { StoreService } from '../../services/store.js';
 import IconHelper from '../../components/IconHelper.vue';
+import SubmissionEditModal from '../../components/SubmissionEditModal.vue';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 export default {
-  components: { IconHelper },
+  components: { IconHelper, SubmissionEditModal },
   data() {
     return {
       currentUser: null,
@@ -160,11 +100,6 @@ export default {
       settings: StoreService.getSettings(),
       showEditModal: false,
       editingSubmission: null,
-      editForm: {
-        count: '',
-        amount: '',
-        type: 'new'
-      },
       searchKeyword: '',
       dateFilter: ''
     };
@@ -197,6 +132,26 @@ export default {
       }
       
       return filtered.sort((a, b) => b.timestamp - a.timestamp);
+    },
+    groupedSubmissions() {
+      const groups = {};
+      
+      // 先按日期分组
+      this.mySubmissions.forEach(sub => {
+        const dateKey = this.formatDate(sub.timestamp, 'date');
+        if (!groups[dateKey]) {
+          groups[dateKey] = [];
+        }
+        groups[dateKey].push(sub);
+      });
+      
+      // 按日期降序排序
+      const sortedGroups = {};
+      Object.keys(groups).sort((a, b) => new Date(b) - new Date(a)).forEach(dateKey => {
+        sortedGroups[dateKey] = groups[dateKey];
+      });
+      
+      return sortedGroups;
     }
   },
   async onShow() {
@@ -254,6 +209,33 @@ export default {
       const withinWindow = Date.now() - sub.timestamp <= DAY_MS;
       return withinWindow && !sub.archived;
     },
+    formatDate(date, format = 'date') {
+      const d = typeof date === 'string' ? new Date(date) : typeof date === 'number' ? new Date(date) : date;
+      const year = d.getFullYear();
+      const month = `${d.getMonth() + 1}`.padStart(2, '0');
+      const day = `${d.getDate()}`.padStart(2, '0');
+      const hours = `${d.getHours()}`.padStart(2, '0');
+      const minutes = `${d.getMinutes()}`.padStart(2, '0');
+      
+      if (format === 'date') {
+        return `${year}-${month}-${day}`;
+      } else if (format === 'time') {
+        return `${hours}:${minutes}`;
+      } else {
+        return `${year}-${month}-${day} ${hours}:${minutes}`;
+      }
+    },
+    formatTime(timestamp) {
+      return this.formatDate(timestamp, 'time');
+    },
+    getRuleCategory(ruleId) {
+      const rule = this.getRule(ruleId);
+      if (!rule) return '其他';
+      return rule.category === 'personal' ? '个贷' : '小微';
+    },
+    getCategoryColorClass(category) {
+      return category === '个贷' ? 'category-personal' : 'category-micro';
+    },
     handleEdit(sub) {
       this.editingSubmission = sub;
       this.editForm = {
@@ -267,20 +249,30 @@ export default {
       this.showEditModal = false;
       this.editingSubmission = null;
     },
-    async confirmEdit() {
-      if (!this.editForm.count || Number(this.editForm.count) <= 0) {
-        uni.showToast({ title: '请输入有效的笔数', icon: 'none' });
-        return;
-      }
-      if (Number(this.editForm.amount) < 0) {
-        uni.showToast({ title: '请输入正确的金额', icon: 'none' });
-        return;
-      }
+    handleDeleteSubmission() {
+      uni.showModal({
+        title: '确认删除',
+        content: '删除后将无法恢复，确定删除该提报记录吗？',
+        confirmColor: '#ef4444',
+        success: async res => {
+          if (!res.confirm) return;
+          try {
+            await StoreService.deleteSubmission(this.editingSubmission.id);
+            uni.showToast({ title: '删除成功', icon: 'success' });
+            await this.fetchData();
+            this.showEditModal = false;
+          } catch (error) {
+            uni.showToast({ title: error.message || '删除失败', icon: 'none' });
+          }
+        }
+      });
+    },
+    async confirmEdit(editData) {
       try {
         await StoreService.updateSubmission(this.editingSubmission.id, {
-          count: Number(this.editForm.count),
-          amount: Number(this.editForm.amount) || 0,
-          type: this.editForm.type
+          count: editData.count,
+          amount: editData.amount,
+          type: editData.type
         });
         uni.showToast({ title: '修改成功', icon: 'success' });
         await this.fetchData();
@@ -505,6 +497,168 @@ export default {
   color: #475569;
 }
 
+/* 按日期分组样式 */
+.submission-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.submission-date-group {
+  background: #ffffff;
+  border-radius: 16rpx;
+  padding: 20rpx;
+  box-shadow: 0 1rpx 3rpx rgba(0, 0, 0, 0.05);
+}
+
+.submission-date-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+  padding-bottom: 12rpx;
+  border-bottom: 2rpx solid #f1f5f9;
+}
+
+.submission-date {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.day-total {
+  font-size: 24rpx;
+  color: #94a3b8;
+  background: #f1f5f9;
+  padding: 4rpx 16rpx;
+  border-radius: 12rpx;
+}
+
+.submission-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.submission-rule-info {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 6rpx;
+}
+
+.submission-category {
+  font-size: 22rpx;
+  font-weight: 600;
+  padding: 4rpx 12rpx;
+  border-radius: 10rpx;
+}
+
+/* 业务分类颜色 - 个贷蓝色，小微绿色 */
+.category-personal {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.category-micro {
+  background: #dcfce7;
+  color: #166534;
+}
+
+/* 卡片布局调整 - 匹配 submission-flow.vue */
+.history-card {
+  position: relative;
+  background: #fff;
+  border-radius: 10rpx;
+  padding: 16rpx;
+  box-shadow: 0 1rpx 3rpx rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.history-card__body {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex: 1;
+  gap: 20rpx;
+}
+
+.history-card__info {
+  flex: 1;
+  min-width: 0;
+  margin-right: 20rpx;
+}
+
+.history-card__info-content {
+  flex: 1;
+  min-width: 0;
+}
+
+/* 业务元信息样式 */
+.submission-meta {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  font-size: 24rpx;
+  color: #94a3b8;
+}
+
+.submission-type {
+  padding: 4rpx 14rpx;
+  border-radius: 12rpx;
+  font-size: 20rpx;
+  font-weight: 600;
+}
+
+.type-gray {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.submission-time {
+  font-size: 24rpx;
+  color: #94a3b8;
+}
+
+/* 统计信息样式 */
+.history-card__stats {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8rpx;
+}
+
+.history-card__count {
+  font-size: 26rpx;
+  color: #475569;
+  font-weight: 500;
+}
+
+.history-card__score {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #0f766e;
+}
+
+/* 编辑按钮样式 */
+.edit-btn {
+  background: #ecfdf5;
+  color: #0f766e;
+  border: 2rpx solid rgba(15, 118, 110, 0.25);
+  border-radius: 8rpx;
+  padding: 8rpx 12rpx;
+  font-size: 22rpx;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 80rpx;
+  margin-left: auto;
+}
+
 .edit-form-grid {
   display: flex;
   flex-wrap: wrap;
@@ -587,145 +741,5 @@ export default {
   font-size: 26rpx;
 }
 
-.edit-overlay {
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  background: rgba(15, 23, 42, 0.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
-  padding: 32rpx;
-}
-
-.edit-modal {
-  width: 100%;
-  max-width: 640rpx;
-  background: #ffffff;
-  border-radius: 32rpx;
-  overflow: hidden;
-}
-
-.edit-modal__header {
-  background: linear-gradient(135deg, #0f766e, #0ea5e9);
-  color: #fff;
-  padding: 28rpx 32rpx;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 30rpx;
-  font-weight: 600;
-}
-
-.edit-modal__close {
-  width: 56rpx;
-  height: 56rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-.edit-modal__body {
-  padding: 32rpx;
-  display: flex;
-  flex-direction: column;
-  gap: 20rpx;
-}
-
-.edit-summary {
-  display: flex;
-  align-items: center;
-  gap: 16rpx;
-}
-
-.edit-icon {
-  width: 64rpx;
-  height: 64rpx;
-  border-radius: 18rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-}
-
-.edit-title {
-  font-size: 30rpx;
-  font-weight: 600;
-  color: #0f172a;
-}
-
-.edit-subtitle {
-  font-size: 24rpx;
-  color: #94a3b8;
-}
-
-.edit-segmented {
-  display: flex;
-  background: #f1f5f9;
-  border-radius: 16rpx;
-  overflow: hidden;
-}
-
-.edit-segment {
-  flex: 1;
-  text-align: center;
-  padding: 18rpx 0;
-  font-size: 26rpx;
-  color: #64748b;
-}
-
-.edit-segment.active {
-  background: #ecfdf5;
-  color: #0f766e;
-  font-weight: 600;
-}
-
-.preview-box {
-  background: #ecfdf5;
-  border-radius: 20rpx;
-  padding: 20rpx;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.preview-label {
-  font-size: 24rpx;
-  color: #0f766e;
-}
-
-.preview-value {
-  font-size: 34rpx;
-  font-weight: 700;
-  color: #0f766e;
-}
-
-.edit-modal__footer {
-  padding: 24rpx 32rpx 32rpx;
-  display: flex;
-  gap: 16rpx;
-}
-
-.modal-btn {
-  flex: 1;
-  border-radius: 20rpx;
-  padding: 18rpx 0;
-  font-size: 28rpx;
-}
-
-.modal-btn.ghost {
-  border: 2rpx solid rgba(15, 118, 110, 0.2);
-  color: #0f766e;
-  background: #fff;
-}
-
-.modal-btn.primary {
-  background: linear-gradient(135deg, #0f766e, #0ea5e9);
-  color: #fff;
-}
 </style>
 

@@ -49,11 +49,19 @@
 			}
 		},
 		{
-			"path": "pages/user-details/user-details",
+			"path": "pages/admin/user-details/user-details",
 			"style": {
 				"navigationBarTitleText": "用户提报记录",
 				"navigationBarBackgroundColor": "#ffffff",
 				"navigationBarTextStyle": "black"
+			}
+		},
+		{
+			"path": "pages/admin/submission-flow/submission-flow",
+			"style": {
+				"navigationBarTitleText": "提报流管理",
+				"navigationBarBackgroundColor": "#0f766e",
+				"navigationBarTextStyle": "white"
 			}
 		}
 	],

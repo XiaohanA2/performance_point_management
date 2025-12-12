@@ -1,52 +1,142 @@
 <template>
   <view class="profile-page">
-    <view class="section">
-      <text class="section-title">账号信息</text>
+    <!-- 头部信息 -->
+    <view class="profile-header">
+      <view class="header-left">
+        <view class="user-avatar">
+          <text class="avatar-text">{{ user?.name?.charAt(0) || 'U' }}</text>
+        </view>
+        <view class="user-info">
+          <text class="user-name">{{ user?.name || '-' }}</text>
+          <text class="user-role">{{ userRoleLabel }}</text>
+          <text class="user-branch">{{ user?.branch || '-' }}</text>
+        </view>
+      </view>
+      <!-- 退出登录图标 -->
+      <view v-if="user?.role !== 'guest'" class="logout-icon" @click="handleLogout">
+        <text class="logout-icon-text">🚪</text>
+      </view>
+    </view>
+
+    <!-- 详细信息卡片 -->
+    <view class="info-section" v-if="user?.role !== 'guest'">
       <view class="info-card">
-        <view class="info-row">
-          <text class="label">姓名</text>
-          <text class="value">{{ user?.name || '-' }}</text>
+        <view class="info-item">
+          <view class="info-item__label">
+            <text class="label-icon">👤</text>
+            <text>姓名</text>
+          </view>
+          <text class="info-item__value">{{ user?.name || '-' }}</text>
         </view>
-        <view class="info-row">
-          <text class="label">手机号</text>
-          <text class="value">{{ user?.phone || '-' }}</text>
+        <view class="info-item">
+          <view class="info-item__label">
+            <text class="label-icon">📞</text>
+            <text>手机号</text>
+          </view>
+          <text class="info-item__value">{{ user?.phone || '-' }}</text>
         </view>
-        <view class="info-row">
-          <text class="label">所属支行</text>
-          <text class="value">{{ user?.branch || '-' }}</text>
+        <view class="info-item">
+          <view class="info-item__label">
+            <text class="label-icon">📍</text>
+            <text>所属支行</text>
+          </view>
+          <text class="info-item__value">{{ user?.branch || '-' }}</text>
         </view>
-        <view class="info-row">
-          <text class="label">角色</text>
-          <text class="value">{{ userRoleLabel }}</text>
+        <view class="info-item">
+          <view class="info-item__label">
+            <text class="label-icon">⭐</text>
+            <text>角色</text>
+          </view>
+          <text class="info-item__value">{{ userRoleLabel }}</text>
+        </view>
+      </view>
+
+      <!-- 功能按钮区 - 移到个人信息下面 -->
+      <view class="action-buttons">
+        <button class="action-btn primary" @click="showEditModal = true">
+          <text class="btn-icon">✏️</text>
+          <text>编辑信息</text>
+        </button>
+        <button class="action-btn secondary" @click="showPasswordModal = true">
+          <text class="btn-icon">🔒</text>
+          <text>修改密码</text>
+        </button>
+      </view>
+    </view>
+
+    <!-- 游客登录按钮 -->
+    <view class="action-buttons" v-if="user?.role === 'guest'">
+      <button class="action-btn primary" @click="gotoLogin">
+        <text class="btn-icon">📲</text>
+        <text>立即登录</text>
+      </button>
+    </view>
+
+    
+
+    <!-- 编辑信息弹框 -->
+    <view v-if="showEditModal" class="modal-overlay">
+      <view class="modal">
+        <view class="modal-header">
+          <text>编辑个人信息</text>
+          <view class="modal-close" @click="showEditModal = false">
+            <text class="modal-close-icon">✕</text>
+          </view>
+        </view>
+        <view class="modal-body">
+          <view class="form-item">
+            <text class="form-label">姓名</text>
+            <input class="form-input" v-model="editForm.name" placeholder="请输入姓名" />
+          </view>
+          <view class="form-item">
+            <text class="form-label">手机号</text>
+            <input class="form-input" type="number" v-model="editForm.phone" placeholder="请输入手机号" maxlength="11" />
+          </view>
+          <view class="form-item">
+            <text class="form-label">所属支行</text>
+            <picker class="form-picker" @change="onBranchChange" :value="selectedBranchIndex" :range="branchList">
+              <view class="picker-content">
+                {{ editForm.branch || '请选择所属支行' }}
+                <text class="picker-arrow">▼</text>
+              </view>
+            </picker>
+          </view>
+        </view>
+        <view class="modal-footer">
+          <button class="modal-btn ghost" @click="showEditModal = false">取消</button>
+          <button class="modal-btn primary" @click="handleEditInfo">保存修改</button>
         </view>
       </view>
     </view>
 
-    <!-- 登录按钮（游客模式） -->
-    <view v-if="user?.role === 'guest'" class="login-section">
-      <button class="primary-btn" @click="gotoLogin">立即登录</button>
-    </view>
-
-    <!-- 修改密码（仅登录用户可见） -->
-    <view v-else class="section">
-      <text class="section-title">修改密码</text>
-      <view class="form-card">
-        <view class="form-item">
-          <text class="form-label">原密码</text>
-          <input class="form-input" type="text" password v-model="form.oldPassword" />
+    <!-- 修改密码弹框 -->
+    <view v-if="showPasswordModal" class="modal-overlay">
+      <view class="modal">
+        <view class="modal-header">
+          <text>修改密码</text>
+          <view class="modal-close" @click="showPasswordModal = false">
+            <text class="modal-close-icon">✕</text>
+          </view>
         </view>
-        <view class="form-item">
-          <text class="form-label">新密码</text>
-          <input class="form-input" type="text" password v-model="form.newPassword" />
+        <view class="modal-body">
+          <view class="form-item">
+            <text class="form-label">原密码</text>
+            <input class="form-input" type="password" v-model="passwordForm.oldPassword" placeholder="请输入原密码" />
+          </view>
+          <view class="form-item">
+            <text class="form-label">新密码</text>
+            <input class="form-input" type="password" v-model="passwordForm.newPassword" placeholder="请输入新密码" />
+          </view>
+          <view class="form-item">
+            <text class="form-label">确认新密码</text>
+            <input class="form-input" type="password" v-model="passwordForm.confirmPassword" placeholder="请确认新密码" />
+          </view>
         </view>
-        <view class="form-item">
-          <text class="form-label">确认新密码</text>
-          <input class="form-input" type="text" password v-model="form.confirmPassword" />
+        <view class="modal-footer">
+          <button class="modal-btn ghost" @click="showPasswordModal = false">取消</button>
+          <button class="modal-btn primary" @click="handleChangePassword">确认修改</button>
         </view>
-        <button class="primary-btn" @click="handleChangePassword">确认修改</button>
       </view>
-
-      <button class="logout-btn" @click="handleLogout">退出登录</button>
     </view>
   </view>
 </template>
@@ -58,7 +148,19 @@ export default {
   data() {
     return {
       user: null,
-      form: {
+      // 编辑信息相关
+      showEditModal: false,
+      editForm: {
+        name: '',
+        phone: '',
+        branch: ''
+      },
+      // 支行选择相关
+      branches: [], // 支行列表
+      selectedBranchIndex: 0,
+      // 修改密码相关
+      showPasswordModal: false,
+      passwordForm: {
         oldPassword: '',
         newPassword: '',
         confirmPassword: ''
@@ -67,36 +169,95 @@ export default {
   },
   onShow() {
     this.user = StoreService.getCurrentUser();
+    // 获取支行列表
+    this.branches = StoreService.getBranches();
+    // 初始化编辑表单数据
+    this.initEditForm();
   },
   computed: {
     userRoleLabel() {
       if (!this.user) return '-';
       return this.user.role === 'admin' ? '管理员' : '客户经理';
+    },
+    branchList() {
+      return this.branches.map(branch => branch.name);
     }
   },
   methods: {
+    // 初始化编辑表单数据
+    initEditForm() {
+      if (this.user) {
+        this.editForm = {
+          name: this.user.name,
+          phone: this.user.phone,
+          branch: this.user.branch
+        };
+        // 设置默认选中的支行索引
+        this.selectedBranchIndex = Math.max(
+          this.branchList.findIndex(name => name === this.user.branch),
+          0
+        );
+      }
+    },
     gotoLogin() {
       uni.navigateTo({ url: '/pages/login/login' });
     },
+    // 支行选择变化处理
+    onBranchChange(e) {
+      this.selectedBranchIndex = e.detail.value;
+      this.editForm.branch = this.branchList[this.selectedBranchIndex];
+    },
+    // 编辑信息
+    async handleEditInfo() {
+      if (!this.editForm.name || !this.editForm.phone || !this.editForm.branch) {
+        uni.showToast({ title: '姓名、手机号和支行不能为空', icon: 'none' });
+        return;
+      }
+      // 手机号格式验证
+      const phoneReg = /^1\d{10}$/;
+      if (!phoneReg.test(this.editForm.phone)) {
+        uni.showToast({ title: '请输入正确的手机号', icon: 'none' });
+        return;
+      }
+      try {
+        await StoreService.updateUserInfo({
+          id: this.user.id,
+          name: this.editForm.name,
+          phone: this.editForm.phone,
+          branch: this.editForm.branch
+        });
+        uni.showToast({ title: '信息已更新', icon: 'success' });
+        this.showEditModal = false;
+        // 重新加载用户信息
+        this.user = StoreService.getCurrentUser();
+      } catch (error) {
+        uni.showToast({ title: error.message || '修改失败', icon: 'none' });
+      }
+    },
+    // 修改密码
     async handleChangePassword() {
-      if (!this.form.oldPassword || !this.form.newPassword || !this.form.confirmPassword) {
+      if (!this.passwordForm.oldPassword || !this.passwordForm.newPassword || !this.passwordForm.confirmPassword) {
         uni.showToast({ title: '请完整填写', icon: 'none' });
         return;
       }
-      if (this.form.newPassword !== this.form.confirmPassword) {
+      if (this.passwordForm.newPassword !== this.passwordForm.confirmPassword) {
         uni.showToast({ title: '两次新密码不一致', icon: 'none' });
         return;
       }
       try {
         await StoreService.changePassword(
           this.user.id,
-          this.form.oldPassword,
-          this.form.newPassword
+          this.passwordForm.oldPassword,
+          this.passwordForm.newPassword
         );
         uni.showToast({ title: '密码已更新', icon: 'success' });
-        this.form.oldPassword = '';
-        this.form.newPassword = '';
-        this.form.confirmPassword = '';
+        this.showPasswordModal = false;
+        // 重置密码表单
+        this.passwordForm = {
+          oldPassword: '',
+          newPassword: '',
+          confirmPassword: ''
+        };
       } catch (error) {
         uni.showToast({ title: error.message || '修改失败', icon: 'none' });
       }
@@ -118,53 +279,347 @@ export default {
 
 <style scoped>
 .profile-page {
-  min-height: 100vh;
-  background: #f8fafc;
+  height: 100vh;
+  background: linear-gradient(135deg, #f0fdf4 0%, #f0f9ff 100%);
   padding: 32rpx;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  box-sizing: border-box;
+  -webkit-overflow-scrolling: touch;
 }
 
-.section {
+/* 头部信息 */
+.profile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border-radius: 24rpx;
+  padding: 32rpx;
   margin-bottom: 32rpx;
+  box-shadow: 0 12rpx 32rpx rgba(15, 118, 110, 0.08);
 }
 
-.section-title {
-  font-size: 28rpx;
-  font-weight: 600;
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+/* 退出登录图标 */
+.logout-icon {
+  width: 64rpx;
+  height: 64rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #fef2f2;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.logout-icon:active {
+  transform: scale(0.95);
+  background: #fee2e2;
+}
+
+.logout-icon-text {
+  font-size: 32rpx;
+}
+
+.user-avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0f766e, #0ea5e9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 24rpx;
+  box-shadow: 0 8rpx 20rpx rgba(15, 118, 110, 0.2);
+}
+
+.avatar-text {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.user-info {
+  flex: 1;
+}
+
+.user-name {
+  font-size: 32rpx;
+  font-weight: 700;
   color: #0f172a;
-  margin-bottom: 16rpx;
-  display: inline-block;
+  margin-bottom: 8rpx;
+  display: block;
 }
 
-.info-card,
-.form-card {
+.user-role {
+  font-size: 24rpx;
+  color: #0f766e;
+  background: #ecfdf5;
+  padding: 6rpx 16rpx;
+  border-radius: 12rpx;
+  margin-bottom: 8rpx;
+  display: inline-block;
+  font-weight: 600;
+}
+
+.user-branch {
+  font-size: 26rpx;
+  color: #64748b;
+  display: block;
+}
+
+/* 功能按钮区 */
+.action-buttons {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 32rpx;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  padding: 20rpx 32rpx;
+  border-radius: 20rpx;
+  font-size: 26rpx;
+  font-weight: 600;
+  border: none;
+  min-width: 180rpx;
+  transition: all 0.3s ease;
+}
+
+.action-btn:active {
+  transform: translateY(4rpx);
+}
+
+.btn-icon {
+  font-size: 24rpx;
+}
+
+.action-btn.primary {
+  background: linear-gradient(135deg, #0f766e, #0ea5e9);
+  color: #fff;
+  box-shadow: 0 8rpx 20rpx rgba(15, 118, 110, 0.2);
+}
+
+.action-btn.primary:active {
+  box-shadow: 0 4rpx 12rpx rgba(15, 118, 110, 0.15);
+}
+
+.action-btn.secondary {
+  background: #ffffff;
+  color: #0f766e;
+  border: 2rpx solid #0f766e;
+  box-shadow: 0 4rpx 12rpx rgba(15, 118, 110, 0.08);
+}
+
+.action-btn.secondary:active {
+  box-shadow: 0 2rpx 8rpx rgba(15, 118, 110, 0.06);
+}
+
+.action-btn.danger {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #fff;
+  box-shadow: 0 8rpx 20rpx rgba(239, 68, 68, 0.2);
+}
+
+.action-btn.danger:active {
+  box-shadow: 0 4rpx 12rpx rgba(239, 68, 68, 0.15);
+}
+
+/* 信息区域 */
+.info-section {
+  flex: 1;
+}
+
+.info-card {
   background: #ffffff;
   border-radius: 24rpx;
   padding: 24rpx;
-  box-shadow: 0 16rpx 40rpx rgba(15, 118, 110, 0.08);
+  box-shadow: 0 12rpx 32rpx rgba(15, 118, 110, 0.08);
 }
 
-.info-row {
+.info-item {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  padding: 18rpx 0;
-  border-bottom: 1px solid #f1f5f9;
+  padding: 24rpx 0;
+  border-bottom: 2rpx solid #f1f5f9;
 }
 
-.info-row:last-child {
+.info-item:last-child {
   border-bottom: none;
 }
 
-.label {
+.info-item__label {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
   font-size: 26rpx;
-  color: #94a3b8;
+  color: #64748b;
+  font-weight: 500;
 }
 
-.value {
-  font-size: 26rpx;
+.label-icon {
+  font-size: 28rpx;
+}
+
+.info-item__value {
+  font-size: 28rpx;
+  font-weight: 600;
   color: #0f172a;
+}
+
+/* 退出登录按钮 */
+.logout-btn {
+  width: 100%;
+  border: none;
+  border-radius: 20rpx;
+  padding: 20rpx 0;
+  background: #fef2f2;
+  color: #ef4444;
+  font-size: 28rpx;
+  font-weight: 600;
+  margin-top: 32rpx;
+  box-shadow: 0 4rpx 12rpx rgba(239, 68, 68, 0.08);
+  transition: all 0.3s ease;
+}
+
+.logout-btn:active {
+  transform: translateY(4rpx);
+  box-shadow: 0 2rpx 8rpx rgba(239, 68, 68, 0.06);
+}
+
+/* 弹框样式 */
+.modal-overlay {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  padding: 32rpx;
+}
+
+.modal {
+  width: 100%;
+  max-width: 640rpx;
+  background: #ffffff;
+  border-radius: 24rpx;
+  overflow: hidden;
+  box-shadow: 0 24rpx 64rpx rgba(15, 23, 42, 0.2);
+  animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-40rpx) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-header {
+  background: linear-gradient(to right, #0f766e, #0ea5e9);
+  color: #fff;
+  padding: 28rpx 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 28rpx;
   font-weight: 600;
 }
 
+.modal-close {
+  width: 56rpx;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.modal-close:active {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.modal-close-icon {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #fff;
+}
+
+.modal-body {
+  padding: 32rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.modal-footer {
+  padding: 0 32rpx 32rpx;
+  display: flex;
+  gap: 16rpx;
+}
+
+.modal-btn {
+  flex: 1;
+  border-radius: 20rpx;
+  padding: 20rpx 0;
+  font-size: 26rpx;
+  font-weight: 600;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.modal-btn:active {
+  transform: translateY(4rpx);
+}
+
+.modal-btn.ghost {
+  border: 2rpx solid rgba(15, 118, 110, 0.2);
+  color: #0f766e;
+  background: #fff;
+  box-shadow: 0 4rpx 12rpx rgba(15, 118, 110, 0.08);
+}
+
+.modal-btn.ghost:active {
+  box-shadow: 0 2rpx 8rpx rgba(15, 118, 110, 0.06);
+}
+
+.modal-btn.primary {
+  background: linear-gradient(135deg, #0f766e, #0ea5e9);
+  color: #fff;
+  box-shadow: 0 8rpx 20rpx rgba(15, 118, 110, 0.2);
+}
+
+.modal-btn.primary:active {
+  box-shadow: 0 4rpx 12rpx rgba(15, 118, 110, 0.15);
+}
+
+/* 表单样式 */
 .form-item {
   margin-bottom: 24rpx;
 }
@@ -174,41 +629,86 @@ export default {
   font-size: 24rpx;
   color: #6b7280;
   margin-bottom: 12rpx;
+  font-weight: 600;
 }
 
 .form-input {
   width: 100%;
-  height: 88rpx;
-  line-height: 88rpx;
+  height: 80rpx;
+  line-height: 80rpx;
   background: #f8fafc;
-  border-radius: 18rpx;
+  border-radius: 16rpx;
   padding: 0 24rpx;
-  font-size: 28rpx;
+  font-size: 26rpx;
   color: #0f172a;
   box-sizing: border-box;
-  border: none;
-  display: block;
+  border: 2rpx solid transparent;
+  transition: all 0.2s ease;
 }
 
-.primary-btn {
-  width: 100%;
-  border: none;
-  border-radius: 999rpx;
-  padding: 20rpx 0;
-  background: linear-gradient(to right, #0f766e, #0ea5e9);
-  color: #fff;
-  font-size: 28rpx;
-  font-weight: 600;
+.form-input:focus {
+  outline: none;
+  border-color: #0f766e;
+  background: #ffffff;
+  box-shadow: 0 0 0 4rpx rgba(15, 118, 110, 0.1);
 }
 
-.logout-btn {
+.form-input:disabled {
+  background: #f1f5f9;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+/* 选择器样式 */
+.form-picker {
   width: 100%;
-  border: none;
-  border-radius: 999rpx;
-  padding: 20rpx 0;
-  background: #fef2f2;
-  color: #ef4444;
+  height: 80rpx;
+  background: #f8fafc;
+  border-radius: 16rpx;
+  overflow: hidden;
+  border: 2rpx solid transparent;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.form-picker:active {
+  border-color: #0f766e;
+  background: #ffffff;
+  box-shadow: 0 0 0 4rpx rgba(15, 118, 110, 0.1);
+}
+
+.picker-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24rpx;
+  height: 100%;
+  width: 100%;
+  font-size: 26rpx;
+  color: #0f172a;
+  line-height: 80rpx;
+}
+
+.picker-arrow {
+  font-size: 20rpx;
+  color: #64748b;
+  margin-left: 8rpx;
+}
+
+/* 信息项标签样式 */
+.label-icon {
   font-size: 28rpx;
+}
+
+/* 登录区域 */
+.login-section {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48rpx 0;
 }
 </style>
 

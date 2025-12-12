@@ -2,7 +2,9 @@
   <view class="dashboard">
     <ScoreDial
       v-if="currentUser"
-      :score="stats.totalScore"
+      :total-score="stats.totalScore"
+      :personal-score="stats.personalScore"
+      :micro-score="stats.microScore"
       :name="currentUser ? currentUser.name : ''"
       :rank="myRank"
       :quarter="currentQuarter"
@@ -14,27 +16,6 @@
       </button>
     </view>
 
-    <view class="stats-cards" v-if="currentUser">
-      <view class="stats-card blue">
-        <view class="stats-card__icon">
-          <uni-icons type="wallet" :size="32" color="#2563eb" />
-        </view>
-        <view>
-          <text class="stats-card__label">个贷积分</text>
-          <text class="stats-card__value">{{ stats.personalScore }}</text>
-        </view>
-      </view>
-      <view class="stats-card teal">
-        <view class="stats-card__icon">
-          <uni-icons type="shop" :size="32" color="#0d9488" />
-        </view>
-        <view>
-          <text class="stats-card__label">小微积分</text>
-          <text class="stats-card__value">{{ stats.microScore }}</text>
-        </view>
-      </view>
-    </view>
-
     <!-- 游客模式登录按钮 -->
     <view v-if="currentUser && currentUser.role === 'guest'" class="login-prompt">
       <button class="primary-btn" @click="gotoLogin">
@@ -43,10 +24,7 @@
     </view>
 
     <view class="section-header">
-      <view class="section-title">
-        <view class="title-dot" />
-        <text>积分提报</text>
-      </view>
+      <text class="section-title">积分提报</text>
       <button class="light-btn" @click="showRules = true">
         <uni-icons type="help" :size="22" color="#0f766e" />
         规则说明
@@ -54,7 +32,10 @@
     </view>
 
     <view class="category-group">
-      <text class="category-tag">个贷业务</text>
+      <view class="category-tag">
+        <view class="title-dot" />
+        个贷业务
+      </view>
       <view
         v-for="panel in personalSections"
         :key="panel.id"
@@ -87,7 +68,10 @@
     </view>
 
     <view class="category-group">
-      <text class="category-tag">小微业务</text>
+      <view class="category-tag">
+        <view class="title-dot" />
+        小微业务
+      </view>
       <view
         v-for="panel in microSections"
         :key="panel.id"
@@ -390,18 +374,15 @@ export default {
 }
 
 .section-title {
-  display: flex;
-  align-items: center;
-  gap: 12rpx;
-  font-size: 28rpx;
-  font-weight: 600;
+  font-size: 34rpx;
+  font-weight: 700;
   color: #0f172a;
   flex: 1;
 }
 
 .title-dot {
   width: 12rpx;
-  height: 36rpx;
+  height: 40rpx;
   border-radius: 999rpx;
   background: #0f766e;
 }
@@ -442,9 +423,22 @@ export default {
 }
 
 .category-tag {
-  font-size: 24rpx;
-  color: #94a3b8;
+  font-size: 28rpx;
+  color: #0f766e;
+  font-weight: 600;
   margin-left: 8rpx;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 16rpx;
+}
+
+.category-tag .title-dot {
+  width: 16rpx;
+  height: 40rpx;
+  border-radius: 999rpx;
+  background: #0f766e;
+  flex-shrink: 0;
 }
 
 .category-card {

@@ -28,13 +28,14 @@
 
     <scroll-view scroll-y class="admin-content">
       <view v-if="activeTab === 'overview'" class="tab-panel">
-        <view class="panel-header">
+        <view class="panel-header panel-header--actions">
           <text class="panel-title">业绩汇总</text>
           <input
             class="search-input"
             placeholder="搜索姓名/支行"
             v-model="searchKeyword"
           />
+          <button class="primary-btn small" @click="navigateToSubmissionFlow">查看提报流</button>
         </view>
         <text class="panel-tip">点击姓名可查看具体提报记录</text>
         <view class="table-wrapper">
@@ -59,6 +60,62 @@
               <text class="highlight">{{ row.stats.totalScore }}</text>
               <text>{{ row.stats.personalScore }}</text>
               <text>{{ row.stats.microScore }}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view v-else-if="activeTab === 'submissions'" class="tab-panel">
+        <view class="panel-header">
+          <text class="panel-title">提报记录</text>
+          <view class="filter-bar">
+            <input
+              class="search-input"
+              placeholder="搜索姓名/业务名称"
+              v-model="submissionSearch"
+            />
+            <picker mode="date" start="2024-01-01" end="2030-12-31" @change="handleStartDateChange" :value="startDate">
+              <view class="date-picker">开始日期</view>
+            </picker>
+            <picker mode="date" start="2024-01-01" end="2030-12-31" @change="handleEndDateChange" :value="endDate">
+              <view class="date-picker">结束日期</view>
+            </picker>
+            <button class="primary-btn small" @click="handleExportSubmissions">导出记录</button>
+          </view>
+        </view>
+        
+        <view class="submission-stats">
+          <text>共 {{ filteredSubmissions.length }} 条提报记录</text>
+        </view>
+        
+        <view class="submission-groups">
+          <!-- 按日期分组 -->
+          <view v-for="(dateGroup, dateKey) in groupedSubmissions" :key="dateKey" class="submission-date-group">
+            <!-- 日期标题 -->
+            <view class="submission-date-header">
+              <text class="submission-date">{{ dateKey }}</text>
+            </view>
+            
+            <!-- 该日期下的用户分组 -->
+            <view class="submission-user-groups">
+              <view v-for="(userSubmissions, employeeId) in dateGroup" :key="employeeId" class="submission-group">
+                <view class="submission-group-header">
+                  <text class="submission-group-name">{{ getEmployeeName(employeeId) }}</text>
+                  <text class="submission-group-branch">{{ getEmployeeBranch(employeeId) }}</text>
+                </view>
+                <view class="submission-list">
+                  <view v-for="sub in userSubmissions" :key="sub.id" class="submission-item">
+                    <view class="submission-item-main">
+                      <text class="submission-rule-name">{{ getRuleName(sub.ruleId) }}</text>
+                      <text class="submission-meta">{{ sub.type === 'new' ? '新增' : '存量' }} · {{ formatDate(sub.timestamp, 'datetime') }}</text>
+                    </view>
+                    <view class="submission-item-stats">
+                      <text>{{ sub.count }} 笔 / {{ sub.amount }} 万</text>
+                      <text class="highlight">{{ calculateSubmissionScore(sub) }} 分</text>
+                    </view>
+                  </view>
+                </view>
+              </view>
             </view>
           </view>
         </view>
@@ -484,11 +541,48 @@
           <view class="form-item">
             <text class="form-label">步骤3：导入数据</text>
             <button class="primary-btn" @click="handleImportData" :disabled="!selectedFileName">开始导入</button>
-            <text class="form-tip">导入前请确保数据格式正确，导入后将覆盖对应季度数据</text>
+            <text class="form-tip">导入前请确保数据格式正确，导入后将添加对应季度数据</text>
           </view>
         </view>
         <view class="modal-footer">
           <button class="ghost-btn" @click="closeImportModal">取消</button>
+        </view>
+      </view>
+    </view>
+
+    <!-- 导出选择弹窗 -->
+    <view v-if="showExportModal" class="modal-overlay">
+      <view class="modal">
+        <view class="modal-header">
+          <text>导出数据</text>
+          <view class="modal-close" @click="closeExportModal">
+            <uni-icons type="closeempty" :size="28" color="#fff" />
+          </view>
+        </view>
+        <view class="modal-body">
+          <view class="export-option">
+            <text class="export-option__title">1. 导出本季度收单通报表</text>
+            <button class="primary-btn" @click="exportQuarterReport">立即导出</button>
+            <text class="form-tip">包含本季度所有客户经理的业绩汇总数据</text>
+          </view>
+          <view class="export-divider"></view>
+          <view class="export-option">
+            <text class="export-option__title">2. 导出指定日期范围的提报记录</text>
+            <view class="date-range-picker">
+              <picker mode="date" start="2024-01-01" end="2030-12-31" @change="handleExportStartDateChange" :value="exportStartDate">
+                <view class="date-picker-btn">{{ exportStartDate || '开始日期' }}</view>
+              </picker>
+              <text class="date-separator">至</text>
+              <picker mode="date" start="2024-01-01" end="2030-12-31" @change="handleExportEndDateChange" :value="exportEndDate">
+                <view class="date-picker-btn">{{ exportEndDate || '结束日期' }}</view>
+              </picker>
+            </view>
+            <button class="primary-btn" @click="exportDateRangeSubmissions" :disabled="!exportStartDate || !exportEndDate">导出提报记录</button>
+            <text class="form-tip">导出指定日期范围内的所有提报记录，包含详细业务信息</text>
+          </view>
+        </view>
+        <view class="modal-footer">
+          <button class="ghost-btn" @click="closeExportModal">取消</button>
         </view>
       </view>
     </view>
@@ -529,6 +623,7 @@ export default {
       activeTab: 'overview',
       tabs: [
         { key: 'overview', label: '业绩汇总' },
+        { key: 'submissions', label: '提报记录' },
         { key: 'users', label: '用户管理' },
         { key: 'rules', label: '业务规则' },
         { key: 'branches', label: '支行管理' },
@@ -633,6 +728,58 @@ export default {
         acc[branch.name] = branch;
         return acc;
       }, {});
+    },
+    filteredSubmissions() {
+      let filtered = this.allSubmissions;
+      
+      // 只导出客户经理的提报记录
+      filtered = filtered.filter(sub => {
+        const employee = this.users.find(u => u.id === sub.employeeId);
+        return employee && employee.role === 'manager';
+      });
+      
+      // 搜索过滤
+      const keyword = this.submissionSearch.trim().toLowerCase();
+      if (keyword) {
+        filtered = filtered.filter(sub => {
+          const employee = this.users.find(u => u.id === sub.employeeId);
+          const rule = this.rules.find(r => r.id === sub.ruleId);
+          return (
+            (employee && employee.name.toLowerCase().includes(keyword)) ||
+            (employee && employee.branch.toLowerCase().includes(keyword)) ||
+            (rule && rule.name.toLowerCase().includes(keyword))
+          );
+        });
+      }
+      
+      // 日期范围过滤
+      if (this.startDate) {
+        const start = new Date(this.startDate).getTime();
+        filtered = filtered.filter(sub => sub.timestamp >= start);
+      }
+      if (this.endDate) {
+        const end = new Date(this.endDate).getTime() + 24 * 60 * 60 * 1000; // 包含当天结束
+        filtered = filtered.filter(sub => sub.timestamp < end);
+      }
+      
+      return filtered;
+    },
+    groupedSubmissions() {
+      const groups = {};
+      
+      // 先按日期分组
+      this.filteredSubmissions.forEach(sub => {
+        const dateKey = this.formatDate(sub.timestamp, 'date');
+        if (!groups[dateKey]) {
+          groups[dateKey] = {};
+        }
+        if (!groups[dateKey][sub.employeeId]) {
+          groups[dateKey][sub.employeeId] = [];
+        }
+        groups[dateKey][sub.employeeId].push(sub);
+      });
+      
+      return groups;
     }
   },
   data() {
@@ -697,7 +844,16 @@ export default {
       // 导入业绩相关
       showImportModal: false,
       selectedFileName: '',
-      selectedFile: null
+      selectedFile: null,
+      // 提报记录相关
+      submissionSearch: '',
+      startDate: '',
+      endDate: '',
+      allSubmissions: [],
+      // 导出弹框相关
+      showExportModal: false,
+      exportStartDate: '',
+      exportEndDate: ''
     };
   },
   async onShow() {
@@ -718,9 +874,74 @@ export default {
         this.refreshRules();
         this.settings = StoreService.getSettings();
         this.ruleDescriptionSections = StoreService.getRuleDescriptionSections();
+        this.allSubmissions = StoreService.getSubmissions();
       } catch (error) {
         uni.showToast({ title: error.message || '数据加载失败', icon: 'none' });
       }
+    },
+    handleStartDateChange(e) {
+      this.startDate = e.detail.value;
+    },
+    handleEndDateChange(e) {
+      this.endDate = e.detail.value;
+    },
+    getEmployeeName(employeeId) {
+      const user = this.users.find(u => u.id === employeeId);
+      return user ? user.name : '未知用户';
+    },
+    getEmployeeBranch(employeeId) {
+      const user = this.users.find(u => u.id === employeeId);
+      return user ? user.branch : '未知支行';
+    },
+    getRuleName(ruleId) {
+      const rule = this.rules.find(r => r.id === ruleId);
+      return rule ? rule.name : '未知业务';
+    },
+    calculateSubmissionScore(submission) {
+      const rule = this.rules.find(r => r.id === submission.ruleId);
+      if (!rule) return 0;
+      
+      const config = submission.type === 'stock' ? rule.pointsStock : rule.pointsNew;
+      const itemPoints = (config?.item || 0) * submission.count;
+      const amountPoints = (config?.million || 0) * (submission.amount / 100);
+      
+      return Math.round((itemPoints + amountPoints) * 100) / 100;
+    },
+    handleExportSubmissions() {
+      if (!this.filteredSubmissions.length) {
+        uni.showToast({ title: '暂无数据', icon: 'none' });
+        return;
+      }
+      
+      // 构建CSV内容
+      const headers = ['客户经理', '支行', '业务名称', '业务类型', '提报日期', '笔数', '金额(万)', '积分'];
+      const rows = this.filteredSubmissions.map(sub => {
+        const employee = this.users.find(u => u.id === sub.employeeId);
+        const rule = this.rules.find(r => r.id === sub.ruleId);
+        return [
+          employee?.name || '未知用户',
+          employee?.branch || '未知支行',
+          rule?.name || '未知业务',
+          sub.type === 'new' ? '新增' : '存量',
+          this.formatDate(sub.timestamp),
+          sub.count,
+          sub.amount,
+          this.calculateSubmissionScore(sub)
+        ];
+      });
+      
+      // 构建完整CSV内容
+      const bom = '\ufeff'; // UTF-8 BOM
+      const csvContent = bom + [
+        headers.join(','),
+        ...rows.map(row => row.join(','))
+      ].join('\n');
+      
+      // 生成文件名
+      const filename = `提报记录_${new Date().toISOString().slice(0, 10)}_${Date.now()}.csv`;
+      
+      // 使用现有导出功能保存文件
+      this.saveAndShareExcel(csvContent, filename, 'csv');
     },
     refreshBranches() {
       this.branches = StoreService.getBranches();
@@ -739,10 +960,22 @@ export default {
     getRank(employeeId) {
       return this.leaderboard.find(entry => entry.employeeId === employeeId)?.rank || '-';
     },
+    // 显示导出弹框
     handleExport() {
+      this.showExportModal = true;
+    },
+    // 关闭导出弹框
+    closeExportModal() {
+      this.showExportModal = false;
+      this.exportStartDate = '';
+      this.exportEndDate = '';
+    },
+    // 导出本季度收单通报表
+    exportQuarterReport() {
       if (!this.isAdmin) return;
       if (!this.overviewData.length) {
         uni.showToast({ title: '暂无数据', icon: 'none' });
+        this.closeExportModal();
         return;
       }
       
@@ -769,6 +1002,71 @@ export default {
         const filename = `收单通报_${this.currentQuarter}_${Date.now()}.xlsx`;
         this.saveAndShareExcel(html, filename);
       }
+      this.closeExportModal();
+    },
+    // 导出指定日期范围的提报记录
+    exportDateRangeSubmissions() {
+      if (!this.isAdmin) return;
+      if (!this.exportStartDate || !this.exportEndDate) {
+        uni.showToast({ title: '请选择日期范围', icon: 'none' });
+        return;
+      }
+      
+      // 过滤日期范围内的提报记录
+      const start = new Date(this.exportStartDate).getTime();
+      const end = new Date(this.exportEndDate).getTime() + 24 * 60 * 60 * 1000; // 包含当天结束
+      const filtered = this.allSubmissions.filter(sub => {
+        const subTime = new Date(sub.timestamp).getTime();
+        // 只导出客户经理的提报记录
+        const employee = this.users.find(u => u.id === sub.employeeId);
+        return subTime >= start && subTime < end && employee && employee.role === 'manager';
+      });
+      
+      if (!filtered.length) {
+        uni.showToast({ title: '该日期范围内暂无数据', icon: 'none' });
+        return;
+      }
+      
+      // 构建CSV内容
+      const headers = ['日期', '客户经理', '支行', '业务分类','业务名称', '业务类型', '笔数', '金额(万)', '积分', '提报时间']; // 根据实际需求调整表头
+      const rows = filtered.map(sub => {
+        const employee = this.users.find(u => u.id === sub.employeeId);
+        const rule = this.rules.find(r => r.id === sub.ruleId);
+        return [
+          this.formatDate(sub.timestamp, 'date'),
+          employee?.name || '未知用户',
+          employee?.branch || '未知支行',
+          rule?.category === 'personal' ? '个贷' : '小微',
+          rule?.name || '未知业务',
+          sub.type === 'new' ? '新增' : '存量',
+          sub.count,
+          sub.amount,
+          this.calculateSubmissionScore(sub),
+          this.formatDate(sub.timestamp, 'time')
+        ];
+      });
+      
+      // 构建完整CSV内容
+      const bom = '\ufeff'; // UTF-8 BOM
+      const csvContent = bom + [
+        headers.join(','),
+        ...rows.map(row => row.join(','))
+      ].join('\n');
+      
+      // 生成文件名
+      const filename = `提报记录_${this.exportStartDate}_至_${this.exportEndDate}_${Date.now()}.csv`;
+      
+      // 导出文件
+      this.saveAndShareExcel(csvContent, filename, 'csv');
+      this.closeExportModal();
+    },
+    // 处理导出开始日期变化
+    handleExportStartDateChange(e) {
+      this.exportStartDate = e.detail.value;
+    },
+    // 处理导出结束日期变化
+    handleExportEndDateChange(e) {
+      this.exportEndDate = e.detail.value;
     },
     getExportColumnTree() {
       const sumRuleMetrics = (row, ruleIds, type) => {
@@ -1275,12 +1573,21 @@ export default {
       const end = this.formatDate(endDate);
       return { start, end };
     },
-    formatDate(date) {
-      const d = typeof date === 'string' ? new Date(date) : date;
+    formatDate(date, format = 'number') {
+      const d = typeof date === 'string' ? new Date(date) : typeof date === 'number' ? new Date(date) : date;
       const year = d.getFullYear();
       const month = `${d.getMonth() + 1}`.padStart(2, '0');
       const day = `${d.getDate()}`.padStart(2, '0');
-      return `${year}${month}${day}`;
+      const hours = `${d.getHours()}`.padStart(2, '0');
+      const minutes = `${d.getMinutes()}`.padStart(2, '0');
+      
+      if (format === 'date') {
+        return `${year}-${month}-${day}`;
+      } else if (format === 'datetime') {
+        return `${year}-${month}-${day} ${hours}:${minutes}`;
+      } else {
+        return `${year}${month}${day}`;
+      }
     },
     stringToUint8Array(str) {
       if (typeof TextEncoder !== 'undefined') {
@@ -1617,15 +1924,10 @@ export default {
             // 3. 动态解析表头和数据
             const { headers, rows } = data;
             
-            // 4. 清空当前季度的所有提报记录
-            console.log('开始清空当前季度提报记录...');
-            await this.clearCurrentQuarterSubmissions();
-            console.log('当前季度提报记录清空完成');
-            
-            // 5. 动态匹配业务规则和数据列
+            // 4. 动态匹配业务规则和数据列
             const importResults = await this.processImportData(headers, rows);
             
-            // 6. 保存导入结果
+            // 5. 保存导入结果
             await this.saveImportedData(importResults);
             
             uni.showModal({
@@ -1998,16 +2300,6 @@ export default {
       });
     },
     // 保存导入的数据
-    // 清空当前季度的所有提报记录
-    async clearCurrentQuarterSubmissions() {
-      const quarter = this.currentQuarter;
-      const currentSubmissions = StoreService.getSubmissions().filter(sub => sub.quarter === quarter);
-      
-      // 逐个删除当前季度的提报记录
-      for (const submission of currentSubmissions) {
-        await StoreService.deleteSubmission(submission.id);
-      }
-    },
     
     async saveImportedData(results) {
       // 这里可以添加额外的保存逻辑，比如记录导入日志等
@@ -2023,7 +2315,12 @@ export default {
     },
     gotoUserDetails(employee) {
       uni.navigateTo({
-        url: `/pages/user-details/user-details?employeeId=${employee.id}&name=${encodeURIComponent(employee.name)}&branch=${encodeURIComponent(employee.branch)}`
+        url: `/pages/admin/user-details/user-details?employeeId=${employee.id}&name=${encodeURIComponent(employee.name)}&branch=${encodeURIComponent(employee.branch)}`
+      });
+    },
+    navigateToSubmissionFlow() {
+      uni.navigateTo({
+        url: `/pages/admin/submission-flow/submission-flow`
       });
     },
     openBranchModal(branch = null) {
@@ -2342,7 +2639,7 @@ export default {
 
 .table-row {
   display: grid;
-  grid-template-columns: 60rpx 140rpx 120rpx repeat(3, 120rpx);
+  grid-template-columns: 60rpx 120rpx 120rpx repeat(3, 120rpx);
   align-items: center;
   padding: 16rpx 12rpx;
   border-bottom: 1px solid #f1f5f9;
@@ -2414,6 +2711,15 @@ export default {
   flex-wrap: wrap;
 }
 
+.panel-header--actions {
+  flex-wrap: nowrap;
+}
+
+.panel-header--actions .search-input {
+  flex: 1;
+  margin-right: 12rpx;
+}
+
 .search-input {
   flex: 1;
   min-width: 200rpx;
@@ -2429,38 +2735,166 @@ export default {
   margin-left: auto;
 }
 
+.header-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  flex: 1;
+}
+
+.header-actions-row .search-input {
+  flex: 1;
+}
+
 .panel-actions .primary-btn,
 .panel-actions .ghost-btn {
   margin-left: 0;
 }
 
-.user-card {
+/* 提报记录样式 */
+.submission-groups {
   background: #fff;
   border-radius: 24rpx;
-  padding: 24rpx;
+  padding: 16rpx;
+}
+
+.submission-date-group {
+  margin-bottom: 32rpx;
+}
+
+.submission-date-header {
   margin-bottom: 16rpx;
+  padding-bottom: 12rpx;
+  border-bottom: 2rpx solid #f1f5f9;
+}
+
+.submission-date {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.submission-user-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.submission-group {
+  background: #f8fafc;
+  border-radius: 16rpx;
+  padding: 16rpx;
+}
+
+.submission-group-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 12rpx;
+}
+
+.submission-group-name {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.submission-group-branch {
+  font-size: 22rpx;
+  color: #94a3b8;
+}
+
+.submission-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.submission-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16rpx;
+  background: #fff;
+  border-radius: 12rpx;
+}
+
+.submission-item-main {
+  flex: 1;
+}
+
+.submission-rule-name {
+  display: block;
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 4rpx;
+}
+
+.submission-meta {
+  display: block;
+  font-size: 20rpx;
+  color: #94a3b8;
+}
+
+.submission-item-stats {
+  text-align: right;
+}
+
+.submission-item-stats text {
+  display: block;
+  font-size: 22rpx;
+  color: #475569;
+}
+
+.submission-item-stats .highlight {
+  font-size: 24rpx;
+}
+
+.user-card {
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 28rpx;
+  margin-bottom: 24rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
 }
 
 .user-name {
-  font-size: 30rpx;
+  font-size: 32rpx;
   font-weight: 600;
   color: #0f172a;
+  display: block;
+  margin-bottom: 10rpx;
 }
 
 .user-branch,
 .user-meta {
   display: block;
   font-size: 24rpx;
-  color: #94a3b8;
+  color: #64748b;
+  margin-bottom: 8rpx;
+  line-height: 1.4;
+}
+
+.user-meta {
+  margin-bottom: 0;
 }
 
 .user-actions {
   display: flex;
-  flex-direction: column;
-  gap: 8rpx;
+  flex-direction: row;
+  gap: 16rpx;
+  margin-left: 24rpx;
+  align-items: flex-start;
+}
+
+.user-actions .link-btn {
+  padding: 12rpx 20rpx;
+  font-size: 22rpx;
+  border-radius: 12rpx;
+  white-space: nowrap;
 }
 
 .branch-form {
@@ -2551,6 +2985,7 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 12rpx;
+  background-color: #f8fafc;
 }
 
 .rule-card--empty {
@@ -2615,6 +3050,8 @@ export default {
 .switch-tip {
   font-size: 22rpx;
   color: #94a3b8;
+  display: block;
+  margin-top: 4rpx;
 }
 
 .form-item {
@@ -2943,6 +3380,50 @@ export default {
   padding: 24rpx;
   display: flex;
   gap: 16rpx;
+}
+/* 导出弹框样式 */
+.export-option {
+  margin-bottom: 24rpx;
+}
+
+.export-option__title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 16rpx;
+  display: block;
+}
+
+.export-divider {
+  height: 2rpx;
+  background: linear-gradient(to right, transparent, #cbd5e1, transparent);
+  margin: 24rpx 0;
+}
+
+.date-range-picker {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 16rpx;
+}
+
+.date-picker-btn {
+  flex: 1;
+  height: 72rpx;
+  line-height: 72rpx;
+  background: #f8fafc;
+  border-radius: 18rpx;
+  font-size: 26rpx;
+  color: #0f172a;
+  text-align: center;
+  min-width: 150rpx;
+  box-sizing: border-box;
+}
+
+.date-separator {
+  font-size: 26rpx;
+  color: #94a3b8;
+  margin: 0 8rpx;
 }
 </style>
 
