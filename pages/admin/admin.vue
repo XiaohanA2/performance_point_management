@@ -10,7 +10,7 @@
         <button class="action-chip" @click="handleExport">导出 Excel</button>
         <button class="action-chip" @click="handleImportTemplate">导入业绩</button>
         <button class="action-chip danger" @click="handleReset">清空本季度</button>
-        <button class="action-chip" @click="handleLogout">退出登录</button>
+        <button class="action-chip primary" @click="navigateToSubmissionFlow">查看提报流</button>
       </view>
     </view>
 
@@ -29,13 +29,17 @@
     <scroll-view scroll-y class="admin-content">
       <view v-if="activeTab === 'overview'" class="tab-panel">
         <view class="panel-header panel-header--actions">
-          <text class="panel-title">业绩汇总</text>
+          <div class="title-with-quarter">
+            <text class="panel-title">业绩汇总</text>
+            <picker :range="quarterOptions" :value="quarterOptions.indexOf(selectedQuarter)" @change="handleOverviewQuarterChange" class="quarter-picker">
+              <view class="picker-value">{{ selectedQuarter }}</view>
+            </picker>
+          </div>
           <input
             class="search-input"
             placeholder="搜索姓名/支行"
             v-model="searchKeyword"
           />
-          <button class="primary-btn small" @click="navigateToSubmissionFlow">查看提报流</button>
         </view>
         <text class="panel-tip">点击姓名可查看具体提报记录</text>
         <view class="table-wrapper">
@@ -45,6 +49,7 @@
               <text>姓名</text>
               <text>支行</text>
               <text>总分</text>
+              <text>奖励金额(元)</text>
               <text>个贷</text>
               <text>小微</text>
             </view>
@@ -58,6 +63,9 @@
               <text class="employee-name">{{ row.employee.name }}</text>
               <text class="branch-name">{{ formatBranchName(row.employee.branch) }}</text>
               <text class="highlight">{{ row.stats.totalScore }}</text>
+              <text :class="{ 'highlight': row.stats.bonusAmount > 0, 'danger': row.stats.bonusAmount < 0 }">
+                {{ row.stats.bonusAmount >= 0 ? '+' : '' }}{{ row.stats.bonusAmount }}
+              </text>
               <text>{{ row.stats.personalScore }}</text>
               <text>{{ row.stats.microScore }}</text>
             </view>
@@ -65,61 +73,6 @@
         </view>
       </view>
 
-      <view v-else-if="activeTab === 'submissions'" class="tab-panel">
-        <view class="panel-header">
-          <text class="panel-title">提报记录</text>
-          <view class="filter-bar">
-            <input
-              class="search-input"
-              placeholder="搜索姓名/业务名称"
-              v-model="submissionSearch"
-            />
-            <picker mode="date" start="2024-01-01" end="2030-12-31" @change="handleStartDateChange" :value="startDate">
-              <view class="date-picker">开始日期</view>
-            </picker>
-            <picker mode="date" start="2024-01-01" end="2030-12-31" @change="handleEndDateChange" :value="endDate">
-              <view class="date-picker">结束日期</view>
-            </picker>
-            <button class="primary-btn small" @click="handleExportSubmissions">导出记录</button>
-          </view>
-        </view>
-        
-        <view class="submission-stats">
-          <text>共 {{ filteredSubmissions.length }} 条提报记录</text>
-        </view>
-        
-        <view class="submission-groups">
-          <!-- 按日期分组 -->
-          <view v-for="(dateGroup, dateKey) in groupedSubmissions" :key="dateKey" class="submission-date-group">
-            <!-- 日期标题 -->
-            <view class="submission-date-header">
-              <text class="submission-date">{{ dateKey }}</text>
-            </view>
-            
-            <!-- 该日期下的用户分组 -->
-            <view class="submission-user-groups">
-              <view v-for="(userSubmissions, employeeId) in dateGroup" :key="employeeId" class="submission-group">
-                <view class="submission-group-header">
-                  <text class="submission-group-name">{{ getEmployeeName(employeeId) }}</text>
-                  <text class="submission-group-branch">{{ getEmployeeBranch(employeeId) }}</text>
-                </view>
-                <view class="submission-list">
-                  <view v-for="sub in userSubmissions" :key="sub.id" class="submission-item">
-                    <view class="submission-item-main">
-                      <text class="submission-rule-name">{{ getRuleName(sub.ruleId) }}</text>
-                      <text class="submission-meta">{{ sub.type === 'new' ? '新增' : '存量' }} · {{ formatDate(sub.timestamp, 'datetime') }}</text>
-                    </view>
-                    <view class="submission-item-stats">
-                      <text>{{ sub.count }} 笔 / {{ sub.amount }} 万</text>
-                      <text class="highlight">{{ calculateSubmissionScore(sub) }} 分</text>
-                    </view>
-                  </view>
-                </view>
-              </view>
-            </view>
-          </view>
-        </view>
-      </view>
 
       <view v-else-if="activeTab === 'users'" class="tab-panel">
       <view class="panel-header panel-header--user">
@@ -131,6 +84,7 @@
         />
         <button class="primary-btn small" @click="openUserModal()">新增用户</button>
       </view>
+      <text class="panel-tip">提示：停用的客户经理将不会进行业务统计</text>
       <view class="user-card" v-for="user in filteredUsers" :key="user.id">
         <view>
           <text class="user-name">{{ user.name }}</text>
@@ -149,13 +103,28 @@
 
       <view v-else-if="activeTab === 'rules'" class="tab-panel">
       <view class="panel-header">
-        <text class="panel-title">业务与积分规则</text>
+        <view class="rule-tabs">
+          <view 
+            class="rule-tab" 
+            :class="{ active: ruleTabType === 'business' }" 
+            @click="ruleTabType = 'business'"
+          >
+            积分规则
+          </view>
+          <view 
+            class="rule-tab" 
+            :class="{ active: ruleTabType === 'bonus' }" 
+            @click="ruleTabType = 'bonus'"
+          >
+            奖励规则
+          </view>
+        </view>
         <view class="panel-actions">
           <button class="ghost-btn small" @click="openRuleDescriptionModal">编辑说明</button>
           <button class="primary-btn small" @click="openRuleModal()">新增业务</button>
         </view>
       </view>
-      <view class="rule-groups">
+      <view v-if="ruleTabType === 'business'" class="rule-groups">
         <view class="rule-section" v-for="section in ruleSections" :key="section.key">
           <view class="rule-section__header">
             <text class="rule-section__title">{{ section.title }}</text>
@@ -165,6 +134,7 @@
             v-for="rule in section.rules"
             :key="rule.id"
             class="rule-card"
+            :class="{ 'rule-card--hidden': rule.hidden }"
           >
             <view class="rule-card__main">
               <view class="rule-card__icon" :style="{ backgroundColor: rule.color }">
@@ -172,6 +142,7 @@
               </view>
               <view>
                 <text class="rule-card__title">{{ rule.name }}</text>
+                <text v-if="rule.hidden" class="hidden-badge">隐藏</text>
                 <text> </text>
                 <text class="rule-card__meta">&nbsp;&nbsp;
                   {{ rule.hasStockOption ? '新增 + ' + (rule.stockLabel || '存量') : '新增' }}
@@ -186,11 +157,115 @@
             </view>
             <view class="rule-card__actions">
               <button class="link-btn" @click="openRuleModal(rule)">编辑</button>
+              <button class="link-btn" :class="{ active: !rule.hidden }" @click="toggleRuleHidden(rule)">
+                {{ rule.hidden ? '显示' : '隐藏' }}
+              </button>
               <button class="link-btn danger" @click="deleteRule(rule)">删除</button>
             </view>
           </view>
           <view v-if="section.rules.length === 0" class="rule-card rule-card--empty">
             <text>暂无规则，点击右上角新增</text>
+          </view>
+        </view>
+      </view>
+      
+      <view v-else class="panel">
+        <text class="panel-title">奖励规则配置</text>
+        <view class="panel-body">
+          <text class="form-tip">设置积分对应的奖励金额计算规则</text>
+          
+          <view class="form-item">
+            <text class="form-label">选择季度</text>
+            <picker :range="quarterOptions" :value="quarterOptions.indexOf(selectedBonusQuarter)" @change="handleBonusQuarterChange">
+              <view class="form-input">
+                <text>{{ selectedBonusQuarter }}</text>
+              </view>
+            </picker>
+          </view>
+          
+          <view class="form-item">
+            <text class="form-label">奖励门槛</text>
+            <input 
+              class="form-input" 
+              type="digit" 
+              v-model="currentBonusRules.threshold" 
+              placeholder="输入积分门槛，低于此积分无奖励" 
+            />
+            <text class="form-tip">积分低于此值无奖励，默认30分</text>
+          </view>
+          
+          <view class="form-item">
+            <text class="form-label">基础奖励率</text>
+            <input 
+              class="form-input" 
+              type="digit" 
+              v-model="currentBonusRules.baseRate" 
+              placeholder="输入基础奖励率，单位：元/分" 
+            />
+            <text class="form-tip">积分在高分阈值以下的奖励率，默认35元/分</text>
+          </view>
+          
+          <view class="form-item">
+            <text class="form-label">高分阈值</text>
+            <input 
+              class="form-input" 
+              type="digit" 
+              v-model="currentBonusRules.highScoreThreshold" 
+              placeholder="输入高分阈值" 
+            />
+            <text class="form-tip">超过此积分按高分奖励率计算，默认100分</text>
+          </view>
+          
+          <view class="form-item">
+            <text class="form-label">高分奖励率</text>
+            <input 
+              class="form-input" 
+              type="digit" 
+              v-model="currentBonusRules.highScoreRate" 
+              placeholder="输入高分奖励率，单位：元/分" 
+            />
+            <text class="form-tip">积分超过高分阈值后的奖励率，默认45元/分</text>
+          </view>
+          
+          <view class="form-item">
+            <text class="form-label">扣钱方式</text>
+            <view class="segment">
+              <view
+                v-for="option in penaltyTypeOptions"
+                :key="option.value"
+                class="segment__item"
+                :class="{ active: currentBonusRules.penaltyType === option.value }"
+                @click="currentBonusRules.penaltyType = option.value"
+              >
+                {{ option.label }}
+              </view>
+            </view>
+          </view>
+          
+          <view class="form-item" v-if="currentBonusRules.penaltyType === 'rate'">
+            <text class="form-label">扣钱率</text>
+            <input 
+              class="form-input" 
+              type="digit" 
+              v-model="currentBonusRules.penaltyRate" 
+              placeholder="输入扣钱率，单位：元/分" 
+            />
+            <text class="form-tip">积分低于门槛时，每分扣钱金额，默认0元/分</text>
+          </view>
+          
+          <view class="form-item" v-else>
+            <text class="form-label">固定扣钱金额</text>
+            <input 
+              class="form-input" 
+              type="digit" 
+              v-model="currentBonusRules.fixedPenalty" 
+              placeholder="输入固定扣钱金额，单位：元" 
+            />
+            <text class="form-tip">积分低于门槛时，固定扣钱金额，默认2000元</text>
+          </view>
+          
+          <view class="button-row">
+            <button class="primary-btn" @click="saveBonusRules">保存奖励规则</button>
           </view>
         </view>
       </view>
@@ -217,29 +292,12 @@
       <view v-else class="tab-panel">
       <view class="panel-group">
         <view class="panel">
-          <text class="panel-title">季度管理</text>
-          <view class="panel-body">
-            <view class="form-item">
-            <text class="form-label">当前季度</text>
-              <picker :range="quarterOptions" :value="quarterOptions.indexOf(selectedQuarter)" @change="handleQuarterPicker">
-                <view class="picker-value">{{ selectedQuarter }}</view>
-              </picker>
-            </view>
-            <text class="form-tip">可选择保留数据（仅用于查询）或直接清空当前积分。</text>
-            <view class="button-row">
-              <button class="ghost-btn" @click="handleSwitchQuarter(false)">保留后切换</button>
-              <button class="danger-btn" @click="handleSwitchQuarter(true)">清空后切换</button>
-            </view>
-          </view>
-        </view>
-
-        <view class="panel">
           <text class="panel-title">系统参数</text>
           <view class="panel-body">
             <view class="switch-row">
               <view>
                 <text class="switch-label">允许用户修改/删除提报</text>
-                <text class="switch-tip">可限制24小时内可修改</text>
+                <text class="switch-tip">非管理员用户超过24小时不可修改</text>
               </view>
               <switch :checked="settings.allowEditSubmission" @change="updateSetting('allowEditSubmission', $event.detail.value)" />
             </view>
@@ -561,9 +619,15 @@
         </view>
         <view class="modal-body">
           <view class="export-option">
-            <text class="export-option__title">1. 导出本季度收单通报表</text>
+            <text class="export-option__title">1. 导出收单通报表</text>
+            <view class="form-item">
+              <text class="form-label">选择季度</text>
+              <picker :range="quarterOptions" :value="quarterOptions.indexOf(exportSelectedQuarter)" @change="handleExportQuarterChange">
+                <view class="date-picker-btn">{{ exportSelectedQuarter }}</view>
+              </picker>
+            </view>
             <button class="primary-btn" @click="exportQuarterReport">立即导出</button>
-            <text class="form-tip">包含本季度所有客户经理的业绩汇总数据</text>
+            <text class="form-tip">包含选定季度所有客户经理的业绩汇总数据</text>
           </view>
           <view class="export-divider"></view>
           <view class="export-option">
@@ -587,7 +651,60 @@
       </view>
     </view>
   </view>
-</template>
+  </template>
+
+<style scoped>
+  /* 季度选择样式 */
+  .title-with-quarter {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  .quarter-picker {
+    margin-right: 10px;
+  }
+  .picker-value {
+    padding: 8px 16px;
+    background-color: #ecfdf5;
+    border: 2px solid rgba(15, 118, 110, 0.2);
+    border-radius: 20rpx;
+    font-size: 28rpx;
+    color: #0f766e;
+    font-weight: 500;
+    box-shadow: 0 2rpx 8rpx rgba(15, 118, 110, 0.1);
+    transition: all 0.3s ease;
+  }
+  .picker-value:active {
+    background-color: #d1fae5;
+    transform: scale(0.98);
+  }
+  /* 奖励规则季度选择器样式 */
+  .form-item picker .form-input {
+    height: auto;
+    padding: 16rpx 20rpx;
+    line-height: 1.5;
+  }
+  /* 绿色按钮样式 */
+  .action-chip.primary {
+    background-color: #0f766e;
+    color: white;
+  }
+  /* 隐藏业务卡片样式 */
+  .rule-card--hidden {
+    opacity: 0.7;
+    border-left: 4px solid #94a3b8;
+  }
+  /* 隐藏徽章样式 */
+  .hidden-badge {
+    display: inline-block;
+    background-color: #94a3b8;
+    color: white;
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-left: 8px;
+  }
+</style>
 
 <script>
 import { StoreService } from '../../services/store.js';
@@ -612,7 +729,8 @@ const ruleFormDefaults = () => ({
   pointsNewItem: 0,
   pointsNewMillion: 0,
   pointsStockItem: 0,
-  pointsStockMillion: 0
+  pointsStockMillion: 0,
+  hidden: false
 });
 
 export default {
@@ -623,11 +741,10 @@ export default {
       activeTab: 'overview',
       tabs: [
         { key: 'overview', label: '业绩汇总' },
-        { key: 'submissions', label: '提报记录' },
         { key: 'users', label: '用户管理' },
         { key: 'rules', label: '业务规则' },
         { key: 'branches', label: '支行管理' },
-        { key: 'settings', label: '季度管理' }
+        { key: 'settings', label: '系统设置' }
       ],
       searchKeyword: '',
       overviewData: [],
@@ -638,6 +755,7 @@ export default {
       ruleDescriptionSections: StoreService.getRuleDescriptionSections(),
       currentQuarter: StoreService.getCurrentQuarter(),
       selectedQuarter: StoreService.getCurrentQuarter(),
+      exportSelectedQuarter: StoreService.getCurrentQuarter(),
       quarterOptions: ['2025Q4', '2026Q1', '2026Q2', '2026Q3', '2026Q4', '2027Q1', '2027Q2', '2027Q3', '2027Q4', '2028Q1', '2028Q2', '2028Q3', '2028Q4'],
       settings: StoreService.getSettings(),
       showUserModal: false,
@@ -676,7 +794,41 @@ export default {
           { value: 'credit', label: '信用类' },
           { value: 'offline', label: '线下特色' }
         ]
-      }
+      },
+      // 导入业绩相关
+      showImportModal: false,
+      selectedFileName: '',
+      selectedFile: null,
+      // 提报记录相关
+      submissionSearch: '',
+      startDate: '',
+      endDate: '',
+      allSubmissions: [],
+      // 导出弹框相关
+      showExportModal: false,
+      exportStartDate: '',
+      exportEndDate: '',
+      // 奖励规则配置
+      bonusRules: {},
+      // 当前选择的奖励规则季度
+      selectedBonusQuarter: StoreService.getCurrentQuarter(),
+      // 当前季度的奖励规则
+      currentBonusRules: {
+        threshold: 30,
+        baseRate: 35,
+        highScoreThreshold: 100,
+        highScoreRate: 45,
+        penaltyType: 'rate',
+        penaltyRate: 0,
+        fixedPenalty: 2000
+      },
+      // 规则标签类型：business - 业务规则，bonus - 奖励规则
+      ruleTabType: 'business',
+      // 扣钱方式选项
+      penaltyTypeOptions: [
+        { value: 'rate', label: '按扣钱率' },
+        { value: 'fixed', label: '按固定金额' }
+      ]
     };
   },
   computed: {
@@ -685,13 +837,19 @@ export default {
     },
     filteredUsers() {
       const keyword = this.userSearch.trim().toLowerCase();
-      if (!keyword) return this.users;
-      return this.users.filter(
-        user =>
-          user.name.toLowerCase().includes(keyword) ||
-          user.phone.includes(keyword) ||
-          user.branch.toLowerCase().includes(keyword)
-      );
+      let filtered = this.users;
+      
+      // 搜索过滤
+      if (keyword) {
+        filtered = filtered.filter(
+          user =>
+            user.name.toLowerCase().includes(keyword) ||
+            user.phone.includes(keyword) ||
+            user.branch.toLowerCase().includes(keyword)
+        );
+      }
+      
+      return filtered;
     },
     filteredOverviewData() {
       const keyword = this.searchKeyword.trim().toLowerCase();
@@ -782,80 +940,7 @@ export default {
       return groups;
     }
   },
-  data() {
-    return {
-      currentUser: StoreService.getCurrentUser(),
-      activeTab: 'overview',
-      tabs: [
-        { key: 'overview', label: '业绩汇总' },
-        { key: 'users', label: '用户管理' },
-        { key: 'rules', label: '业务规则' },
-        { key: 'branches', label: '支行管理' },
-        { key: 'settings', label: '季度管理' }
-      ],
-      searchKeyword: '',
-      overviewData: [],
-      leaderboard: [],
-      users: [],
-      branches: StoreService.getBranches(),
-      rules: StoreService.getRules(),
-      ruleDescriptionSections: StoreService.getRuleDescriptionSections(),
-      currentQuarter: StoreService.getCurrentQuarter(),
-      selectedQuarter: StoreService.getCurrentQuarter(),
-      quarterOptions: ['2025Q4', '2026Q1', '2026Q2', '2026Q3', '2026Q4', '2027Q1', '2027Q2', '2027Q3', '2027Q4', '2028Q1', '2028Q2', '2028Q3', '2028Q4'],
-      settings: StoreService.getSettings(),
-      showUserModal: false,
-      showRuleModal: false,
-      showRuleDescriptionModal: false,
-      editingUser: null,
-      editingRule: null,
-      userForm: {
-        name: '',
-        phone: '',
-        branch: '',
-        role: 'manager'
-      },
-      roleOptions: ['客户经理', '管理员'],
-      branchIndex: 0,
-      roleIndex: 0,
-      userSearch: '',
-      branchForm: { id: '', name: '' },
-      editingBranch: null,
-      showBranchModal: false,
-      ruleForm: ruleFormDefaults(),
-      ruleDescriptionForm: [],
-      iconOptions: ['home', 'cart', 'wallet', 'shop', 'flag', 'redo', 'gear', 'compose', 'star'],
-      colorOptions: ['#0f766e', '#2563eb', '#db2777', '#f97316', '#0ea5e9', '#8b5cf6', '#14b8a6', '#f43f5e'],
-      ruleCategoryOptions: [
-        { value: 'personal', label: '个贷业务' },
-        { value: 'micro', label: '小微业务' }
-      ],
-      ruleGroupOptions: {
-        personal: [
-          { value: 'mortgage', label: '抵押类' },
-          { value: 'credit', label: '信用类' }
-        ],
-        micro: [
-          { value: 'mortgage', label: '抵押类' },
-          { value: 'credit', label: '信用类' },
-          { value: 'offline', label: '线下特色' }
-        ]
-      },
-      // 导入业绩相关
-      showImportModal: false,
-      selectedFileName: '',
-      selectedFile: null,
-      // 提报记录相关
-      submissionSearch: '',
-      startDate: '',
-      endDate: '',
-      allSubmissions: [],
-      // 导出弹框相关
-      showExportModal: false,
-      exportStartDate: '',
-      exportEndDate: ''
-    };
-  },
+ 
   async onShow() {
     await this.refresh();
   },
@@ -866,8 +951,14 @@ export default {
         this.currentUser = StoreService.getCurrentUser();
         if (!this.isAdmin) return;
         this.currentQuarter = StoreService.getCurrentQuarter();
-        this.selectedQuarter = this.currentQuarter;
-        this.overviewData = StoreService.getOverviewTable();
+        // 只在第一次加载或没有选择季度时才设置为当前季度
+        if (!this.selectedQuarter) {
+          this.selectedQuarter = this.currentQuarter;
+        }
+        // 更新奖励规则季度选择为当前季度
+        this.selectedBonusQuarter = this.currentQuarter;
+        // 传递选中的季度到getOverviewTable方法
+        this.overviewData = StoreService.getOverviewTable(this.selectedQuarter);
         this.leaderboard = StoreService.getLeaderboard();
         this.users = StoreService.getUsers();
         this.refreshBranches();
@@ -875,8 +966,79 @@ export default {
         this.settings = StoreService.getSettings();
         this.ruleDescriptionSections = StoreService.getRuleDescriptionSections();
         this.allSubmissions = StoreService.getSubmissions();
+        // 初始化奖励规则配置，支持多季度
+        this.bonusRules = this.settings.bonusRules || {};
+        // 加载当前季度的奖励规则
+        this.loadCurrentBonusRules();
       } catch (error) {
         uni.showToast({ title: error.message || '数据加载失败', icon: 'none' });
+      }
+    },
+    // 保存奖励规则
+    // 加载当前季度的奖励规则
+    loadCurrentBonusRules() {
+      // 从settings中获取所有季度的奖励规则
+      const allBonusRules = this.settings.bonusRules || {};
+      // 获取当前选择季度的奖励规则，如果没有则使用默认值
+      const rawRules = allBonusRules[this.selectedBonusQuarter] || {
+        threshold: 30,
+        baseRate: 35,
+        highScoreThreshold: 100,
+        highScoreRate: 45,
+        penaltyRate: 0
+      };
+      // 确保规则中包含penaltyType和fixedPenalty字段
+      this.currentBonusRules = {
+        ...rawRules,
+        penaltyType: rawRules.penaltyType || 'rate',
+        fixedPenalty: rawRules.fixedPenalty || 2000
+      };
+    },
+    
+    // 处理奖励规则季度选择变化
+    handleBonusQuarterChange(e) {
+      const index = e.detail.value;
+      this.selectedBonusQuarter = this.quarterOptions[index];
+      // 加载选中季度的奖励规则
+      this.loadCurrentBonusRules();
+    },
+    // 处理业绩汇总季度选择变化
+    handleOverviewQuarterChange(e) {
+      this.selectedQuarter = this.quarterOptions[e.detail.value];
+      // 重新加载数据以反映选定季度
+      this.refresh();
+    },
+    
+    async saveBonusRules() {
+      try {
+        // 验证输入
+        if (this.currentBonusRules.threshold < 0 || this.currentBonusRules.baseRate < 0 || 
+            this.currentBonusRules.highScoreThreshold < 0 || this.currentBonusRules.highScoreRate < 0 || 
+            this.currentBonusRules.penaltyRate < 0 || this.currentBonusRules.fixedPenalty < 0) {
+          uni.showToast({ title: '奖励规则参数不能为负数', icon: 'none' });
+          return;
+        }
+        
+        if (this.currentBonusRules.threshold >= this.currentBonusRules.highScoreThreshold) {
+          uni.showToast({ title: '奖励门槛必须小于高分阈值', icon: 'none' });
+          return;
+        }
+        
+        // 获取所有季度的奖励规则
+        const allBonusRules = this.settings.bonusRules || {};
+        // 更新当前季度的奖励规则
+        const updatedRules = {
+          ...allBonusRules,
+          [this.selectedBonusQuarter]: this.currentBonusRules
+        };
+        
+        // 保存到settings
+        await StoreService.updateSettings({ bonusRules: updatedRules });
+        // 重新获取设置
+        this.settings = StoreService.getSettings();
+        uni.showToast({ title: '保存成功', icon: 'success' });
+      } catch (error) {
+        uni.showToast({ title: error.message || '保存失败', icon: 'none' });
       }
     },
     handleStartDateChange(e) {
@@ -970,38 +1132,52 @@ export default {
       this.exportStartDate = '';
       this.exportEndDate = '';
     },
-    // 导出本季度收单通报表
+    // 处理导出季度选择变化
+    handleExportQuarterChange(e) {
+      this.exportSelectedQuarter = this.quarterOptions[e.detail.value];
+    },
+    // 导出选定季度收单通报表
     exportQuarterReport() {
       if (!this.isAdmin) return;
-      if (!this.overviewData.length) {
-        uni.showToast({ title: '暂无数据', icon: 'none' });
-        this.closeExportModal();
+      
+      // 根据选择的导出季度重新计算数据
+      const exportData = StoreService.getOverviewTable(this.exportSelectedQuarter);
+      if (!exportData.length) {
+        uni.showToast({ title: '该季度暂无数据', icon: 'none' });
         return;
       }
+      
+      // 临时保存当前overviewData
+      const originalOverviewData = this.overviewData;
+      // 使用导出季度的数据
+      this.overviewData = exportData;
       
       const isWeChat = typeof wx !== 'undefined' && !!wx.getFileSystemManager;
       if (isWeChat) {
         // 微信环境使用CSV格式，更可靠
         const csv = this.buildExportCsv();
-        const filename = `收单通报_${this.currentQuarter}_${Date.now()}.csv`;
+        const filename = `收单通报_${this.exportSelectedQuarter}_${Date.now()}.csv`;
         this.saveAndShareExcel(csv, filename, 'csv');
       } else {
         // Web环境保持原有XML格式
         const columnTree = this.getExportColumnTree();
         const leafColumns = this.collectLeafColumns(columnTree);
         const headerRows = this.buildHeaderRows(columnTree);
-        const { start, end } = this.getQuarterDateRange(this.currentQuarter);
+        const { start, end } = this.getQuarterDateRange(this.exportSelectedQuarter);
         const dateRangeText = `${start} - ${end}`;
-        const title = `${this.currentQuarter}个人贷款收单通报`;
+        const title = `${this.exportSelectedQuarter}个人贷款收单通报`;
         const html = this.buildExportHtml({
           title,
           dateRangeText,
           headerRows,
           leafColumns
         });
-        const filename = `收单通报_${this.currentQuarter}_${Date.now()}.xlsx`;
+        const filename = `收单通报_${this.exportSelectedQuarter}_${Date.now()}.xlsx`;
         this.saveAndShareExcel(html, filename);
       }
+      
+      // 恢复原始overviewData
+      this.overviewData = originalOverviewData;
       this.closeExportModal();
     },
     // 导出指定日期范围的提报记录
@@ -1017,9 +1193,9 @@ export default {
       const end = new Date(this.exportEndDate).getTime() + 24 * 60 * 60 * 1000; // 包含当天结束
       const filtered = this.allSubmissions.filter(sub => {
         const subTime = new Date(sub.timestamp).getTime();
-        // 只导出客户经理的提报记录
+        // 只导出活跃客户经理的提报记录
         const employee = this.users.find(u => u.id === sub.employeeId);
-        return subTime >= start && subTime < end && employee && employee.role === 'manager';
+        return subTime >= start && subTime < end && employee && employee.role === 'manager' && employee.status === 'active';
       });
       
       if (!filtered.length) {
@@ -1103,6 +1279,22 @@ export default {
         ]
       });
 
+      // 获取未隐藏的活跃规则
+      const activeRules = this.rules.filter(rule => !rule.hidden);
+      
+      // 按分类和分组组织规则
+      const ruleMap = {
+        personal: {
+          mortgage: activeRules.filter(r => r.category === 'personal' && r.group === 'mortgage'),
+          credit: activeRules.filter(r => r.category === 'personal' && r.group === 'credit')
+        },
+        micro: {
+          mortgage: activeRules.filter(r => r.category === 'micro' && r.group === 'mortgage'),
+          credit: activeRules.filter(r => r.category === 'micro' && r.group === 'credit'),
+          offline: activeRules.filter(r => r.category === 'micro' && r.group === 'offline')
+        }
+      };
+
       return [
         {
           label: '基础信息',
@@ -1110,7 +1302,9 @@ export default {
             { label: '网点编号', getter: row => this.getBranchIdByName(row.employee.branch) },
             { label: '网点', getter: row => row.employee.branch },
             { label: '客户经理', getter: row => row.employee.name },
-            { label: '排名', getter: row => this.getRank(row.employee.id) }
+            { label: '排名', getter: row => this.getRank(row.employee.id) },
+            { label: '总分', getter: row => row.stats.totalScore },
+            { label: '奖励金额', getter: row => row.stats.bonusAmount }
           ]
         },
         {
@@ -1123,69 +1317,51 @@ export default {
         {
           label: '个贷',
           children: [
-            {
-              label: '农户抵押类完成数',
+            // 抵押类
+            ...(ruleMap.personal.mortgage.length > 0 ? [{
+              label: '抵押类完成数',
               children: [
-                createRuleSegment('新增', ['p_agri_mortgage'], 'new', 'personal'),
-                createRuleSegment('存量', ['p_agri_mortgage'], 'stock', 'personal')
+                createRuleSegment('新增', ruleMap.personal.mortgage.map(r => r.id), 'new', 'personal'),
+                createRuleSegment('存量', ruleMap.personal.mortgage.map(r => r.id), 'stock', 'personal')
               ]
-            },
-            {
-              label: '经营抵押类完成数',
+            }] : []),
+            // 信用类
+            ...ruleMap.personal.credit.map(rule => ({
+              label: rule.name,
               children: [
-                createRuleSegment('新增', ['p_biz_mortgage'], 'new', 'personal'),
-                createRuleSegment('存量', ['p_biz_mortgage'], 'stock', 'personal')
+                createRuleMetric('笔数', [rule.id], 'new', 'count'),
+                createRuleMetric('授信金额', [rule.id], 'new', 'amount')
               ]
-            },
-            {
-              label: '商户e贷',
-              children: [
-                createRuleMetric('笔数', ['p_merchant_e'], 'new', 'count'),
-                createRuleMetric('授信金额', ['p_merchant_e'], 'new', 'amount')
-              ]
-            },
-            {
-              label: '消费贷',
-              children: [
-                createRuleMetric('笔数', ['p_consumer'], 'new', 'count'),
-                createRuleMetric('授信金额', ['p_consumer'], 'new', 'amount')
-              ]
-            },
-            {
-              label: '快农贷',
-              children: [
-                createRuleMetric('笔数', ['p_fast_agri'], 'new', 'count'),
-                createRuleMetric('授信金额', ['p_fast_agri'], 'new', 'amount')
-              ]
-            }
+            }))
           ]
         },
         {
           label: '小微',
           children: [
-            {
+            // 抵押类
+            ...(ruleMap.micro.mortgage.length > 0 ? [{
               label: '抵押类完成数',
               children: [
-                createRuleSegment('新增', ['m_mortgage'], 'new', 'micro'),
-                createRuleSegment('转贷', ['m_mortgage'], 'stock', 'micro')
+                createRuleSegment('新增', ruleMap.micro.mortgage.map(r => r.id), 'new', 'micro'),
+                createRuleSegment('转贷', ruleMap.micro.mortgage.map(r => r.id), 'stock', 'micro')
               ]
-            },
-            {
-              label: '信用类完成数',
+            }] : []),
+            // 信用类
+            ...ruleMap.micro.credit.map(rule => ({
+              label: rule.name,
               children: [
-                createRuleSegment('转贷', ['m_credit_transfer'], 'new', 'micro'),
-                createRuleSegment('微捷贷', ['m_micro_quick'], 'new', 'micro'),
-                createRuleSegment('闽e贷', ['m_min_e'], 'new', 'micro')
+                createRuleMetric('笔数', [rule.id], 'new', 'count'),
+                createRuleMetric('授信金额', [rule.id], 'new', 'amount')
               ]
-            },
-            {
-              label: '线下特色',
+            })),
+            // 线下特色
+            ...ruleMap.micro.offline.map(rule => ({
+              label: rule.name,
               children: [
-                createRuleSegment('线下转贷', ['m_offline_transfer'], 'new', 'micro'),
-                createRuleSegment('科技贷', ['m_tech'], 'new', 'micro'),
-                createRuleSegment('智动贷', ['m_smart'], 'new', 'micro')
+                createRuleMetric('笔数', [rule.id], 'new', 'count'),
+                createRuleMetric('授信金额', [rule.id], 'new', 'amount')
               ]
-            }
+            }))
           ]
         }
       ];
@@ -1339,12 +1515,12 @@ export default {
     
     buildExportCsv() {
             // 动态从规则生成CSV导出
-      const { start, end } = this.getQuarterDateRange(this.currentQuarter);
-      const title = `${this.currentQuarter}个人贷款收单通报`;
+      const { start, end } = this.getQuarterDateRange(this.exportSelectedQuarter);
+      const title = `${this.exportSelectedQuarter}个人贷款收单通报`;
       const dateRangeText = `数据区间：${start} - ${end}`;
       
       // 构建动态表头
-      const headers = ['网点编号', '网点', '客户经理', '排名', '个贷积分', '小微积分'];
+      const headers = ['网点编号', '网点', '客户经理', '排名', '总分', '奖励金额(元)', '个贷积分', '小微积分'];
       
       // 遍历所有规则分组，按分类和分组组织表头
       this.ruleSections.forEach(section => {
@@ -1382,6 +1558,10 @@ export default {
           employee.branch,
           employee.name,
           this.getRank(employee.id),
+          
+          // 总分和奖励金额
+          stats.totalScore,
+          stats.bonusAmount >= 0 ? `+${stats.bonusAmount}` : stats.bonusAmount,
           
           // 积分信息
           stats.personalScore,
@@ -1674,28 +1854,6 @@ export default {
             uni.showToast({ title: '已清空', icon: 'success' });
           } catch (error) {
             uni.showToast({ title: error.message || '清空失败', icon: 'none' });
-          }
-        }
-      });
-    },
-    handleQuarterPicker(event) {
-      this.selectedQuarter = this.quarterOptions[event.detail.value];
-    },
-    handleSwitchQuarter(reset) {
-      if (!this.isAdmin) return;
-      uni.showModal({
-        title: '切换季度',
-        content: `将切换至 ${this.selectedQuarter} ，${reset ? '并清空当前季度所有积分记录' : '并保留当前季度数据（仅供查看）'}，是否继续？`,
-        success: async res => {
-          if (!res.confirm) return;
-          try {
-            await StoreService.switchQuarter(this.selectedQuarter, {
-              resetCurrent: reset
-            });
-            uni.showToast({ title: '季度已切换', icon: 'success' });
-            await this.refresh();
-          } catch (error) {
-            uni.showToast({ title: error.message || '切换失败', icon: 'none' });
           }
         }
       });
@@ -2385,7 +2543,8 @@ export default {
           pointsNewItem: rule.pointsNew?.item ?? 0,
           pointsNewMillion: rule.pointsNew?.million ?? 0,
           pointsStockItem: rule.pointsStock?.item ?? 0,
-          pointsStockMillion: rule.pointsStock?.million ?? 0
+          pointsStockMillion: rule.pointsStock?.million ?? 0,
+          hidden: !!rule.hidden
         };
       } else {
         this.editingRule = null;
@@ -2435,7 +2594,8 @@ export default {
         pointsStock: {
           item: this.ruleForm.hasStockOption ? Number(this.ruleForm.pointsStockItem) || 0 : 0,
           million: this.ruleForm.hasStockOption ? Number(this.ruleForm.pointsStockMillion) || 0 : 0
-        }
+        },
+        hidden: this.ruleForm.hidden
       };
       try {
         if (this.editingRule) {
@@ -2449,6 +2609,31 @@ export default {
         this.refreshRules();
       } catch (error) {
         uni.showToast({ title: error.message || '保存失败', icon: 'none' });
+      }
+    },
+    async toggleRuleHidden(rule) {
+      try {
+        // 切换隐藏状态
+        const newHiddenState = !rule.hidden;
+        await StoreService.updateRule(rule.id, { hidden: newHiddenState });
+        // 刷新规则列表
+        uni.showToast({ 
+          title: newHiddenState ? '已隐藏' : '已显示', 
+          icon: 'success' 
+        });
+        // 立即更新本地规则对象，触发界面刷新
+        const index = this.rules.findIndex(r => r.id === rule.id);
+        if (index !== -1) {
+          this.rules.splice(index, 1, { ...this.rules[index], hidden: newHiddenState });
+        } else {
+          // 如果找不到，重新获取所有规则
+          this.refreshRules();
+        }
+      } catch (error) {
+        uni.showToast({ 
+          title: error.message || '操作失败', 
+          icon: 'none' 
+        });
       }
     },
     deleteRule(rule) {
@@ -2634,17 +2819,17 @@ export default {
 }
 
 .table {
-  min-width: 100%;
+  min-width: 110%;
 }
 
 .table-row {
-  display: grid;
-  grid-template-columns: 60rpx 120rpx 120rpx repeat(3, 120rpx);
-  align-items: center;
-  padding: 16rpx 12rpx;
-  border-bottom: 1px solid #f1f5f9;
-  font-size: 26rpx;
-  color: #475569;
+	display: grid;
+	grid-template-columns: 50rpx 100rpx 110rpx 120rpx 160rpx repeat(2, 120rpx);
+	align-items: center;
+	padding: 16rpx 12rpx;
+	border-bottom: 1px solid #f1f5f9;
+	font-size: 26rpx;
+	color: #475569;
 }
 
 .table-row text {
@@ -2674,6 +2859,11 @@ export default {
   font-weight: 700;
 }
 
+.danger {
+  color: #ef4444;
+  font-weight: 700;
+}
+
 .employee-name {
   color: #3b82f6;
   font-weight: 600;
@@ -2682,7 +2872,7 @@ export default {
 
 .panel-header {
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
   align-items: center;
   margin-bottom: 16rpx;
   gap: 16rpx;
@@ -2751,105 +2941,6 @@ export default {
   margin-left: 0;
 }
 
-/* 提报记录样式 */
-.submission-groups {
-  background: #fff;
-  border-radius: 24rpx;
-  padding: 16rpx;
-}
-
-.submission-date-group {
-  margin-bottom: 32rpx;
-}
-
-.submission-date-header {
-  margin-bottom: 16rpx;
-  padding-bottom: 12rpx;
-  border-bottom: 2rpx solid #f1f5f9;
-}
-
-.submission-date {
-  font-size: 28rpx;
-  font-weight: 700;
-  color: #0f172a;
-}
-
-.submission-user-groups {
-  display: flex;
-  flex-direction: column;
-  gap: 16rpx;
-}
-
-.submission-group {
-  background: #f8fafc;
-  border-radius: 16rpx;
-  padding: 16rpx;
-}
-
-.submission-group-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12rpx;
-}
-
-.submission-group-name {
-  font-size: 26rpx;
-  font-weight: 600;
-  color: #0f172a;
-}
-
-.submission-group-branch {
-  font-size: 22rpx;
-  color: #94a3b8;
-}
-
-.submission-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12rpx;
-}
-
-.submission-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16rpx;
-  background: #fff;
-  border-radius: 12rpx;
-}
-
-.submission-item-main {
-  flex: 1;
-}
-
-.submission-rule-name {
-  display: block;
-  font-size: 24rpx;
-  font-weight: 600;
-  color: #0f172a;
-  margin-bottom: 4rpx;
-}
-
-.submission-meta {
-  display: block;
-  font-size: 20rpx;
-  color: #94a3b8;
-}
-
-.submission-item-stats {
-  text-align: right;
-}
-
-.submission-item-stats text {
-  display: block;
-  font-size: 22rpx;
-  color: #475569;
-}
-
-.submission-item-stats .highlight {
-  font-size: 24rpx;
-}
 
 .user-card {
   background: #fff;
@@ -3424,6 +3515,61 @@ export default {
   font-size: 26rpx;
   color: #94a3b8;
   margin: 0 8rpx;
+}
+
+/* 规则标签样式 */
+.rule-tabs {
+  display: flex;
+  background: rgba(15, 118, 110, 0.1);
+  border-radius: 16rpx;
+  padding: 8rpx;
+  max-width: 300rpx;
+  margin-left: 0;
+  flex: 1;
+}
+
+.rule-tab {
+  flex: 1;
+  padding: 12rpx 0;
+  text-align: center;
+  font-size: 24rpx;
+  color: #0f766e;
+  border-radius: 12rpx;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  min-width: 120rpx;
+}
+
+.rule-tab.active {
+  background: #0f766e;
+  color: #fff;
+  font-weight: 600;
+}
+
+/* 奖励规则配置表单样式 */
+.panel-body .form-tip {
+  font-size: 26rpx !important;
+  color: #64748b !important;
+  margin-bottom: 20rpx;
+}
+
+.panel-body .form-label {
+  font-size: 26rpx !important;
+  font-weight: 600 !important;
+  color: #0f172a !important;
+  margin-bottom: 12rpx !important;
+}
+
+.panel-body .form-input {
+  font-size: 26rpx !important;
+  padding: 16rpx !important;
+  margin-bottom: 16rpx !important;
+  height: auto !important;
+  min-height: 80rpx !important;
+}
+
+.panel-body .button-row {
+  margin-top: 24rpx !important;
 }
 </style>
 

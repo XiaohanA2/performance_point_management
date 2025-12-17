@@ -12,7 +12,15 @@
     </view>
 
     <text class="score-dial__label">{{ quarter }} 累计积分</text>
-    <text class="score-dial__value">{{ totalScore }}</text>
+    <view class="score-dial__value-row">
+      <text class="score-dial__value">{{ totalScore }}</text>
+      <view class="score-dial__bonus">
+        <image class="score-dial__bonus-icon" src="/static/money.png" mode="aspectFit" style="width: 30rpx; height: 30rpx;" />
+        <text class="score-dial__bonus-value" :class="{ 'score-dial__bonus-value--negative': bonusAmount < 0 }">
+          {{ bonusAmount >= 0 ? '+' : '' }}{{ bonusAmount }}
+        </text>
+      </view>
+    </view>
 
     <view class="score-dial__meta">
       <view class="score-dial__meta-item">
@@ -41,6 +49,10 @@ export default {
       required: true
     },
     microScore: {
+      type: Number,
+      required: true
+    },
+    bonusAmount: {
       type: Number,
       required: true
     },
@@ -148,14 +160,45 @@ export default {
   z-index: 1;
 }
 
-.score-dial__value {
-  display: block;
-  font-size: 120rpx;
-  font-weight: 700;
+.score-dial__value-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 20rpx;
   margin: 16rpx 0 36rpx;
   position: relative;
   z-index: 1;
+}
+
+.score-dial__value {
+  font-size: 120rpx;
+  font-weight: 700;
   line-height: 1;
+}
+
+.score-dial__bonus {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+  backdrop-filter: blur(10rpx);
+}
+
+.score-dial__bonus-icon {
+  width: 24rpx;
+  height: 24rpx;
+}
+
+.score-dial__bonus-value {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #fbbf24;
+}
+
+.score-dial__bonus-value--negative {
+  color: #ef4444;
 }
 
 .score-dial__meta {

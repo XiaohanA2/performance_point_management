@@ -1,4 +1,4 @@
-import { CURRENT_QUARTER, DEFAULT_BRANCHES, SCORING_RULES } from '../constants.js';
+import { getCurrentQuarter, CURRENT_QUARTER, DEFAULT_BRANCHES, SCORING_RULES } from '../constants.js';
 
 const API_NAME = 'appService';
 const STORAGE_KEYS = {
@@ -55,14 +55,14 @@ const normalizeRuleDescriptionSections = sections => {
 const createDefaultSettings = () => ({
   allowEditSubmission: true,
   ruleDescriptionSections: cloneRuleDescriptionSections(),
-  currentQuarter: CURRENT_QUARTER
+  currentQuarter: getCurrentQuarter()
 });
 
 const CACHE_DURATION = 5 * 60 * 1000; // 5分钟缓存有效期
 
 const createInitialState = () => ({
   initialized: false,
-  currentQuarter: CURRENT_QUARTER,
+  currentQuarter: getCurrentQuarter(),
   users: [],
   branches: [...DEFAULT_BRANCHES],
   rules: [...SCORING_RULES],
@@ -118,7 +118,11 @@ const normalizeBranch = branch => ({
 const normalizeRule = rule => {
   if (!rule) return null;
   const id = rule.id || rule._id || '';
-  const normalized = { ...rule, id };
+  const normalized = { 
+    ...rule, 
+    id,
+    hidden: !!rule.hidden
+  };
   delete normalized._id;
   return normalized;
 };
@@ -166,8 +170,11 @@ const applyBootstrap = data => {
   state.rules = (data?.rules || SCORING_RULES).map(normalizeRule).filter(Boolean);
   state.submissions = (data?.submissions || []).map(normalizeSubmission).filter(Boolean);
   state.settings = mergeSettings(data?.settings);
-  state.currentQuarter =
-    state.settings.currentQuarter || data?.currentQuarter || CURRENT_QUARTER;
+  // 总是使用动态计算的当前季度，确保季度会随时间自动变化
+  const dynamicQuarter = getCurrentQuarter();
+  state.currentQuarter = dynamicQuarter;
+  // 更新settings中的currentQuarter，确保数据一致
+  state.settings.currentQuarter = dynamicQuarter;
   state.initialized = true;
 };
 
@@ -248,7 +255,15 @@ export const StoreService = {
   },
 
   getCurrentQuarter() {
-    return state.settings.currentQuarter || state.currentQuarter || CURRENT_QUARTER;
+    // 总是返回动态计算的当前季度，确保季度会随时间自动变化
+    const dynamicQuarter = getCurrentQuarter();
+    // 更新state中的currentQuarter，确保内部状态一致
+    state.currentQuarter = dynamicQuarter;
+    // 如果settings中没有设置currentQuarter或设置的季度已过期，也更新settings
+    if (!state.settings.currentQuarter || state.settings.currentQuarter !== dynamicQuarter) {
+      state.settings.currentQuarter = dynamicQuarter;
+    }
+    return dynamicQuarter;
   },
 
   getUsers() {
@@ -466,22 +481,81 @@ export const StoreService = {
     return cloneRuleDescriptionSections(settings.ruleDescriptionSections);
   },
 
-  calculateScoreForEmployee(employeeId) {
-    const quarter = this.getCurrentQuarter();
-    const cacheKey = `score_${employeeId}_${quarter}`;
+  // 计算奖励金额
+  calculateBonus(score, quarter = this.getCurrentQuarter()) {
+    // 从settings中获取奖励规则配置，如果没有则使用默认值
+    const allBonusRules = state.settings.bonusRules || {};
+    // 获取当前季度的奖励规则，如果没有则使用默认值
+    const bonusRules = allBonusRules[quarter] || {
+      threshold: 30,
+      baseRate: 35,
+      highScoreThreshold: 100,
+      highScoreRate: 45,
+      penaltyType: 'rate', // 默认按扣钱率
+      penaltyRate: 0, // 扣钱率，默认0
+      fixedPenalty: 2000 // 固定扣钱金额，默认2000
+    };
+    
+    let bonusAmount;
+    
+    if (score < bonusRules.threshold) {
+      // 低于门槛，计算扣钱金额
+      if (bonusRules.penaltyType === 'rate') {
+        // 按扣钱率计算
+        const gap = bonusRules.threshold - score;
+        bonusAmount = -gap * bonusRules.penaltyRate;
+      } else {
+        // 按固定金额扣钱
+        bonusAmount = -bonusRules.fixedPenalty;
+      }
+    } else if (score <= bonusRules.highScoreThreshold) {
+      // 门槛到高分阈值之间，基础奖励率
+      bonusAmount = score * bonusRules.baseRate;
+    } else {
+      // 超过高分阈值，分级奖励
+      bonusAmount = bonusRules.highScoreThreshold * bonusRules.baseRate + (score - bonusRules.highScoreThreshold) * bonusRules.highScoreRate;
+    }
+    
+    // 保留两位小数
+    return Number(bonusAmount.toFixed(2));
+  },
+
+  calculateScoreForEmployee(employeeId, filterType = 'quarter', dateRange = {}) {
+    let currentPeriod = this.getCurrentQuarter();
+    let cacheKey = `score_${employeeId}_${currentPeriod}`;
+    let submissions = [];
+    let targetQuarter = currentPeriod;
+    
+    // 根据筛选类型构建缓存键和筛选条件
+    if (filterType === 'month' && dateRange.start) {
+      const month = dateRange.start;
+      cacheKey = `score_${employeeId}_${month}`;
+      // 筛选该月份的提报记录
+      submissions = state.submissions.filter(sub => {
+        const subMonth = new Date(sub.timestamp).toISOString().slice(0, 7);
+        return sub.employeeId === employeeId && subMonth === month;
+      });
+      // 对于月度数据，使用当前季度的奖励规则
+      targetQuarter = currentPeriod;
+    } else {
+      // 按季度筛选
+      targetQuarter = dateRange.start ? this.getQuarterFromDateRange(dateRange) : currentPeriod;
+      cacheKey = `score_${employeeId}_${targetQuarter}`;
+      submissions = state.submissions.filter(
+        sub => sub.employeeId === employeeId && sub.quarter === targetQuarter
+      );
+    }
     
     // 检查缓存
     if (calculateCache.has(cacheKey)) {
       return calculateCache.get(cacheKey);
     }
     
-    const submissions = state.submissions.filter(
-      sub => sub.employeeId === employeeId && sub.quarter === quarter
-    );
     const result = {
       totalScore: 0,
       personalScore: 0,
       microScore: 0,
+      bonusAmount: 0,
       count: 0,
       amount: 0
     };
@@ -497,14 +571,16 @@ export const StoreService = {
     result.totalScore = Number(result.totalScore.toFixed(2));
     result.personalScore = Number(result.personalScore.toFixed(2));
     result.microScore = Number(result.microScore.toFixed(2));
+    // 计算奖励金额，传入当前周期作为季度参数
+    result.bonusAmount = this.calculateBonus(result.totalScore, targetQuarter);
     
     // 保存缓存
     calculateCache.set(cacheKey, result);
     return result;
   },
 
-  getEmployeeBreakdown(employeeId) {
-    const quarter = this.getCurrentQuarter();
+  getEmployeeBreakdown(employeeId, selectedQuarter = this.getCurrentQuarter()) {
+    const quarter = selectedQuarter;
     const cacheKey = `breakdown_${employeeId}_${quarter}`;
     
     // 检查缓存
@@ -537,26 +613,37 @@ export const StoreService = {
     return result;
   },
 
-  getLeaderboard() {
-    const quarter = this.getCurrentQuarter();
-    const cacheKey = `leaderboard_${quarter}`;
+  getLeaderboard(filterType = 'quarter', dateRange = {}) {
+    let quarter = this.getCurrentQuarter();
+    let cacheKey = `leaderboard_${quarter}`;
+    
+    // 根据筛选类型构建缓存键
+    if (filterType === 'month' && dateRange.start) {
+      const month = dateRange.start;
+      cacheKey = `leaderboard_${month}`;
+    } else if (filterType === 'quarter' && dateRange.start) {
+      // 按季度筛选时，根据dateRange计算目标季度
+      quarter = this.getQuarterFromDateRange(dateRange);
+      cacheKey = `leaderboard_${quarter}`;
+    }
     
     // 检查缓存
     if (calculateCache.has(cacheKey)) {
       return calculateCache.get(cacheKey);
     }
     
-    const users = state.users.filter(user => user.role !== 'admin');
+    const users = state.users.filter(user => user.role !== 'admin' && user.status === 'active');
     const result = users
       .map(user => {
-        const stats = this.calculateScoreForEmployee(user.id);
+        const stats = this.calculateScoreForEmployee(user.id, filterType, dateRange);
         return {
           employeeId: user.id,
           name: user.name,
           branch: user.branch,
           totalScore: stats.totalScore,
           personalScore: stats.personalScore,
-          microScore: stats.microScore
+          microScore: stats.microScore,
+          bonusAmount: stats.bonusAmount
         };
       })
       .sort((a, b) => b.totalScore - a.totalScore || a.name.localeCompare(b.name))
@@ -567,8 +654,8 @@ export const StoreService = {
     return result;
   },
 
-  getOverviewTable() {
-    const quarter = this.getCurrentQuarter();
+  getOverviewTable(selectedQuarter = this.getCurrentQuarter()) {
+    const quarter = selectedQuarter;
     const cacheKey = `overview_${quarter}`;
     
     // 检查缓存
@@ -576,11 +663,11 @@ export const StoreService = {
       return calculateCache.get(cacheKey);
     }
     
-    const users = state.users.filter(user => user.role !== 'admin');
+    const users = state.users.filter(user => user.role !== 'admin' && user.status === 'active');
     const result = users.map(user => ({
       employee: user,
-      stats: this.calculateScoreForEmployee(user.id),
-      breakdown: this.getEmployeeBreakdown(user.id)
+      stats: this.calculateScoreForEmployee(user.id, 'quarter', { start: quarter }),
+      breakdown: this.getEmployeeBreakdown(user.id, quarter)
     }));
     
     // 保存缓存
@@ -593,6 +680,21 @@ export const StoreService = {
     calculateCache.clear();
     state.cacheTimestamp = 0;
     needRefresh = true; // 标记需要刷新数据
+  },
+  
+  // 根据日期范围或季度字符串计算季度
+  getQuarterFromDateRange(dateRange) {
+    if (!dateRange || !dateRange.start) return this.getCurrentQuarter();
+    
+    // 如果dateRange.start已经是季度格式（如2025Q4），直接返回
+    if (dateRange.start.includes('Q')) {
+      return dateRange.start;
+    }
+    
+    // 否则从日期字符串计算季度
+    const [year, month] = dateRange.start.split('-').map(Number);
+    const quarter = Math.ceil(month / 3);
+    return `${year}Q${quarter}`;
   },
   
   // 确保获取最新数据

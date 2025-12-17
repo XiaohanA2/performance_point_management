@@ -1,4 +1,13 @@
-const CURRENT_QUARTER = '2025Q4';
+// 动态计算当前季度
+const getCurrentQuarter = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth() + 1;
+  const quarter = Math.ceil(month / 3);
+  return `${year}Q${quarter}`;
+};
+
+const CURRENT_QUARTER = getCurrentQuarter();
 
 const RULE_SECTIONS = [
   { id: 'p_agri_mortgage', name: '农户抵押类', category: 'personal', group: 'mortgage', icon: 'home', color: '#3b82f6', hasStockOption: true, stockLabel: '存量', pointsNew: { item: 3, million: 1 }, pointsStock: { item: 1.5, million: 0 } },

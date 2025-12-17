@@ -5,6 +5,7 @@
       :total-score="stats.totalScore"
       :personal-score="stats.personalScore"
       :micro-score="stats.microScore"
+      :bonus-amount="stats.bonusAmount"
       :name="currentUser ? currentUser.name : ''"
       :rank="myRank"
       :quarter="currentQuarter"
@@ -179,7 +180,7 @@ export default {
           subtitle: '农户 / 经营抵押',
           icon: 'home',
           theme: 'blue',
-          rules: list.filter(r => r.category === 'personal' && r.group === 'mortgage')
+          rules: list.filter(r => r.category === 'personal' && r.group === 'mortgage' && !r.hidden)
         },
         {
           id: 'personal-credit',
@@ -187,7 +188,7 @@ export default {
           subtitle: '商户e贷 / 消费贷 / 快农贷',
           icon: 'cart',
           theme: 'pink',
-          rules: list.filter(r => r.category === 'personal' && r.group === 'credit')
+          rules: list.filter(r => r.category === 'personal' && r.group === 'credit' && !r.hidden)
         }
       ];
     },
@@ -200,7 +201,7 @@ export default {
           subtitle: '转贷 / 新增',
           icon: 'shop',
           theme: 'teal',
-          rules: list.filter(r => r.category === 'micro' && r.group === 'mortgage')
+          rules: list.filter(r => r.category === 'micro' && r.group === 'mortgage' && !r.hidden)
         },
         {
           id: 'micro-credit',
@@ -208,7 +209,7 @@ export default {
           subtitle: '转贷 / 微捷贷 / 闽e贷',
           icon: 'redo',
           theme: 'cyan',
-          rules: list.filter(r => r.category === 'micro' && r.group === 'credit')
+          rules: list.filter(r => r.category === 'micro' && r.group === 'credit' && !r.hidden)
         },
         {
           id: 'micro-offline',
@@ -216,7 +217,7 @@ export default {
           subtitle: '转贷 / 科技贷 / 智动贷',
           icon: 'flag',
           theme: 'purple',
-          rules: list.filter(r => r.category === 'micro' && r.group === 'offline')
+          rules: list.filter(r => r.category === 'micro' && r.group === 'offline' && !r.hidden)
         }
       ];
     }
@@ -234,7 +235,7 @@ export default {
         this.currentQuarter = StoreService.getCurrentQuarter();
         this.currentUser = user;
         if (user && user.role === 'guest') {
-          this.stats = { totalScore: 0, personalScore: 0, microScore: 0 };
+          this.stats = { totalScore: 0, personalScore: 0, microScore: 0, bonusAmount: 0 };
           this.myRank = 0;
           return;
         }
@@ -243,7 +244,7 @@ export default {
           const leaderboard = StoreService.getLeaderboard();
           this.myRank = leaderboard.find(entry => entry.employeeId === user.id)?.rank || leaderboard.length || 0;
         } else {
-          this.stats = { totalScore: 0, personalScore: 0, microScore: 0 };
+          this.stats = { totalScore: 0, personalScore: 0, microScore: 0, bonusAmount: 0 };
           this.myRank = 0;
         }
       } catch (error) {

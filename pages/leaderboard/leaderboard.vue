@@ -2,13 +2,69 @@
   <view class="leaderboard-page">
     <view class="leaderboard-hero">
       <view class="hero-icon">
-        <uni-icons type="medal" size="40" color="#fbbf24" />
+        <image src="/static/rank.png" mode="aspectFill" style="width: 64rpx; height: 64rpx;" />
       </view>
       <text class="hero-title">龙虎榜</text>
-      <text class="hero-subtitle">{{ currentQuarter }} 季度积分排名</text>
+      
+      <!-- 时间段筛选 -->
+        <view class="filter-section">
+          <view class="filter-tabs">
+            <view 
+              class="filter-tab" 
+              :class="{ active: filterType === 'quarter' }" 
+              @click="setFilterType('quarter')"
+            >
+              按季度
+            </view>
+            <view 
+              class="filter-tab" 
+              :class="{ active: filterType === 'month' }" 
+              @click="setFilterType('month')"
+            >
+              按月份
+            </view>
+          </view>
+          
+          <view class="filter-row">
+            <!-- 季度选择器 -->
+            <view v-if="filterType === 'quarter'" class="date-picker-container">
+              <picker :range="quarterOptions" :value="quarterOptions.indexOf(selectedQuarter)" @change="handleQuarterChange">
+                <view class="date-picker-btn">
+                  <text class="icon">📅</text>
+                  <text>{{ selectedQuarter || '选择季度' }}</text>
+                </view>
+              </picker>
+            </view>
+            
+            <!-- 月份选择器 -->
+            <view v-if="filterType === 'month'" class="date-picker-container">
+              <picker mode="date" :fields="'month'" @change="handleMonthChange" :value="monthValue">
+                <view class="date-picker-btn">
+                  <text class="icon">📅</text>
+                  <text>{{ formatMonth(selectedMonth) || '选择月份' }}</text>
+                </view>
+              </picker>
+            </view>
+            
+            <text class="rank-label">积分排名</text>
+          </view>
+        </view>
     </view>
 
-    <view class="leaderboard-content">
+    <!-- 加载状态 -->
+    <view v-if="isLoading" class="loading-state">
+      <text class="loading-text">加载中...</text>
+    </view>
+
+    <!-- 数据内容 -->
+    <view v-else class="leaderboard-content">
+      <!-- 列表为空状态 -->
+      <view v-if="leaderboard.length === 0" class="empty-state">
+        <text>暂无榜单数据，先去提报业务赚积分吧</text>
+        <button class="light-btn" @click="gotoDashboard">前往工作台</button>
+      </view>
+      
+      <!-- 排行榜列表 -->
       <view
         v-for="(entry, index) in leaderboard"
         :key="entry.employeeId"
@@ -41,11 +97,6 @@
         </view>
       </view>
     </view>
-
-    <view v-if="leaderboard.length === 0" class="empty-state">
-      <text>暂无榜单数据，先去提报业务赚积分吧</text>
-      <button class="light-btn" @click="gotoDashboard">前往工作台</button>
-    </view>
   </view>
 </template>
 
@@ -57,12 +108,49 @@ export default {
     return {
       leaderboard: [],
       currentQuarter: StoreService.getCurrentQuarter(),
-      currentUser: null
+      currentUser: null,
+      // 时间段筛选
+      showDateFilter: false,
+      dateRange: {
+        start: '',
+        end: ''
+      },
+      filterType: 'quarter', // quarter 或 month
+      // 季度选择
+      quarterOptions: ['2025Q4', '2026Q1', '2026Q2', '2026Q3', '2026Q4', '2027Q1', '2027Q2', '2027Q3', '2027Q4', '2028Q1', '2028Q2', '2028Q3', '2028Q4'],
+      selectedQuarter: StoreService.getCurrentQuarter(),
+      // 加载状态
+      isLoading: true
     };
   },
   computed: {
     isAdmin() {
       return this.currentUser && this.currentUser.role === 'admin';
+    },
+    displayPeriod() {
+      if (this.filterType === 'month') {
+        return this.formatMonth(this.selectedMonth);
+      }
+      return this.selectedQuarter;
+    },
+    monthValue() {
+      if (this.selectedMonth) {
+        // 返回YYYY-MM-DD格式，使用该月第一天
+        return `${this.selectedMonth}-01`;
+      }
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      return `${year}-${month}-01`;
+    },
+    selectedMonth() {
+      if (this.dateRange.start) {
+        return this.dateRange.start;
+      }
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      return `${year}-${month}`;
     }
   },
   async onShow() {
@@ -70,19 +158,77 @@ export default {
   },
   methods: {
     async fetchData() {
+      this.isLoading = true;
       try {
         await StoreService.ensureReady();
         this.currentUser = StoreService.getCurrentUser();
-        // 先清空排行榜数据，触发重新渲染
-        this.leaderboard = [];
-        // 强制Vue更新DOM
-        await this.$nextTick();
-        // 重新获取排行榜数据
-        this.leaderboard = StoreService.getLeaderboard();
+        // 重新获取排行榜数据，根据时间段筛选
+        let dateRange = {};
+        if (this.filterType === 'quarter') {
+          // 使用季度选择器的选中值
+          dateRange = this.getQuarterDateRange(this.selectedQuarter);
+        } else {
+          // 使用月份选择器的选中值
+          dateRange = this.dateRange;
+        }
+        this.leaderboard = StoreService.getLeaderboard(this.filterType, dateRange);
         this.currentQuarter = StoreService.getCurrentQuarter();
       } catch (error) {
         uni.showToast({ title: error.message || '数据加载失败', icon: 'none' });
+      } finally {
+        this.isLoading = false;
       }
+    },
+    setFilterType(type) {
+      this.filterType = type;
+      // 重置日期范围
+      if (type === 'quarter') {
+        // 设置默认季度为当前季度
+        this.selectedQuarter = StoreService.getCurrentQuarter();
+      } else {
+        // 设置默认月份为当前月份
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        this.dateRange.start = `${year}-${month}`;
+        this.dateRange.end = '';
+      }
+      // 重新获取数据
+      this.fetchData();
+    },
+    handleQuarterChange(e) {
+      const index = e.detail.value;
+      this.selectedQuarter = this.quarterOptions[index];
+      // 重新获取数据
+      this.fetchData();
+    },
+    handleMonthChange(e) {
+      const value = e.detail.value;
+      // value格式为YYYY-MM-DD，提取YYYY-MM
+      const yearMonth = value.substring(0, 7);
+      this.dateRange.start = yearMonth;
+      this.dateRange.end = '';
+      // 重新获取数据
+      this.fetchData();
+    },
+    formatMonth(monthStr) {
+      if (!monthStr) return '';
+      // 将YYYY-MM格式转换为YYYY年MM月
+      const [year, month] = monthStr.split('-');
+      return `${year}年${month}月`;
+    },
+    getQuarterDateRange(quarter) {
+      if (!quarter) return {};
+      // 解析季度字符串，如2025Q4
+      const year = parseInt(quarter.substring(0, 4));
+      const q = parseInt(quarter.substring(5));
+      // 计算季度的开始和结束月份
+      const startMonth = (q - 1) * 3 + 1;
+      const endMonth = q * 3;
+      return {
+        start: `${year}-${String(startMonth).padStart(2, '0')}`,
+        end: `${year}-${String(endMonth).padStart(2, '0')}`
+      };
     },
     rankColor(rank) {
       if (rank === 1) return '#fbbf24';
@@ -106,12 +252,13 @@ export default {
 }
 
 .leaderboard-hero {
-  padding: 80rpx 32rpx 40rpx;
+  padding: 40rpx 32rpx 30rpx;
   text-align: center;
   color: #fff;
 }
 
-.hero-icon {
+/* 移除顶部图标，优化布局 */
+/* .hero-icon {
   width: 96rpx;
   height: 96rpx;
   border-radius: 999rpx;
@@ -120,6 +267,17 @@ export default {
   align-items: center;
   justify-content: center;
   margin-bottom: 20rpx;
+} */
+
+.hero-icon {
+  width: 70rpx;
+  height: 70rpx;
+  margin: 0 auto 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .hero-title {
@@ -128,12 +286,97 @@ export default {
   font-weight: 700;
 }
 
-.hero-subtitle {
-  display: block;
+/* 时间段筛选样式 */
+.filter-section {
+  margin-top: 32rpx;
+  margin-bottom: 20rpx;
+}
+
+.filter-tabs {
+  display: flex;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 16rpx;
+  padding: 8rpx;
+  max-width: 400rpx;
+  margin: 0 auto 20rpx;
+}
+
+.filter-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+  margin-top: 20rpx;
+}
+
+.date-picker-container {
+  display: flex;
+  align-items: center;
+}
+
+.date-picker-btn {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 20rpx;
+  padding: 16rpx 24rpx;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 24rpx;
+  transition: all 0.2s ease;
+  height: 60rpx;
+  line-height: 60rpx;
+}
+
+.rank-label {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 24rpx;
+  font-weight: 600;
+  height: 60rpx;
+  line-height: 60rpx;
+  margin-top: 0;
+}
+
+.filter-tab {
+  flex: 1;
+  padding: 12rpx 0;
+  text-align: center;
   font-size: 24rpx;
   color: rgba(255, 255, 255, 0.7);
-  margin-top: 8rpx;
-  letter-spacing: 4rpx;
+  border-radius: 12rpx;
+  transition: all 0.2s ease;
+}
+
+.filter-tab.active {
+  background: rgba(255, 255, 255, 0.9);
+  color: #0f766e;
+  font-weight: 600;
+}
+
+.date-picker-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20rpx;
+}
+
+.date-picker-btn {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 20rpx;
+  padding: 16rpx 24rpx;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 24rpx;
+  transition: all 0.2s ease;
+}
+
+.date-picker-btn .icon {
+  font-size: 24rpx;
+}
+
+.date-picker-btn:active {
+  background: rgba(255, 255, 255, 0.25);
 }
 
 .leaderboard-content {
@@ -271,6 +514,51 @@ export default {
   padding: 16rpx 32rpx;
   border-radius: 999rpx;
   background: transparent;
+}
+
+/* 加载状态样式 */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+  border-top-left-radius: 48rpx;
+  border-top-right-radius: 48rpx;
+  padding: 120rpx 32rpx;
+  margin-top: -24rpx;
+  flex: 1;
+  min-height: 300rpx;
+}
+
+.loading-text {
+  margin-top: 24rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #64748b;
+}
+
+/* 优化空状态样式，使其与加载状态风格一致 */
+.leaderboard-content .empty-state {
+  text-align: center;
+  color: #94a3b8;
+  margin: 60rpx auto;
+  max-width: 600rpx;
+  padding: 40rpx 0;
+}
+
+.leaderboard-content .empty-state text {
+  font-size: 28rpx;
+  color: #64748b;
+}
+
+.leaderboard-content .empty-state .light-btn {
+  margin-top: 32rpx;
+  background: #0f766e;
+  color: #fff;
+  border: none;
+  padding: 20rpx 48rpx;
+  font-size: 28rpx;
 }
 </style>
 

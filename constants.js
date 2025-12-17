@@ -1,4 +1,14 @@
-export const CURRENT_QUARTER = '2025Q4';
+// 动态计算当前季度
+export const getCurrentQuarter = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth() + 1;
+  const quarter = Math.ceil(month / 3);
+  return `${year}Q${quarter}`;
+};
+
+// 导出当前季度值
+export const CURRENT_QUARTER = getCurrentQuarter();
 
 export const SCORING_RULES = [
   {

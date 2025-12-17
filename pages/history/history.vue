@@ -205,7 +205,13 @@ export default {
     },
     canModify(sub) {
       if (!this.settings.allowEditSubmission) return false;
-      if (!this.currentUser || this.currentUser.id !== sub.employeeId) return false;
+      if (!this.currentUser) return false;
+      // 管理员用户可以编辑所有记录，不受24小时限制
+      if (this.currentUser.role === 'admin') {
+        return !sub.archived;
+      }
+      // 普通用户只能编辑自己的记录，且在24小时内
+      if (this.currentUser.id !== sub.employeeId) return false;
       const withinWindow = Date.now() - sub.timestamp <= DAY_MS;
       return withinWindow && !sub.archived;
     },
