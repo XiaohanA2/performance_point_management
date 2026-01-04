@@ -133,13 +133,26 @@ const normalizeSubmission = submission => {
   const count = Number(submission.count) || 0;
   const amount = Number(submission.amount) || 0;
   const type = submission.type === 'stock' ? 'stock' : 'new';
+  
+  // 计算季度：优先使用submission.quarter，否则从timestamp计算，最后使用当前季度
+  let quarter = submission.quarter;
+  if (!quarter && submission.timestamp) {
+    const date = new Date(submission.timestamp);
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    quarter = `${year}Q${Math.ceil(month / 3)}`;
+  }
+  if (!quarter) {
+    quarter = state.currentQuarter;
+  }
+  
   const normalized = {
     ...submission,
     id,
     count,
     amount,
     type,
-    quarter: submission.quarter || state.currentQuarter
+    quarter
   };
   delete normalized._id;
   return normalized;
@@ -525,21 +538,30 @@ export const StoreService = {
     let cacheKey = `score_${employeeId}_${currentPeriod}`;
     let submissions = [];
     let targetQuarter = currentPeriod;
-    
+
     // 根据筛选类型构建缓存键和筛选条件
     if (filterType === 'month' && dateRange.start) {
       const month = dateRange.start;
       cacheKey = `score_${employeeId}_${month}`;
-      // 筛选该月份的提报记录
+      // 筛选该月份的提报记录（使用本地时区）
       submissions = state.submissions.filter(sub => {
-        const subMonth = new Date(sub.timestamp).toISOString().slice(0, 7);
+        const date = new Date(sub.timestamp);
+        const year = date.getFullYear();
+        const mon = String(date.getMonth() + 1).padStart(2, '0');
+        const subMonth = `${year}-${mon}`;
         return sub.employeeId === employeeId && subMonth === month;
       });
       // 对于月度数据，使用当前季度的奖励规则
       targetQuarter = currentPeriod;
     } else {
-      // 按季度筛选
-      targetQuarter = dateRange.start ? this.getQuarterFromDateRange(dateRange) : currentPeriod;
+      // 按季度筛选：优先使用 quarter 属性，其次使用 start 属性计算季度
+      if (dateRange.quarter) {
+        targetQuarter = dateRange.quarter;
+      } else if (dateRange.start) {
+        targetQuarter = this.getQuarterFromDateRange(dateRange);
+      } else {
+        targetQuarter = currentPeriod;
+      }
       cacheKey = `score_${employeeId}_${targetQuarter}`;
       submissions = state.submissions.filter(
         sub => sub.employeeId === employeeId && sub.quarter === targetQuarter
@@ -616,14 +638,18 @@ export const StoreService = {
   getLeaderboard(filterType = 'quarter', dateRange = {}) {
     let quarter = this.getCurrentQuarter();
     let cacheKey = `leaderboard_${quarter}`;
-    
+
     // 根据筛选类型构建缓存键
     if (filterType === 'month' && dateRange.start) {
       const month = dateRange.start;
       cacheKey = `leaderboard_${month}`;
-    } else if (filterType === 'quarter' && dateRange.start) {
-      // 按季度筛选时，根据dateRange计算目标季度
-      quarter = this.getQuarterFromDateRange(dateRange);
+    } else if (filterType === 'quarter') {
+      // 按季度筛选：优先使用 quarter 属性，其次使用 start 属性计算季度
+      if (dateRange.quarter) {
+        quarter = dateRange.quarter;
+      } else if (dateRange.start) {
+        quarter = this.getQuarterFromDateRange(dateRange);
+      }
       cacheKey = `leaderboard_${quarter}`;
     }
     
@@ -657,19 +683,19 @@ export const StoreService = {
   getOverviewTable(selectedQuarter = this.getCurrentQuarter()) {
     const quarter = selectedQuarter;
     const cacheKey = `overview_${quarter}`;
-    
+
     // 检查缓存
     if (calculateCache.has(cacheKey)) {
       return calculateCache.get(cacheKey);
     }
-    
+
     const users = state.users.filter(user => user.role !== 'admin' && user.status === 'active');
     const result = users.map(user => ({
       employee: user,
-      stats: this.calculateScoreForEmployee(user.id, 'quarter', { start: quarter }),
+      stats: this.calculateScoreForEmployee(user.id, 'quarter', { quarter: quarter }),
       breakdown: this.getEmployeeBreakdown(user.id, quarter)
     }));
-    
+
     // 保存缓存
     calculateCache.set(cacheKey, result);
     return result;
@@ -684,8 +710,16 @@ export const StoreService = {
   
   // 根据日期范围或季度字符串计算季度
   getQuarterFromDateRange(dateRange) {
-    if (!dateRange || !dateRange.start) return this.getCurrentQuarter();
-    
+    if (!dateRange) return this.getCurrentQuarter();
+
+    // 优先使用 quarter 属性
+    if (dateRange.quarter) {
+      return dateRange.quarter;
+    }
+
+    // 其次使用 start 属性
+    if (!dateRange.start) return this.getCurrentQuarter();
+
     // 如果dateRange.start已经是季度格式（如2025Q4），直接返回
     if (dateRange.start.includes('Q')) {
       return dateRange.start;

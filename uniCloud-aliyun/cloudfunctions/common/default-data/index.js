@@ -7,7 +7,12 @@ const getCurrentQuarter = () => {
   return `${year}Q${quarter}`;
 };
 
-const CURRENT_QUARTER = getCurrentQuarter();
+// 每次访问时动态计算当前季度，避免模块加载时固定值
+const CURRENT_QUARTER = {
+  get value() {
+    return getCurrentQuarter();
+  }
+};
 
 const RULE_SECTIONS = [
   { id: 'p_agri_mortgage', name: '农户抵押类', category: 'personal', group: 'mortgage', icon: 'home', color: '#3b82f6', hasStockOption: true, stockLabel: '存量', pointsNew: { item: 3, million: 1 }, pointsStock: { item: 1.5, million: 0 } },
@@ -126,11 +131,14 @@ const DEFAULT_RULE_DESCRIPTION_SECTIONS = [
 const DEFAULT_SETTINGS = {
   allowEditSubmission: true,
   ruleDescriptionSections: DEFAULT_RULE_DESCRIPTION_SECTIONS,
-  currentQuarter: CURRENT_QUARTER
+  get currentQuarter() {
+    return getCurrentQuarter();
+  }
 };
 
 module.exports = {
   CURRENT_QUARTER,
+  getCurrentQuarter,
   DEFAULT_USERS,
   DEFAULT_BRANCHES,
   SCORING_RULES: RULE_SECTIONS,

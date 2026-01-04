@@ -165,8 +165,8 @@ export default {
         // 重新获取排行榜数据，根据时间段筛选
         let dateRange = {};
         if (this.filterType === 'quarter') {
-          // 使用季度选择器的选中值
-          dateRange = this.getQuarterDateRange(this.selectedQuarter);
+          // 直接传递选中的季度作为dateRange对象的quarter属性
+          dateRange = { quarter: this.selectedQuarter };
         } else {
           // 使用月份选择器的选中值
           dateRange = this.dateRange;
@@ -193,13 +193,15 @@ export default {
         this.dateRange.start = `${year}-${month}`;
         this.dateRange.end = '';
       }
-      // 重新获取数据
+      // 清除缓存并重新获取数据
+      StoreService.clearCache();
       this.fetchData();
     },
     handleQuarterChange(e) {
       const index = e.detail.value;
       this.selectedQuarter = this.quarterOptions[index];
-      // 重新获取数据
+      // 清除缓存并重新获取数据
+      StoreService.clearCache();
       this.fetchData();
     },
     handleMonthChange(e) {
@@ -208,7 +210,8 @@ export default {
       const yearMonth = value.substring(0, 7);
       this.dateRange.start = yearMonth;
       this.dateRange.end = '';
-      // 重新获取数据
+      // 清除缓存并重新获取数据
+      StoreService.clearCache();
       this.fetchData();
     },
     formatMonth(monthStr) {

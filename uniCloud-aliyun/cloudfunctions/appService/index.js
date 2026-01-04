@@ -1,13 +1,16 @@
 'use strict';
 
 const db = uniCloud.database();
-const {
+const { 
   CURRENT_QUARTER,
-  DEFAULT_USERS,
+  getCurrentQuarter,
+  DEFAULT_USERS, 
   DEFAULT_BRANCHES,
   SCORING_RULES,
   DEFAULT_SETTINGS
 } = require('./default-data.js');
+
+// getCurrentQuarter函数已从common/default-data/index.js导入
 
 const collections = {
   users: db.collection('users'),
@@ -64,9 +67,11 @@ async function ensureDefaults() {
   }
 
   if (settingsCount.total === 0) {
+    // 确保使用动态计算的当前季度作为默认值
     await collections.settings.add({
       _id: 'global',
       ...DEFAULT_SETTINGS,
+      currentQuarter: getCurrentQuarter(),
       updatedAt: Date.now()
     });
   }
@@ -105,16 +110,34 @@ async function getAllData(collection, query = {}) {
 async function bootstrap() {
   await ensureDefaults();
   const settingsRes = await collections.settings.doc('global').get();
-  const settingsDoc = settingsRes.data[0] || { ...DEFAULT_SETTINGS };
-  const currentQuarter = settingsDoc.currentQuarter || CURRENT_QUARTER;
+  // 每次调用时动态计算当前季度，确保获取最新季度
+  const dynamicCurrentQuarter = getCurrentQuarter();
+  const settingsDoc = settingsRes.data[0] || { 
+    ...DEFAULT_SETTINGS,
+    currentQuarter: dynamicCurrentQuarter
+  };
+  
+  // 优先使用动态计算的季度，确保数据是最新的，不受settings表中可能过时的季度影响
+  const currentQuarter = dynamicCurrentQuarter;
   
   // 使用分页查询获取所有数据，避免默认100条限制
+  // submissions 加载所有季度的数据，以支持历史季度查看
   const [usersData, branchesData, rulesData, submissionsData] = await Promise.all([
     getAllData(collections.users),
     getAllData(collections.branches),
     getAllData(collections.rules),
-    getAllData(collections.submissions, { quarter: currentQuarter })
+    getAllData(collections.submissions) // 移除 quarter 筛选，加载所有数据
   ]);
+  
+  // 更新settings中的currentQuarter为最新季度，确保下次使用正确
+  if (settingsDoc.currentQuarter !== currentQuarter) {
+    await collections.settings.doc('global').update({
+      currentQuarter: currentQuarter,
+      updatedAt: Date.now()
+    });
+    // 更新返回的settingsDoc
+    settingsDoc.currentQuarter = currentQuarter;
+  }
   
   return {
     users: usersData.map(sanitizeUser),

@@ -3,7 +3,7 @@
     <view class="details-header">
       <view>
         <text class="details-title">{{ employeeName }} 的提报记录</text>
-        <text class="details-subtitle">{{ branchName }} · {{ currentQuarter }} · 共 {{ userSubmissions.length }} 条业务记录</text>
+        <text class="details-subtitle">{{ branchName }} · 共 {{ userSubmissions.length }} 条历史记录</text>
       </view>
       <view class="details-icon">
         <uni-icons type="clock" size="26" color="#0f766e" />
@@ -118,8 +118,8 @@ export default {
     },
     userSubmissions() {
       let filtered = this.submissions
-        .filter(sub => sub.employeeId === this.employeeId && sub.quarter === this.currentQuarter);
-      
+        .filter(sub => sub.employeeId === this.employeeId); // 移除季度筛选，查看所有历史记录
+
       // 关键词搜索
       if (this.searchKeyword.trim()) {
         const keyword = this.searchKeyword.trim().toLowerCase();
@@ -128,7 +128,7 @@ export default {
           return rule && rule.name.toLowerCase().includes(keyword);
         });
       }
-      
+
       // 日期筛选
       if (this.dateFilter) {
         const targetDate = new Date(this.dateFilter);
@@ -136,7 +136,7 @@ export default {
         const endOfDay = new Date(targetDate.setHours(23, 59, 59, 999)).getTime();
         filtered = filtered.filter(sub => sub.timestamp >= startOfDay && sub.timestamp <= endOfDay);
       }
-      
+
       return filtered.sort((a, b) => b.timestamp - a.timestamp);
     },
     groupedSubmissions() {

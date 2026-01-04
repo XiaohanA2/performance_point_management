@@ -959,13 +959,15 @@ export default {
         this.selectedBonusQuarter = this.currentQuarter;
         // 传递选中的季度到getOverviewTable方法
         this.overviewData = StoreService.getOverviewTable(this.selectedQuarter);
-        this.leaderboard = StoreService.getLeaderboard();
+        // 传递季度参数给getLeaderboard方法
+        this.leaderboard = StoreService.getLeaderboard('quarter', { start: this.selectedQuarter });
         this.users = StoreService.getUsers();
         this.refreshBranches();
         this.refreshRules();
         this.settings = StoreService.getSettings();
         this.ruleDescriptionSections = StoreService.getRuleDescriptionSections();
-        this.allSubmissions = StoreService.getSubmissions();
+        // 根据选中的季度筛选提报记录
+        this.allSubmissions = StoreService.getSubmissions().filter(sub => sub.quarter === this.selectedQuarter);
         // 初始化奖励规则配置，支持多季度
         this.bonusRules = this.settings.bonusRules || {};
         // 加载当前季度的奖励规则
@@ -1187,22 +1189,23 @@ export default {
         uni.showToast({ title: '请选择日期范围', icon: 'none' });
         return;
       }
-      
-      // 过滤日期范围内的提报记录
+
+      // 过滤日期范围内的提报记录（从所有历史数据中筛选，不限制季度）
       const start = new Date(this.exportStartDate).getTime();
       const end = new Date(this.exportEndDate).getTime() + 24 * 60 * 60 * 1000; // 包含当天结束
-      const filtered = this.allSubmissions.filter(sub => {
+      const allSubmissions = StoreService.getSubmissions(); // 获取所有历史提报记录
+      const filtered = allSubmissions.filter(sub => {
         const subTime = new Date(sub.timestamp).getTime();
         // 只导出活跃客户经理的提报记录
         const employee = this.users.find(u => u.id === sub.employeeId);
         return subTime >= start && subTime < end && employee && employee.role === 'manager' && employee.status === 'active';
       });
-      
+
       if (!filtered.length) {
         uni.showToast({ title: '该日期范围内暂无数据', icon: 'none' });
         return;
       }
-      
+
       // 构建CSV内容
       const headers = ['日期', '客户经理', '支行', '业务分类','业务名称', '业务类型', '笔数', '金额(万)', '积分', '提报时间']; // 根据实际需求调整表头
       const rows = filtered.map(sub => {
@@ -1221,17 +1224,17 @@ export default {
           this.formatDate(sub.timestamp, 'time')
         ];
       });
-      
+
       // 构建完整CSV内容
       const bom = '\ufeff'; // UTF-8 BOM
       const csvContent = bom + [
         headers.join(','),
         ...rows.map(row => row.join(','))
       ].join('\n');
-      
+
       // 生成文件名
       const filename = `提报记录_${this.exportStartDate}_至_${this.exportEndDate}_${Date.now()}.csv`;
-      
+
       // 导出文件
       this.saveAndShareExcel(csvContent, filename, 'csv');
       this.closeExportModal();
