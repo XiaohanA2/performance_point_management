@@ -14,7 +14,7 @@
     <text class="score-dial__label">{{ quarter }} 累计积分</text>
     <view class="score-dial__value-row">
       <text class="score-dial__value">{{ totalScore }}</text>
-      <view class="score-dial__bonus">
+      <view v-if="!hideBonus" class="score-dial__bonus">
         <image class="score-dial__bonus-icon" src="/static/money.png" mode="aspectFit" style="width: 30rpx; height: 30rpx;" />
         <text class="score-dial__bonus-value" :class="{ 'score-dial__bonus-value--negative': bonusAmount < 0 }">
           {{ bonusAmount >= 0 ? '+' : '' }}{{ bonusAmount }}
@@ -24,12 +24,12 @@
 
     <view class="score-dial__meta">
       <view class="score-dial__meta-item">
-        <text class="score-dial__meta-label">个贷积分</text>
+        <text class="score-dial__meta-label">{{ personalLabel || '个贷积分' }}</text>
         <text class="score-dial__meta-value">{{ personalScore }}</text>
       </view>
       <view class="score-dial__divider" />
       <view class="score-dial__meta-item">
-        <text class="score-dial__meta-label">小微积分</text>
+        <text class="score-dial__meta-label">{{ microLabel || '小微积分' }}</text>
         <text class="score-dial__meta-value">{{ microScore }}</text>
       </view>
     </view>
@@ -54,7 +54,12 @@ export default {
     },
     bonusAmount: {
       type: Number,
-      required: true
+      required: false,
+      default: 0
+    },
+    hideBonus: {
+      type: Boolean,
+      default: false
     },
     name: {
       type: String,
@@ -67,6 +72,14 @@ export default {
     quarter: {
       type: String,
       required: true
+    },
+    personalLabel: {
+      type: String,
+      default: '个贷积分'
+    },
+    microLabel: {
+      type: String,
+      default: '小微积分'
     }
   }
 };

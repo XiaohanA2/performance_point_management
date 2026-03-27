@@ -29,7 +29,7 @@
 
     <view v-if="Object.keys(groupedSubmissions).length === 0" class="empty-state">
       <view class="empty-icon">
-        <uni-icons type="time" size="48" color="#cbd5f5" />
+        <uni-icons type="refreshempty" size="48" color="#cbd5f5" />
       </view>
       <text class="empty-text">暂无提报数据</text>
     </view>
@@ -114,7 +114,7 @@ export default {
   computed: {
     isAdmin() {
       const user = StoreService.getCurrentUser();
-      return user && user.role === 'admin';
+      return user && ['admin', 'super_admin', 'credit_admin'].includes(user.role);
     },
     userSubmissions() {
       let filtered = this.submissions
@@ -204,9 +204,7 @@ export default {
     },
     canModify(sub) {
       if (!this.isAdmin) return false;
-      // 管理员可以编辑当前季度的所有记录，不受24小时限制
-      const isCurrentQuarter = sub.quarter === this.currentQuarter;
-      return isCurrentQuarter && !sub.archived;
+      return !sub.archived;
     },
     formatDate(date, format = 'date') {
       const d = typeof date === 'string' ? new Date(date) : typeof date === 'number' ? new Date(date) : date;

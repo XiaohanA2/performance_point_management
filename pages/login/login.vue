@@ -45,6 +45,7 @@
 
 <script>
 import { StoreService } from '../../services/store.js';
+import { getUserDefaultSystem } from '../../services/permission-service.js';
 
 export default {
   data() {
@@ -56,7 +57,8 @@ export default {
   },
   onShow() {
     if (StoreService.isLoggedIn()) {
-      uni.switchTab({ url: '/pages/dashboard/dashboard' });
+      const user = StoreService.getCurrentUser();
+      this.redirectToDefaultSystem(user);
     }
   },
   methods: {
@@ -76,19 +78,44 @@ export default {
       }
       this.loading = true;
       try {
-        const user = await StoreService.loginWithPassword(this.phone, this.password);
-        this.handleLoginSuccess(user);
+        const result = await StoreService.loginWithPassword(this.phone, this.password);
+        console.log('登录结果:', result);
+        this.handleLoginSuccess(result);
       } catch (error) {
         uni.showToast({ title: error.message || '登录失败', icon: 'none' });
       } finally {
         this.loading = false;
       }
     },
-    handleLoginSuccess(user) {
+    handleLoginSuccess(result) {
+      const { user } = result;
+
+      if (!user) {
+        uni.showToast({ title: '登录失败，请重试', icon: 'none' });
+        return;
+      }
+
       uni.showToast({ title: `欢迎 ${user.name}`, icon: 'success' });
       setTimeout(() => {
-        uni.switchTab({ url: '/pages/dashboard/dashboard' });
+        this.redirectToDefaultSystem(user);
       }, 300);
+    },
+    redirectToDefaultSystem(user) {
+      const defaultSystem = getUserDefaultSystem(user);
+
+      if (defaultSystem === 'pf') {
+        // 个金系统用户 - 设置系统模式后跳转到工作台
+        uni.setStorageSync('system_mode', 'pf');
+        uni.switchTab({ url: '/pages/dashboard/dashboard' });
+      } else if (defaultSystem === 'credit') {
+        // 个贷系统用户
+        uni.setStorageSync('system_mode', 'credit');
+        uni.switchTab({ url: '/pages/dashboard/dashboard' });
+      } else {
+        // 其他角色(如管理员)默认进入个贷系统
+        uni.setStorageSync('system_mode', 'credit');
+        uni.switchTab({ url: '/pages/dashboard/dashboard' });
+      }
     },
     handleForgotPassword() {
       uni.showModal({

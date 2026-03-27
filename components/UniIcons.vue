@@ -138,6 +138,33 @@ const ICONS = {
     viewBox: '0 0 24 24',
     paths: [{ d: 'M8 10l4 4 4-4' }]
   },
+  arrowup: {
+    viewBox: '0 0 24 24',
+    paths: [{ d: 'M8 14l4-4 4 4' }]
+  },
+  arrowdown: {
+    viewBox: '0 0 24 24',
+    paths: [{ d: 'M8 10l4 4 4-4' }]
+  },
+  info: {
+    viewBox: '0 0 24 24',
+    paths: [
+      { d: 'M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20z' },
+      { d: 'M12 16v-4' },
+      { d: 'M12 8h.01', stroke: false, fill: true }
+    ]
+  },
+  list: {
+    viewBox: '0 0 24 24',
+    paths: [
+      { d: 'M8 6h13' },
+      { d: 'M8 12h13' },
+      { d: 'M8 18h13' },
+      { d: 'M3 6h.01' },
+      { d: 'M3 12h.01' },
+      { d: 'M3 18h.01' }
+    ]
+  },
   trophybadge: { alias: 'trophy' }
 };
 
@@ -196,10 +223,10 @@ export default {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  vertical-align: middle;
 }
 
 .uni-icon {
   display: block;
-  vertical-align: middle;  /* 解决块级元素的垂直对齐问题 */
 }
 </style>

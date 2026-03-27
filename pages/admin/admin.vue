@@ -3,14 +3,16 @@
     <view class="admin-header">
       <view class="admin-info">
         <text class="admin-title">后台管理</text>
-        <text class="admin-subtitle">第 {{ currentQuarter }} 季度 </text>
-        <text class="admin-subtitle"> {{ overviewData.length }} 名客户经理</text>
+        <view class="admin-meta-row">
+          <text class="admin-meta-item"> {{ currentQuarter }} </text>
+          <text class="admin-meta-sep">·</text>
+          <text class="admin-meta-item">{{ overviewData.length }} 名客户经理</text>
+        </view>
       </view>
       <view class="header-actions">
-        <button class="action-chip" @click="handleExport">导出 Excel</button>
-        <button class="action-chip" @click="handleImportTemplate">导入业绩</button>
-        <button class="action-chip danger" @click="handleReset">清空本季度</button>
-        <button class="action-chip primary" @click="navigateToSubmissionFlow">查看提报流</button>
+        <button class="action-chip" @click="handleExport">导出</button>
+        <button class="action-chip" @click="handleImportTemplate">导入</button>
+        <button class="action-chip primary" @click="navigateToSubmissionFlow">提报流</button>
       </view>
     </view>
 
@@ -61,7 +63,7 @@
             >
               <text>{{ getRank(row.employee.id) }}</text>
               <text class="employee-name">{{ row.employee.name }}</text>
-              <text class="branch-name">{{ formatBranchName(row.employee.branch) }}</text>
+              <text class="branch-name">{{ formatBranchName(row.employee.branchName || row.employee.branch) }}</text>
               <text class="highlight">{{ row.stats.totalScore }}</text>
               <text :class="{ 'highlight': row.stats.bonusAmount > 0, 'danger': row.stats.bonusAmount < 0 }">
                 {{ row.stats.bonusAmount >= 0 ? '+' : '' }}{{ row.stats.bonusAmount }}
@@ -82,23 +84,97 @@
           placeholder="搜索姓名/手机号/支行"
           v-model="userSearch"
         />
-        <button class="primary-btn small" @click="openUserModal()">新增用户</button>
+        <button v-if="canCreateUser" class="primary-btn small" @click="openUserModal()">新增用户</button>
       </view>
-      <text class="panel-tip">提示：停用的客户经理将不会进行业务统计</text>
+      <!-- 角色筛选 -->
+      <view class="role-filter-wrap">
+        <view class="role-filter" :class="{ expanded: roleFilterExpanded }">
+          <view
+            v-for="opt in roleFilterOptions"
+            :key="opt.value"
+            class="role-filter-item"
+            :class="{ active: roleFilter === opt.value }"
+            @click="roleFilter = opt.value"
+          >{{ opt.label }}</view>
+        </view>
+        <view class="role-filter-toggle" :class="{ rotated: roleFilterExpanded }" @click="roleFilterExpanded = !roleFilterExpanded">
+          <uni-icons type="arrowup" :size="16" color="#64748b" />
+        </view>
+      </view>
+      <text class="panel-tip">提示：停用的用户将不会进行业务统计。{{ isSuperAdmin ? '超级管理员可管理所有用户' : currentUser.role === 'branch_leader' ? '领导可管理除超管外所有用户' : (currentUser.role === 'credit_admin' || currentUser.role === 'admin') ? '个贷管理员可管理个贷业务线用户' : currentUser.role === 'personal_finance_admin' ? '个金管理员可管理个金业务线用户' : '您只有查看权限' }}</text>
       <view class="user-card" v-for="user in filteredUsers" :key="user.id">
         <view>
           <text class="user-name">{{ user.name }}</text>
-          <text class="user-branch">{{ user.branch }} · {{ user.phone }}</text>
-          <text class="user-meta">角色：{{ user.role === 'admin' ? '管理员' : '客户经理' }}</text>
+          <text class="user-branch">{{ user.branchName || user.branch }} · {{ user.phone }}</text>
+          <text class="user-meta">角色：{{ getRoleDisplay(user.role) }}</text>
         </view>
         <view class="user-actions">
-          <button class="link-btn" @click="openUserModal(user)">编辑</button>
-          <button class="link-btn" @click="handleResetPassword(user)">重置密码</button>
-          <button class="link-btn danger" @click="toggleUserStatus(user)">
+          <button v-if="canEditUser(user)" class="link-btn" @click="openUserModal(user)">编辑</button>
+          <button v-if="canEditUser(user)" class="link-btn" @click="handleResetPassword(user)">重置密码</button>
+          <button v-if="canEditUser(user)" class="link-btn" :class="{ danger: user.status === 'active' }" @click="toggleUserStatus(user)">
             {{ user.status === 'active' ? '停用' : '启用' }}
           </button>
+          <text v-if="!canEditUser(user)" class="user-readonly-hint">只读</text>
         </view>
       </view>
+      </view>
+
+      <view v-else-if="activeTab === 'roles'" class="tab-panel">
+        <view class="panel-header panel-header--actions">
+          <text class="panel-title">角色管理</text>
+          <button v-if="isSuperAdmin" class="primary-btn small" @click="openRoleModal()">新增角色</button>
+        </view>
+        <text class="panel-tip">提示：角色决定了用户可以访问的菜单和操作权限</text>
+
+        <view v-if="roles.length === 0" class="empty-state">
+          <text class="empty-text">暂无角色数据</text>
+        </view>
+
+        <view v-else class="role-list">
+          <view class="role-card" v-for="role in roles" :key="role.roleCode">
+            <view class="role-card__header">
+              <view class="role-info">
+                <text class="role-name">{{ role.roleName }}</text>
+              </view>
+              <view class="role-actions">
+                <view class="role-badge" :class="getRoleBadgeClass(role.roleCode)">
+                  {{ getRoleBadgeText(role.roleCode) }}
+                </view>
+                <button
+                  v-if="isSuperAdmin && role.roleCode !== 'super_admin'"
+                  class="link-btn"
+                  @click="editRole(role)"
+                >
+                  编辑
+                </button>
+                <button
+                  v-if="isSuperAdmin && !isSystemRole(role.roleCode)"
+                  class="link-btn danger"
+                  @click="handleDeleteRole(role)"
+                >
+                  删除
+                </button>
+              </view>
+            </view>
+            <view class="role-card__body">
+              <text class="role-description">{{ role.description || '暂无描述' }}</text>
+              <view class="role-permissions">
+                <view class="permission-group">
+                  <text class="permission-label">菜单权限：</text>
+                  <text class="permission-value">{{ formatPermissions(role.permissions?.menus) }}</text>
+                </view>
+                <view class="permission-group">
+                  <text class="permission-label">操作权限：</text>
+                  <text class="permission-value">{{ formatPermissions(role.permissions?.operations) }}</text>
+                </view>
+                <view class="permission-group">
+                  <text class="permission-label">数据范围：</text>
+                  <text class="permission-value">{{ formatDataScope(role.permissions?.dataScope) }}</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
       </view>
 
       <view v-else-if="activeTab === 'rules'" class="tab-panel">
@@ -337,9 +413,9 @@
           </view>
           <view class="form-item">
             <text class="form-label">角色</text>
-            <picker :range="roleOptions" :value="roleIndex" @change="handleRolePicker">
+            <picker :range="roleOptions" :value="getRoleIndexByCode(userForm.role)" @change="handleRolePicker">
               <view class="picker-value">
-                {{ roleOptions[roleIndex] }}
+                {{ getRoleNameByCode(userForm.role) }}
               </view>
             </picker>
           </view>
@@ -575,6 +651,161 @@
       </view>
     </view>
 
+    <!-- 角色编辑弹窗 -->
+    <view v-if="showRoleModal" class="modal-overlay">
+      <view class="modal">
+        <view class="modal-header">
+          <text>{{ editingRole ? '编辑角色' : '新增角色' }}</text>
+          <view class="modal-close" @click="closeRoleModal">
+            <uni-icons type="closeempty" :size="28" color="#fff" />
+          </view>
+        </view>
+        <scroll-view scroll-y class="modal-body rule-form-body">
+          <view class="rule-form-content">
+          <view class="form-item">
+            <text class="form-label">角色名称</text>
+            <input
+              class="form-input"
+              v-model="roleForm.roleName"
+              placeholder="如：客户经理"
+              :disabled="editingRole && editingRole.roleCode === 'super_admin'"
+            />
+          </view>
+          <view class="form-item">
+            <text class="form-label">角色代码</text>
+            <input
+              class="form-input"
+              v-model="roleForm.roleCode"
+              placeholder="如：manager"
+              :disabled="editingRole"
+            />
+            <text class="form-tip">角色代码唯一标识，创建后不可修改</text>
+          </view>
+          <view class="form-item">
+            <text class="form-label">角色描述</text>
+            <textarea
+              class="form-textarea"
+              v-model="roleForm.description"
+              placeholder="描述该角色的职责和权限范围"
+            />
+          </view>
+          <view class="form-item">
+            <text class="form-label">菜单权限</text>
+            <view class="checkbox-group">
+              <label class="checkbox-item">
+                <checkbox
+                  :checked="roleForm.permissions.menus.includes('all')"
+                  @click="toggleRolePermission('menus', 'all')"
+                />
+                <text>全部菜单</text>
+              </label>
+              <label class="checkbox-item">
+                <checkbox
+                  :checked="roleForm.permissions.menus.includes('overview')"
+                  @click="toggleRolePermission('menus', 'overview')"
+                />
+                <text>业绩汇总</text>
+              </label>
+              <label class="checkbox-item">
+                <checkbox
+                  :checked="roleForm.permissions.menus.includes('users')"
+                  @click="toggleRolePermission('menus', 'users')"
+                />
+                <text>用户管理</text>
+              </label>
+              <label class="checkbox-item">
+                <checkbox
+                  :checked="roleForm.permissions.menus.includes('roles')"
+                  @click="toggleRolePermission('menus', 'roles')"
+                />
+                <text>角色管理</text>
+              </label>
+            </view>
+          </view>
+          <view class="form-item">
+            <text class="form-label">操作权限</text>
+            <view class="checkbox-group">
+              <label class="checkbox-item">
+                <checkbox
+                  :checked="roleForm.permissions.operations.includes('all')"
+                  @click="toggleRolePermission('operations', 'all')"
+                />
+                <text>全部操作</text>
+              </label>
+              <label class="checkbox-item">
+                <checkbox
+                  :checked="roleForm.permissions.operations.includes('view')"
+                  @click="toggleRolePermission('operations', 'view')"
+                />
+                <text>查看</text>
+              </label>
+              <label class="checkbox-item">
+                <checkbox
+                  :checked="roleForm.permissions.operations.includes('create')"
+                  @click="toggleRolePermission('operations', 'create')"
+                />
+                <text>创建</text>
+              </label>
+              <label class="checkbox-item">
+                <checkbox
+                  :checked="roleForm.permissions.operations.includes('update')"
+                  @click="toggleRolePermission('operations', 'update')"
+                />
+                <text>更新</text>
+              </label>
+              <label class="checkbox-item">
+                <checkbox
+                  :checked="roleForm.permissions.operations.includes('delete')"
+                  @click="toggleRolePermission('operations', 'delete')"
+                />
+                <text>删除</text>
+              </label>
+            </view>
+          </view>
+          <view class="form-item">
+            <text class="form-label">数据范围</text>
+            <view class="radio-group">
+              <label
+                class="radio-item"
+                :class="{ active: roleForm.permissions.dataScope === 'all' }"
+              >
+                <radio
+                  :checked="roleForm.permissions.dataScope === 'all'"
+                  @click="roleForm.permissions.dataScope = 'all'"
+                />
+                <text>全部数据</text>
+              </label>
+              <label
+                class="radio-item"
+                :class="{ active: roleForm.permissions.dataScope === 'branch' }"
+              >
+                <radio
+                  :checked="roleForm.permissions.dataScope === 'branch'"
+                  @click="roleForm.permissions.dataScope = 'branch'"
+                />
+                <text>本支行</text>
+              </label>
+              <label
+                class="radio-item"
+                :class="{ active: roleForm.permissions.dataScope === 'self' }"
+              >
+                <radio
+                  :checked="roleForm.permissions.dataScope === 'self'"
+                  @click="roleForm.permissions.dataScope = 'self'"
+                />
+                <text>仅自己</text>
+              </label>
+            </view>
+          </view>
+          </view>
+        </scroll-view>
+        <view class="modal-footer">
+          <button class="ghost-btn" @click="closeRoleModal">取消</button>
+          <button class="primary-btn" @click="submitRoleForm">保存</button>
+        </view>
+      </view>
+    </view>
+
     <!-- 导入业绩弹窗 -->
     <view v-if="showImportModal" class="modal-overlay">
       <view class="modal">
@@ -684,11 +915,6 @@
     padding: 16rpx 20rpx;
     line-height: 1.5;
   }
-  /* 绿色按钮样式 */
-  .action-chip.primary {
-    background-color: #0f766e;
-    color: white;
-  }
   /* 隐藏业务卡片样式 */
   .rule-card--hidden {
     opacity: 0.7;
@@ -704,97 +930,173 @@
     border-radius: 10px;
     margin-left: 8px;
   }
+
+  /* 角色管理样式 */
+  .role-list {
+    padding: 20rpx 0;
+  }
+
+  .role-card {
+    background: white;
+    border-radius: 12rpx;
+    padding: 24rpx;
+    margin-bottom: 20rpx;
+    box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
+  }
+
+  .role-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16rpx;
+  }
+
+  .role-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8rpx;
+  }
+
+  .role-name {
+    font-size: 32rpx;
+    font-weight: 600;
+    color: #1e293b;
+  }
+
+  .role-code {
+    font-size: 24rpx;
+    color: #64748b;
+  }
+
+  .role-badge {
+    padding: 6rpx 16rpx;
+    border-radius: 8rpx;
+    font-size: 22rpx;
+    font-weight: 500;
+  }
+
+  .role-actions {
+    display: flex;
+    align-items: center;
+    gap: 12rpx;
+  }
+
+  .badge-super {
+    background-color: #fef3c7;
+    color: #d97706;
+  }
+
+  .badge-branch-leader {
+    background-color: #fff7ed;
+    color: #c2410c;
+  }
+
+  .badge-admin {
+    background-color: #dbeafe;
+    color: #2563eb;
+  }
+
+  .badge-credit {
+    background-color: #dcfce7;
+    color: #16a34a;
+  }
+
+  .badge-personal-finance {
+    background-color: #fae8ff;
+    color: #a855f7;
+  }
+
+  .badge-knowledge {
+    background-color: #fef3c7;
+    color: #ea580c;
+  }
+
+  .badge-default {
+    background-color: #f1f5f9;
+    color: #475569;
+  }
+
+  .role-card__body {
+    padding-top: 16rpx;
+    border-top: 1rpx solid #e2e8f0;
+  }
+
+  .role-description {
+    font-size: 26rpx;
+    color: #64748b;
+    margin-bottom: 20rpx;
+    display: block;
+  }
+
+  .role-permissions {
+    display: flex;
+    flex-direction: column;
+    gap: 12rpx;
+  }
+
+  .permission-group {
+    display: flex;
+    font-size: 24rpx;
+  }
+
+  .permission-label {
+    color: #94a3b8;
+    min-width: 140rpx;
+  }
+
+  .permission-value {
+    color: #475569;
+    flex: 1;
+  }
+
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 120rpx 60rpx;
+  }
+
+  .empty-text {
+    font-size: 28rpx;
+    color: #94a3b8;
+    text-align: center;
+  }
 </style>
 
 <script>
 import { StoreService } from '../../services/store.js';
 import IconHelper from '../../components/IconHelper.vue';
-
-const RULE_SECTIONS = [
-  { key: 'personal-mortgage', title: '个贷 · 抵押类', subtitle: '农户 / 经营抵押', category: 'personal', group: 'mortgage' },
-  { key: 'personal-credit', title: '个贷 · 信用类', subtitle: '商户e贷 / 消费贷 / 快农贷', category: 'personal', group: 'credit' },
-  { key: 'micro-mortgage', title: '小微 · 抵押类', subtitle: '转贷 / 新增', category: 'micro', group: 'mortgage' },
-  { key: 'micro-credit', title: '小微 · 信用类', subtitle: '微捷贷 / 闽e贷 / 转贷', category: 'micro', group: 'credit' },
-  { key: 'micro-offline', title: '小微 · 线下特色', subtitle: '科技贷 / 智动贷', category: 'micro', group: 'offline' }
-];
-
-const ruleFormDefaults = () => ({
-  name: '',
-  category: 'personal',
-  group: 'mortgage',
-  icon: 'home',
-  color: '#0f766e',
-  hasStockOption: false,
-  stockLabel: '存量',
-  pointsNewItem: 0,
-  pointsNewMillion: 0,
-  pointsStockItem: 0,
-  pointsStockMillion: 0,
-  hidden: false
-});
+// 引入tab mixins（重构后的代码组织）
+import * as tabMixins from './mixins';
 
 export default {
   components: { IconHelper },
+  // 引入所有tab的mixins（Vue 2会自动合并data、methods、computed等）
+  mixins: [
+    tabMixins.settingsTabMixin,
+    tabMixins.branchesTabMixin,
+    tabMixins.overviewTabMixin,
+    tabMixins.usersTabMixin,
+    tabMixins.rulesTabMixin,
+    tabMixins.rolesTabMixin
+  ],
   data() {
     return {
+      // admin.vue特有的属性（不在mixins中）
       currentUser: StoreService.getCurrentUser(),
       activeTab: 'overview',
-      tabs: [
+      allTabs: [
         { key: 'overview', label: '业绩汇总' },
         { key: 'users', label: '用户管理' },
+        { key: 'roles', label: '角色管理', superAdminOnly: true },
         { key: 'rules', label: '业务规则' },
         { key: 'branches', label: '支行管理' },
         { key: 'settings', label: '系统设置' }
       ],
-      searchKeyword: '',
-      overviewData: [],
-      leaderboard: [],
-      users: [],
-      branches: StoreService.getBranches(),
-      rules: StoreService.getRules(),
-      ruleDescriptionSections: StoreService.getRuleDescriptionSections(),
+      // 季度相关（admin.vue特有，用于导入导出等功能）
       currentQuarter: StoreService.getCurrentQuarter(),
-      selectedQuarter: StoreService.getCurrentQuarter(),
-      exportSelectedQuarter: StoreService.getCurrentQuarter(),
       quarterOptions: ['2025Q4', '2026Q1', '2026Q2', '2026Q3', '2026Q4', '2027Q1', '2027Q2', '2027Q3', '2027Q4', '2028Q1', '2028Q2', '2028Q3', '2028Q4'],
-      settings: StoreService.getSettings(),
-      showUserModal: false,
-      showRuleModal: false,
-      showRuleDescriptionModal: false,
-      editingUser: null,
-      editingRule: null,
-      userForm: {
-        name: '',
-        phone: '',
-        branch: '',
-        role: 'manager'
-      },
-      roleOptions: ['客户经理', '管理员'],
-      branchIndex: 0,
-      roleIndex: 0,
-      userSearch: '',
-      branchForm: { id: '', name: '' },
-      editingBranch: null,
-      showBranchModal: false,
-      ruleForm: ruleFormDefaults(),
-      ruleDescriptionForm: [],
-      iconOptions: ['home', 'cart', 'wallet', 'shop', 'flag', 'redo', 'gear', 'compose', 'star'],
-      colorOptions: ['#0f766e', '#2563eb', '#db2777', '#f97316', '#0ea5e9', '#8b5cf6', '#14b8a6', '#f43f5e'],
-      ruleCategoryOptions: [
-        { value: 'personal', label: '个贷业务' },
-        { value: 'micro', label: '小微业务' }
-      ],
-      ruleGroupOptions: {
-        personal: [
-          { value: 'mortgage', label: '抵押类' },
-          { value: 'credit', label: '信用类' }
-        ],
-        micro: [
-          { value: 'mortgage', label: '抵押类' },
-          { value: 'credit', label: '信用类' },
-          { value: 'offline', label: '线下特色' }
-        ]
-      },
       // 导入业绩相关
       showImportModal: false,
       selectedFileName: '',
@@ -808,6 +1110,7 @@ export default {
       showExportModal: false,
       exportStartDate: '',
       exportEndDate: '',
+      exportSelectedQuarter: StoreService.getCurrentQuarter(),
       // 奖励规则配置
       bonusRules: {},
       // 当前选择的奖励规则季度
@@ -833,30 +1136,20 @@ export default {
   },
   computed: {
     isAdmin() {
-      return this.currentUser && this.currentUser.role === 'admin';
+      return this.currentUser && ['admin', 'super_admin', 'credit_admin', 'branch_leader'].includes(this.currentUser.role);
     },
-    filteredUsers() {
-      const keyword = this.userSearch.trim().toLowerCase();
-      let filtered = this.users;
-      
-      // 搜索过滤
-      if (keyword) {
-        filtered = filtered.filter(
-          user =>
-            user.name.toLowerCase().includes(keyword) ||
-            user.phone.includes(keyword) ||
-            user.branch.toLowerCase().includes(keyword)
-        );
-      }
-      
-      return filtered;
+    isSuperAdmin() {
+      return this.currentUser && this.currentUser.role === 'super_admin';
+    },
+    tabs() {
+      return this.allTabs.filter(t => !t.superAdminOnly || this.isSuperAdmin);
     },
     filteredOverviewData() {
       const keyword = this.searchKeyword.trim().toLowerCase();
       let filtered = this.overviewData.filter(
         item =>
           (!keyword || item.employee.name.toLowerCase().includes(keyword) ||
-          item.employee.branch.toLowerCase().includes(keyword))
+          (item.employee.branchName || item.employee.branch || '').toLowerCase().includes(keyword))
       );
       
       // 按排名升序排列
@@ -870,7 +1163,7 @@ export default {
       });
     },
     ruleSections() {
-      return RULE_SECTIONS.map(section => ({
+      return this.RULE_SECTIONS.map(section => ({
         ...section,
         rules: this.rules.filter(rule => rule.category === section.category && rule.group === section.group)
       }));
@@ -904,7 +1197,7 @@ export default {
           const rule = this.rules.find(r => r.id === sub.ruleId);
           return (
             (employee && employee.name.toLowerCase().includes(keyword)) ||
-            (employee && employee.branch.toLowerCase().includes(keyword)) ||
+            (employee && (employee.branchName || employee.branch).toLowerCase().includes(keyword)) ||
             (rule && rule.name.toLowerCase().includes(keyword))
           );
         });
@@ -949,6 +1242,14 @@ export default {
       try {
         await StoreService.ensureReady();
         this.currentUser = StoreService.getCurrentUser();
+        // 调试：输出当前用户角色信息
+        console.log('=== Admin调试信息 ===');
+        console.log('当前用户:', this.currentUser);
+        console.log('用户角色:', this.currentUser?.role);
+        console.log('isAdmin:', this.isAdmin);
+        console.log('isSuperAdmin:', this.isSuperAdmin);
+        console.log('==================');
+
         if (!this.isAdmin) return;
         this.currentQuarter = StoreService.getCurrentQuarter();
         // 只在第一次加载或没有选择季度时才设置为当前季度
@@ -957,14 +1258,14 @@ export default {
         }
         // 更新奖励规则季度选择为当前季度
         this.selectedBonusQuarter = this.currentQuarter;
-        // 传递选中的季度到getOverviewTable方法
-        this.overviewData = StoreService.getOverviewTable(this.selectedQuarter);
-        // 传递季度参数给getLeaderboard方法
-        this.leaderboard = StoreService.getLeaderboard('quarter', { start: this.selectedQuarter });
-        this.users = StoreService.getUsers();
+
+        // 使用mixins中的refresh方法
+        await this.refreshOverviewData();
+        await this.refreshUsers();
+        await this.loadRoles();
         this.refreshBranches();
         this.refreshRules();
-        this.settings = StoreService.getSettings();
+        this.refreshSettings();
         this.ruleDescriptionSections = StoreService.getRuleDescriptionSections();
         // 根据选中的季度筛选提报记录
         this.allSubmissions = StoreService.getSubmissions().filter(sub => sub.quarter === this.selectedQuarter);
@@ -1055,7 +1356,7 @@ export default {
     },
     getEmployeeBranch(employeeId) {
       const user = this.users.find(u => u.id === employeeId);
-      return user ? user.branch : '未知支行';
+      return user ? (user.branchName || user.branch) : '未知支行';
     },
     getRuleName(ruleId) {
       const rule = this.rules.find(r => r.id === ruleId);
@@ -1302,8 +1603,8 @@ export default {
         {
           label: '基础信息',
           children: [
-            { label: '网点编号', getter: row => this.getBranchIdByName(row.employee.branch) },
-            { label: '网点', getter: row => row.employee.branch },
+            { label: '网点编号', getter: row => row.employee.branchId || this.getBranchIdByName(row.employee.branchName || row.employee.branch) },
+            { label: '网点', getter: row => row.employee.branchName || row.employee.branch },
             { label: '客户经理', getter: row => row.employee.name },
             { label: '排名', getter: row => this.getRank(row.employee.id) },
             { label: '总分', getter: row => row.stats.totalScore },
@@ -1557,8 +1858,8 @@ export default {
         // 构建数据数组，与表头对应
         const rowData = [
           // 基础信息
-          this.getBranchIdByName(employee.branch),
-          employee.branch,
+          employee.branchId || this.getBranchIdByName(employee.branchName || employee.branch),
+          employee.branchName || employee.branch,
           employee.name,
           this.getRank(employee.id),
           
@@ -1873,8 +2174,16 @@ export default {
     openUserModal(user) {
       this.editingUser = user || null;
       if (user) {
-        this.userForm = { ...user };
+        // 编辑模式：只复制必要的字段
+        this.userForm = {
+          name: user.name,
+          phone: user.phone,
+          branch: user.branchName || user.branch,
+          branchId: user.branchId || '',
+          role: user.role
+        };
       } else {
+        // 新增模式
         this.userForm = {
           name: '',
           phone: '',
@@ -1882,13 +2191,9 @@ export default {
           role: 'manager'
         };
       }
-      const idx = Math.max(
-        this.branchNameOptions.findIndex(name => name === this.userForm.branch),
-        0
-      );
-      this.branchIndex = idx;
-      this.userForm.branch = this.branchNameOptions[idx] || '';
-      this.roleIndex = this.userForm.role === 'admin' ? 1 : 0;
+      // 设置支行选择器的索引
+      const idx = this.branchNameOptions.findIndex(name => name === this.userForm.branch);
+      this.branchIndex = idx >= 0 ? idx : 0;
       this.showUserModal = true;
     },
     closeUserModal() {
@@ -1898,21 +2203,25 @@ export default {
       this.branchIndex = Number(event.detail.value);
       this.userForm.branch = this.branchNameOptions[this.branchIndex] || '';
     },
-    handleRolePicker(event) {
-      this.roleIndex = Number(event.detail.value);
-      this.userForm.role = this.roleIndex === 1 ? 'admin' : 'manager';
-    },
     async submitUserForm() {
       if (!this.userForm.name || !this.userForm.phone) {
         uni.showToast({ title: '请完整填写信息', icon: 'none' });
         return;
       }
       try {
+        // 只提交必要的字段，避免提交_id等不需要的字段
+        const userData = {
+          name: this.userForm.name,
+          phone: this.userForm.phone,
+          branch: this.userForm.branch,
+          role: this.userForm.role
+        };
+
         if (this.editingUser) {
-          await StoreService.updateUser(this.editingUser.id, this.userForm);
+          await StoreService.updateUser(this.editingUser.id, userData);
           uni.showToast({ title: '已更新', icon: 'success' });
         } else {
-          await StoreService.addUser(this.userForm);
+          await StoreService.addUser(userData);
           uni.showToast({ title: '已新增', icon: 'success' });
         }
         this.closeUserModal();
@@ -1982,7 +2291,7 @@ export default {
       this.users.forEach(user => {
         const row = [
           user.name,
-          user.branch,
+          user.branchName || user.branch,
           this.currentQuarter
         ];
         
@@ -2476,7 +2785,7 @@ export default {
     },
     gotoUserDetails(employee) {
       uni.navigateTo({
-        url: `/pages/admin/user-details/user-details?employeeId=${employee.id}&name=${encodeURIComponent(employee.name)}&branch=${encodeURIComponent(employee.branch)}`
+        url: `/pages/admin/user-details/user-details?employeeId=${employee.id}&name=${encodeURIComponent(employee.name)}&branch=${encodeURIComponent(employee.branchName || employee.branch)}`
       });
     },
     navigateToSubmissionFlow() {
@@ -2532,130 +2841,7 @@ export default {
         }
       });
     },
-    openRuleModal(rule = null) {
-      if (rule) {
-        this.editingRule = rule;
-        this.ruleForm = {
-          name: rule.name,
-          category: rule.category,
-          group: rule.group,
-          icon: rule.icon,
-          color: rule.color,
-          hasStockOption: !!rule.hasStockOption,
-          stockLabel: rule.stockLabel || '存量',
-          pointsNewItem: rule.pointsNew?.item ?? 0,
-          pointsNewMillion: rule.pointsNew?.million ?? 0,
-          pointsStockItem: rule.pointsStock?.item ?? 0,
-          pointsStockMillion: rule.pointsStock?.million ?? 0,
-          hidden: !!rule.hidden
-        };
-      } else {
-        this.editingRule = null;
-        this.ruleForm = ruleFormDefaults();
-      }
-      this.selectRuleCategory(this.ruleForm.category);
-      this.showRuleModal = true;
-    },
-    closeRuleModal() {
-      this.showRuleModal = false;
-      this.editingRule = null;
-    },
-    selectRuleCategory(value) {
-      this.ruleForm.category = value;
-      const groups = this.ruleGroupOptions[value] || [];
-      if (!groups.some(item => item.value === this.ruleForm.group)) {
-        this.ruleForm.group = groups[0]?.value || '';
-      }
-    },
-    selectRuleGroup(value) {
-      this.ruleForm.group = value;
-    },
-    selectRuleIcon(icon) {
-      this.ruleForm.icon = icon;
-    },
-    selectRuleColor(color) {
-      this.ruleForm.color = color;
-    },
-    async submitRuleForm() {
-      const name = this.ruleForm.name.trim();
-      if (!name) {
-        uni.showToast({ title: '请输入业务名称', icon: 'none' });
-        return;
-      }
-      const payload = {
-        name,
-        category: this.ruleForm.category,
-        group: this.ruleForm.group,
-        icon: this.ruleForm.icon || 'circle',
-        color: this.ruleForm.color || '#0f766e',
-        hasStockOption: !!this.ruleForm.hasStockOption,
-        stockLabel: this.ruleForm.stockLabel || '存量',
-        pointsNew: {
-          item: Number(this.ruleForm.pointsNewItem) || 0,
-          million: Number(this.ruleForm.pointsNewMillion) || 0
-        },
-        pointsStock: {
-          item: this.ruleForm.hasStockOption ? Number(this.ruleForm.pointsStockItem) || 0 : 0,
-          million: this.ruleForm.hasStockOption ? Number(this.ruleForm.pointsStockMillion) || 0 : 0
-        },
-        hidden: this.ruleForm.hidden
-      };
-      try {
-        if (this.editingRule) {
-          await StoreService.updateRule(this.editingRule.id, payload);
-          uni.showToast({ title: '规则已更新', icon: 'success' });
-        } else {
-          await StoreService.addRule(payload);
-          uni.showToast({ title: '规则已新增', icon: 'success' });
-        }
-        this.closeRuleModal();
-        this.refreshRules();
-      } catch (error) {
-        uni.showToast({ title: error.message || '保存失败', icon: 'none' });
-      }
-    },
-    async toggleRuleHidden(rule) {
-      try {
-        // 切换隐藏状态
-        const newHiddenState = !rule.hidden;
-        await StoreService.updateRule(rule.id, { hidden: newHiddenState });
-        // 刷新规则列表
-        uni.showToast({ 
-          title: newHiddenState ? '已隐藏' : '已显示', 
-          icon: 'success' 
-        });
-        // 立即更新本地规则对象，触发界面刷新
-        const index = this.rules.findIndex(r => r.id === rule.id);
-        if (index !== -1) {
-          this.rules.splice(index, 1, { ...this.rules[index], hidden: newHiddenState });
-        } else {
-          // 如果找不到，重新获取所有规则
-          this.refreshRules();
-        }
-      } catch (error) {
-        uni.showToast({ 
-          title: error.message || '操作失败', 
-          icon: 'none' 
-        });
-      }
-    },
-    deleteRule(rule) {
-      uni.showModal({
-        title: '删除规则',
-        content: `确定删除业务【${rule.name}】？`,
-        confirmColor: '#ef4444',
-        success: async res => {
-          if (!res.confirm) return;
-          try {
-            await StoreService.deleteRule(rule.id);
-            uni.showToast({ title: '已删除', icon: 'success' });
-            this.refreshRules();
-          } catch (error) {
-            uni.showToast({ title: error.message || '删除失败', icon: 'none' });
-          }
-        }
-      });
-    },
+    // 规则描述相关方法（不在mixin中，保留在admin.vue）
     openRuleDescriptionModal() {
       const source = this.ruleDescriptionSections.length
         ? this.ruleDescriptionSections
@@ -2709,6 +2895,257 @@ export default {
       } catch (error) {
         uni.showToast({ title: error.message || '保存失败', icon: 'none' });
       }
+    },
+
+    // ===== 角色管理 =====
+    async loadRoles() {
+      try {
+        const res = await uniCloud.callFunction({
+          name: 'appService',
+          data: {
+            action: 'getRoles',
+            payload: {}
+          }
+        });
+        this.roles = res.result.data || [];
+      } catch (error) {
+        console.error('Failed to load roles:', error);
+        uni.showToast({ title: '加载角色失败', icon: 'none' });
+      }
+    },
+
+    async initDefaultRoles() {
+      try {
+        uni.showLoading({ title: '初始化中...' });
+        await uniCloud.callFunction({
+          name: 'appService',
+          data: {
+            action: 'initDefaultRoles',
+            payload: {}
+          }
+        });
+        uni.hideLoading();
+        uni.showToast({ title: '初始化成功', icon: 'success' });
+        await this.loadRoles();
+      } catch (error) {
+        uni.hideLoading();
+        uni.showToast({ title: error.message || '初始化失败', icon: 'none' });
+      }
+    },
+
+    async syncRoles() {
+      try {
+        const res = await uni.showModal({
+          title: '同步默认角色',
+          content: '此操作将更新现有角色配置并添加新角色，是否继续？'
+        });
+        if (!res.confirm) return;
+
+        uni.showLoading({ title: '同步中...' });
+        const result = await uniCloud.callFunction({
+          name: 'appService',
+          data: {
+            action: 'syncDefaultRoles',
+            payload: {}
+          }
+        });
+        uni.hideLoading();
+
+        if (result.result.data?.success) {
+          const { updated, added } = result.result.data;
+          uni.showToast({
+            title: `同步成功：更新${updated}个，新增${added}个`,
+            icon: 'success',
+            duration: 2000
+          });
+          await this.loadRoles();
+        } else {
+          throw new Error('同步失败');
+        }
+      } catch (error) {
+        uni.hideLoading();
+        uni.showToast({ title: error.message || '同步失败', icon: 'none' });
+      }
+    },
+
+    formatPermissions(permissions) {
+      if (!permissions || permissions.length === 0) return '无';
+      if (permissions[0] === 'all') return '全部';
+      if (permissions.length > 3) return `${permissions.length}项`;
+      return permissions.join('、');
+    },
+
+    formatDataScope(dataScope) {
+      const map = {
+        'all': '全部数据',
+        'branch': '本支行',
+        'self': '仅自己'
+      };
+      return map[dataScope] || dataScope;
+    },
+
+    getRoleBadgeClass(roleCode) {
+      if (roleCode === 'super_admin') return 'badge-super';
+      if (roleCode === 'branch_leader') return 'badge-branch-leader';
+      if (roleCode === 'credit_admin') return 'badge-credit';
+      if (roleCode === 'personal_finance_admin') return 'badge-personal-finance';
+      if (roleCode === 'knowledge_admin') return 'badge-knowledge';
+      if (roleCode === 'admin') return 'badge-admin';
+      if (roleCode.includes('admin')) return 'badge-admin';
+      return 'badge-default';
+    },
+
+    getRoleDisplay(roleCode) {
+      return StoreService.getRoleName(roleCode);
+    },
+
+    getRoleBadgeText(roleCode) {
+      if (roleCode === 'super_admin') return '超级管理员';
+      if (roleCode === 'credit_admin') return '个贷';
+      if (roleCode === 'personal_finance_admin') return '个金';
+      if (roleCode === 'knowledge_admin') return '知识库';
+      if (roleCode === 'admin') return '管理员';
+      if (roleCode.includes('admin')) return '管理员';
+      return '用户';
+    },
+
+    getRoleNameByCode(roleCode) {
+      const role = this.roles.find(r => r.roleCode === roleCode);
+      return role ? role.roleName : roleCode;
+    },
+
+    // 判断是否是系统默认角色
+    isSystemRole(roleCode) {
+      const systemRoles = [
+        'super_admin',
+        'branch_leader',
+        'credit_admin',
+        'personal_finance_admin',
+        'questionnaire_admin',
+        'knowledge_admin',
+        'admin',
+        'manager',
+        'lobby_manager',
+        'elastic_counter',
+        'counter_manager'
+      ];
+      return systemRoles.includes(roleCode);
+    },
+
+    // 删除角色
+    async handleDeleteRole(role) {
+      uni.showModal({
+        title: '确认删除',
+        content: `确认删除角色【${role.roleName}】？删除后无法恢复！`,
+        cancelText: '取消',
+        confirmText: '确认删除',
+        confirmColor: '#ef4444',
+        success: async res => {
+          if (!res.confirm) return;
+          try {
+            uni.showLoading({ title: '删除中...' });
+            await uniCloud.callFunction({
+              name: 'appService',
+              data: {
+                action: 'deleteRole',
+                payload: { roleCode: role.roleCode }
+              }
+            });
+            uni.hideLoading();
+            uni.showToast({
+              title: '删除成功',
+              icon: 'success'
+            });
+            await this.loadRoles();
+          } catch (error) {
+            uni.hideLoading();
+            uni.showToast({ title: error.message || '删除失败', icon: 'none' });
+          }
+        }
+      });
+    },
+
+    // 编辑角色权限
+    editRole(role) {
+      this.editingRole = role;
+      this.roleForm = {
+        roleName: role.roleName,
+        roleCode: role.roleCode,
+        description: role.description || '',
+        permissions: {
+          menus: [...(role.permissions?.menus || [])],
+          operations: [...(role.permissions?.operations || [])],
+          dataScope: role.permissions?.dataScope || 'self'
+        }
+      };
+      this.showRoleModal = true;
+    },
+
+    toggleRolePermission(type, permission) {
+      const permissions = this.roleForm.permissions[type];
+      const index = permissions.indexOf(permission);
+
+      if (permission === 'all') {
+        // 如果点击"全部"，清空或设置为全部
+        if (index === -1) {
+          // 设置为全部
+          this.roleForm.permissions[type] = ['all'];
+        } else {
+          // 取消全部，保持为空数组
+          this.roleForm.permissions[type] = [];
+        }
+      } else {
+        // 普通权限
+        if (index === -1) {
+          // 添加权限
+          this.roleForm.permissions[type].push(permission);
+          // 如果添加了非全部权限，移除"全部"选项
+          const allIndex = this.roleForm.permissions[type].indexOf('all');
+          if (allIndex !== -1) {
+            this.roleForm.permissions[type].splice(allIndex, 1);
+          }
+        } else {
+          // 移除权限
+          this.roleForm.permissions[type].splice(index, 1);
+        }
+      }
+    },
+
+    closeRoleModal() {
+      this.showRoleModal = false;
+      this.editingRole = null;
+    },
+
+    async submitRoleForm() {
+      if (!this.roleForm.roleName || !this.roleForm.roleCode) {
+        uni.showToast({ title: '角色名称和代码不能为空', icon: 'none' });
+        return;
+      }
+
+      try {
+        uni.showLoading({ title: '保存中...' });
+
+        const action = this.editingRole ? 'updateRolePermissions' : 'createRole';
+        const payload = {
+          roleCode: this.roleForm.roleCode,
+          roleName: this.roleForm.roleName,
+          description: this.roleForm.description,
+          permissions: this.roleForm.permissions
+        };
+
+        await uniCloud.callFunction({
+          name: 'appService',
+          data: { action, payload }
+        });
+
+        uni.hideLoading();
+        uni.showToast({ title: '保存成功', icon: 'success' });
+        this.closeRoleModal();
+        await this.loadRoles();
+      } catch (error) {
+        uni.hideLoading();
+        uni.showToast({ title: error.message || '保存失败', icon: 'none' });
+      }
     }
   }
 };
@@ -2719,87 +3156,108 @@ export default {
   height: 100vh;
   background: #f5f7fb;
   padding: 32rpx;
-  padding-bottom: 32rpx;
   overflow: hidden;
   box-sizing: border-box;
 }
 
 .admin-header {
+  background: linear-gradient(135deg, #0d3d38 0%, #0f766e 60%, #065c8a 100%);
+  padding: 28rpx 32rpx;
+  margin: -32rpx -32rpx 0;
   display: flex;
+  align-items: center;
   justify-content: space-between;
   gap: 24rpx;
-  margin-bottom: 24rpx;
 }
 
 .admin-info {
   flex: 1;
+  min-width: 0;
 }
 
 .admin-title {
   display: block;
-  font-size: 40rpx;
-  font-weight: 700;
-  color: #0f172a;
+  font-size: 36rpx;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 8rpx;
 }
 
-.admin-subtitle {
-  display: block;
+.admin-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  flex-wrap: wrap;
+}
+
+.admin-meta-item {
   font-size: 24rpx;
-  color: #94a3b8;
-  margin-top: 8rpx;
+  color: rgba(255,255,255,0.7);
+}
+
+.admin-meta-sep {
+  font-size: 22rpx;
+  color: rgba(255,255,255,0.35);
 }
 
 .header-actions {
-  min-width: 280rpx;
-  max-width: 360rpx;
   display: flex;
-  flex-wrap: wrap;
-  gap: 12rpx;
-  justify-content: flex-end;
+  gap: 16rpx;
+  flex-shrink: 0;
+  align-items: center;
 }
 
 .action-chip {
-  flex: 1 1 45%;
-  min-width: 120rpx;
-  border-radius: 999rpx;
-  padding: 16rpx 0;
-  border: 2rpx solid rgba(15, 118, 110, 0.15);
-  background: #fff;
-  color: #0f766e;
-  font-size: 24rpx;
+  font-size: 26rpx;
+  padding: 14rpx 24rpx;
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  border: 1rpx solid rgba(255,255,255,0.3);
+  border-radius: 20rpx;
+  font-weight: 600;
 }
 
-.action-chip.danger {
-  border-color: rgba(239, 68, 68, 0.2);
-  color: #ef4444;
+.action-chip.primary {
+  background: #fff;
+  color: #0f766e;
+  border-color: transparent;
 }
 
 .admin-tabs {
   display: flex;
-  background: #ffffff;
-  border-radius: 999rpx;
-  padding: 4rpx;
-  gap: 4rpx;
-  margin-bottom: 24rpx;
+  background: #fff;
+  border-bottom: 2rpx solid #e5e7eb;
+  margin: 0 -32rpx;
 }
 
 .admin-tab {
   flex: 1;
   text-align: center;
-  border-radius: 999rpx;
-  padding: 16rpx 0;
+  padding: 22rpx 0;
   font-size: 26rpx;
-  color: #94a3b8;
+  color: #64748b;
+  position: relative;
 }
 
 .admin-tab.active {
-  background: #0f766e;
-  color: #fff;
+  color: #0f766e;
   font-weight: 600;
+  background: transparent;
+}
+
+.admin-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 20%;
+  right: 20%;
+  height: 4rpx;
+  background: #0f766e;
+  border-radius: 2rpx;
 }
 
 .admin-content {
-  height: calc(100vh - 320rpx);
+  height: calc(100vh - 200rpx);
   width: 100%;
   overflow-y: auto;
   padding-bottom: 60rpx;
@@ -2807,6 +3265,7 @@ export default {
 
 .tab-panel {
   width: 100%;
+  padding-bottom: 80rpx;
 }
 
 .admin-content::-webkit-scrollbar,
@@ -2904,6 +3363,14 @@ export default {
   flex-wrap: wrap;
 }
 
+.role-filter-wrap { display: flex; align-items: flex-start; gap: 12rpx; background: #fff; border-radius: 12rpx; padding: 16rpx 24rpx; margin-bottom: 16rpx; }
+.role-filter { display: flex; flex-wrap: wrap; gap: 12rpx; flex: 1; max-height: 56rpx; overflow: hidden; transition: max-height 0.3s; }
+.role-filter.expanded { max-height: 1000rpx; }
+.role-filter-item { padding: 10rpx 24rpx; background: #f1f5f9; border-radius: 32rpx; font-size: 26rpx; color: #64748b; }
+.role-filter-item.active { background: #0f766e; color: #fff; }
+.role-filter-toggle { flex-shrink: 0; width: 48rpx; height: 48rpx; display: flex; align-items: center; justify-content: center; background: #f1f5f9; border-radius: 50%; transition: transform 0.3s; transform: rotate(180deg); }
+.role-filter-toggle.rotated { transform: rotate(0deg); }
+
 .panel-header--actions {
   flex-wrap: nowrap;
 }
@@ -2989,6 +3456,12 @@ export default {
   font-size: 22rpx;
   border-radius: 12rpx;
   white-space: nowrap;
+}
+
+.user-readonly-hint {
+  font-size: 22rpx;
+  color: #94a3b8;
+  padding: 12rpx 20rpx;
 }
 
 .branch-form {
@@ -3149,7 +3622,7 @@ export default {
 }
 
 .form-item {
-  margin-bottom: 16rpx;
+  margin-bottom: 24rpx;
 }
 
 .form-row {
@@ -3162,15 +3635,18 @@ export default {
 }
 
 .form-label {
+  display: block;
   font-size: 24rpx;
-  color: #94a3b8;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 10rpx;
+  letter-spacing: 0.5rpx;
 }
 
 .form-input,
 .picker-value {
-  margin-top: 8rpx;
   background: #f8fafc;
-  border-radius: 18rpx;
+  border-radius: 16rpx;
   font-size: 28rpx;
   color: #0f172a;
   width: 100%;
@@ -3178,7 +3654,14 @@ export default {
   height: 88rpx;
   line-height: 88rpx;
   padding: 0 24rpx;
-  border: none;
+  border: 1.5rpx solid #e2e8f0;
+  transition: border-color 0.2s;
+}
+
+.picker-value {
+  display: flex;
+  align-items: center;
+  color: #0f172a;
 }
 
 .form-textarea {
@@ -3194,6 +3677,41 @@ export default {
   border: none;
   box-sizing: border-box;
   resize: vertical;
+}
+
+/* Checkbox and Radio styles */
+.checkbox-group,
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  margin-top: 12rpx;
+}
+
+.checkbox-item,
+.radio-item {
+  display: flex;
+  align-items: center;
+  font-size: 26rpx;
+  color: #475569;
+  cursor: pointer;
+}
+
+.checkbox-item radio,
+.radio-item radio {
+  margin-right: 12rpx;
+}
+
+.radio-item.active {
+  color: #0f766e;
+  font-weight: 500;
+}
+
+.form-tip {
+  display: block;
+  font-size: 22rpx;
+  color: #94a3b8;
+  margin-top: 8rpx;
 }
 
 .form-tip {
@@ -3400,7 +3918,7 @@ export default {
   right: 0;
   top: 0;
   bottom: 0;
-  background: rgba(15, 23, 42, 0.45);
+  background: rgba(15, 23, 42, 0.55);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3411,20 +3929,25 @@ export default {
 .modal {
   width: 100%;
   max-width: 640rpx;
+  max-height: 85vh;
   background: #ffffff;
-  border-radius: 24rpx;
+  border-radius: 32rpx;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 40rpx 120rpx rgba(15, 23, 42, 0.2);
 }
 
 .modal-header {
-  background: linear-gradient(to right, #0f766e, #0ea5e9);
+  background: linear-gradient(135deg, #0f766e 0%, #0ea5e9 100%);
   color: #fff;
-  padding: 28rpx;
+  padding: 32rpx 32rpx 28rpx;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 30rpx;
-  font-weight: 600;
+  font-size: 32rpx;
+  font-weight: 700;
+  letter-spacing: 1rpx;
 }
 
 .modal-close {
@@ -3433,36 +3956,43 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
   cursor: pointer;
 }
 
 .modal-body {
-  padding: 24rpx;
+  flex: 1;
+  overflow: hidden;
+  padding: 32rpx;
 }
 
 .rule-form-body {
-  padding: 0 0 24rpx;
+  max-height: 60vh;
+  padding: 32rpx;
+  box-sizing: border-box;
 }
 
 .rule-form-content {
-  margin: 0 24rpx;
+  margin: 0;
 }
 
 .rule-desc-body {
   max-height: 60vh;
-  padding: 0 0 24rpx;
+  padding: 32rpx;
+  box-sizing: border-box;
 }
 
 .rule-desc-section {
-  border-radius: 24rpx;
+  border-radius: 20rpx;
   padding: 28rpx;
-  margin: 0 24rpx 16rpx;
-  background: #ffffff;
-  box-shadow: 0 20rpx 60rpx rgba(15, 118, 110, 0.08);
+  margin-bottom: 16rpx;
+  background: #f8fafc;
+  border: 1rpx solid #e2e8f0;
 }
 
 .rule-desc-body .ghost-btn.full-width {
-  margin: 0 24rpx 24rpx;
+  margin-bottom: 8rpx;
 }
 
 .rule-desc-actions {
@@ -3471,9 +4001,38 @@ export default {
 }
 
 .modal-footer {
-  padding: 24rpx;
+  padding: 20rpx 32rpx 32rpx;
   display: flex;
   gap: 16rpx;
+  border-top: 1rpx solid #f1f5f9;
+}
+
+.modal-footer .ghost-btn,
+.modal-footer .primary-btn,
+.modal-footer .danger-btn {
+  flex: 1;
+  border-radius: 16rpx;
+  height: 88rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  letter-spacing: 1rpx;
+}
+
+.modal-footer .primary-btn {
+  background: linear-gradient(135deg, #0f766e 0%, #0ea5e9 100%);
+  box-shadow: 0 8rpx 24rpx rgba(15, 118, 110, 0.3);
+}
+
+.modal-footer .ghost-btn {
+  background: #f8fafc;
+  border: 1.5rpx solid #e2e8f0;
+  color: #64748b;
+}
+
+.modal-footer .danger-btn {
+  background: #fef2f2;
+  border: 1.5rpx solid #fecaca;
+  color: #ef4444;
 }
 /* 导出弹框样式 */
 .export-option {

@@ -50,7 +50,7 @@
     "quickapp" : {},
     /* 小程序特有相关 */
     "mp-weixin" : {
-        "appid" : "your-wechat-appid",
+        "appid" : "wx7975f37c8887eb13",
         "setting" : {
             "urlCheck" : false,
             "minified" : true
@@ -72,8 +72,8 @@
     },
     "uniCloud" : {
         "provider" : "aliyun",
-        "spaceId" : "your-space-id",
-        "clientSecret" : "your-client-secret"
+        "spaceId" : "mp-5dcdd8dc-dc18-4559-9b2f-3c5e006c35b1",
+        "clientSecret" : "8xsA/WX+h56zRsZ3dONlfA=="
     },
     "vueVersion" : "3"
 }

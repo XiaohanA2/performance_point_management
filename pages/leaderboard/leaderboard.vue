@@ -4,153 +4,170 @@
       <view class="hero-icon">
         <image src="/static/rank.png" mode="aspectFill" style="width: 64rpx; height: 64rpx;" />
       </view>
-      <text class="hero-title">龙虎榜</text>
-      
-      <!-- 时间段筛选 -->
-        <view class="filter-section">
+      <text class="hero-title">{{ systemMode === 'pf' ? '月度排名' : '龙虎榜' }}</text>
+      <view class="system-badge">{{ systemMode === 'pf' ? '岗位穿透' : '信贷系统' }}</view>
+
+      <view class="filter-section">
+        <!-- 个贷：季度/月份切换 -->
+        <template v-if="systemMode === 'credit'">
           <view class="filter-tabs">
-            <view 
-              class="filter-tab" 
-              :class="{ active: filterType === 'quarter' }" 
-              @click="setFilterType('quarter')"
-            >
-              按季度
-            </view>
-            <view 
-              class="filter-tab" 
-              :class="{ active: filterType === 'month' }" 
-              @click="setFilterType('month')"
-            >
-              按月份
-            </view>
+            <view class="filter-tab" :class="{ active: filterType === 'quarter' }" @click="setFilterType('quarter')">按季度</view>
+            <view class="filter-tab" :class="{ active: filterType === 'month' }" @click="setFilterType('month')">按月份</view>
           </view>
-          
           <view class="filter-row">
-            <!-- 季度选择器 -->
             <view v-if="filterType === 'quarter'" class="date-picker-container">
               <picker :range="quarterOptions" :value="quarterOptions.indexOf(selectedQuarter)" @change="handleQuarterChange">
-                <view class="date-picker-btn">
-                  <text class="icon">📅</text>
-                  <text>{{ selectedQuarter || '选择季度' }}</text>
-                </view>
+                <view class="date-picker-btn"><text class="icon">📅</text><text>{{ selectedQuarter || '选择季度' }}</text></view>
               </picker>
             </view>
-            
-            <!-- 月份选择器 -->
             <view v-if="filterType === 'month'" class="date-picker-container">
               <picker mode="date" :fields="'month'" @change="handleMonthChange" :value="monthValue">
-                <view class="date-picker-btn">
-                  <text class="icon">📅</text>
-                  <text>{{ formatMonth(selectedMonth) || '选择月份' }}</text>
-                </view>
+                <view class="date-picker-btn"><text class="icon">📅</text><text>{{ formatMonth(selectedMonth) || '选择月份' }}</text></view>
               </picker>
             </view>
-            
             <text class="rank-label">积分排名</text>
           </view>
-        </view>
+        </template>
+        <!-- 个金：月份选择 -->
+        <template v-if="systemMode === 'pf'">
+          <view class="filter-row">
+            <picker mode="date" :fields="'month'" @change="handlePFMonthChange" :value="pfMonthPickerValue">
+              <view class="date-picker-btn"><text class="icon">📅</text><text>{{ formatPeriod(pfSelectedPeriod) }}</text></view>
+            </picker>
+            <text class="rank-label">积分排名</text>
+          </view>
+          <!-- 角色筛选tabs -->
+          <view class="role-filter-tabs">
+            <view
+              v-for="roleFilter in pfRoleFilters"
+              :key="roleFilter.value"
+              class="role-tab"
+              :class="{ active: pfSelectedRole === roleFilter.value }"
+              @click="pfSelectedRole = roleFilter.value"
+            >
+              {{ roleFilter.label }}
+            </view>
+          </view>
+        </template>
+      </view>
     </view>
 
-    <!-- 加载状态 -->
     <view v-if="isLoading" class="loading-state">
       <text class="loading-text">加载中...</text>
     </view>
 
-    <!-- 数据内容 -->
     <view v-else class="leaderboard-content">
-      <!-- 列表为空状态 -->
-      <view v-if="leaderboard.length === 0" class="empty-state">
-        <text>暂无榜单数据，先去提报业务赚积分吧</text>
-        <button class="light-btn" @click="gotoDashboard">前往工作台</button>
-      </view>
-      
-      <!-- 排行榜列表 -->
-      <view
-        v-for="(entry, index) in leaderboard"
-        :key="entry.employeeId"
-        class="leaderboard-card"
-        :class="{
-          'rank-1': entry.rank === 1,
-          'rank-2': entry.rank === 2,
-          'rank-3': entry.rank === 3
-        }"
-      >
-        <view class="rank-badge">
-          <uni-icons v-if="entry.rank === 1" type="medal" :color="rankColor(1)" size="26" />
-          <uni-icons v-else-if="entry.rank === 2" type="medal" :color="rankColor(2)" size="26" />
-          <uni-icons v-else-if="entry.rank === 3" type="medal" :color="rankColor(3)" size="26" />
-          <text v-else>{{ entry.rank }}</text>
+      <!-- 个贷榜单 -->
+      <template v-if="systemMode === 'credit'">
+        <view v-if="leaderboard.length === 0" class="empty-state">
+          <text>暂无榜单数据，先去提报业务赚积分吧</text>
+          <button class="light-btn" @click="gotoDashboard">前往工作台</button>
         </view>
-        <view class="employee-info">
-          <text class="employee-name">{{ entry.name }}</text>
-          <view class="employee-meta">
-            <text class="employee-branch">{{ entry.branch }}</text>
-            <view class="score-chips">
-              <view class="chip blue">个贷 {{ entry.personalScore }}</view>
-              <view class="chip teal">小微 {{ entry.microScore }}</view>
+        <view v-for="entry in leaderboard" :key="`${filterType}_${selectedQuarter}_${dateRange.start}_${entry.employeeId}`" class="leaderboard-card"
+          :class="{ 'rank-1': entry.rank===1, 'rank-2': entry.rank===2, 'rank-3': entry.rank===3 }">
+          <view class="rank-badge">
+            <uni-icons v-if="entry.rank===1" type="medal" :color="rankColor(1)" size="26" />
+            <uni-icons v-else-if="entry.rank===2" type="medal" :color="rankColor(2)" size="26" />
+            <uni-icons v-else-if="entry.rank===3" type="medal" :color="rankColor(3)" size="26" />
+            <text v-else>{{ entry.rank }}</text>
+          </view>
+          <view class="employee-info">
+            <text class="employee-name">{{ entry.name }}</text>
+            <view class="employee-meta">
+              <text class="employee-branch">{{ entry.branchName || entry.branch }}</text>
+              <view class="score-chips">
+                <view class="chip blue">个贷 {{ entry.personalScore }}</view>
+                <view class="chip teal">小微 {{ entry.microScore }}</view>
+              </view>
             </view>
           </view>
+          <view class="score-total">
+            <text>{{ entry.totalScore }}</text>
+            <text class="score-label">&nbsp;&nbsp;总积分</text>
+          </view>
         </view>
-        <view class="score-total">
-          <text>{{ entry.totalScore }}</text>
-          <text class="score-label">&nbsp;&nbsp;总积分</text>
+      </template>
+
+      <!-- 个金榜单 -->
+      <template v-if="systemMode === 'pf'">
+        <view v-if="filteredPFRankings.length === 0" class="empty-state">
+          <text>暂无榜单数据，先去提报业务赚积分吧</text>
+          <button class="light-btn" @click="gotoDashboard">前往工作台</button>
         </view>
-      </view>
+        <view v-for="(item, index) in filteredPFRankings" :key="item.userId" class="leaderboard-card"
+          :class="{ 'rank-1': index===0, 'rank-2': index===1, 'rank-3': index===2, 'highlight': currentUser && item.userId === currentUser.id }">
+          <view class="rank-badge">
+            <uni-icons v-if="index===0" type="medal" :color="rankColor(1)" size="26" />
+            <uni-icons v-else-if="index===1" type="medal" :color="rankColor(2)" size="26" />
+            <uni-icons v-else-if="index===2" type="medal" :color="rankColor(3)" size="26" />
+            <text v-else>{{ index + 1 }}</text>
+          </view>
+          <view class="employee-info">
+            <text class="employee-name">{{ item.userName }}</text>
+            <view class="employee-meta">
+              <text class="employee-branch">{{ item.branchName || item.branch || '未设置支行' }}</text>
+              <view class="score-chips">
+                <view class="chip blue">必选 {{ item.requiredScore }}</view>
+                <view class="chip teal">加分 {{ item.bonusScore }}</view>
+              </view>
+            </view>
+          </view>
+          <view class="score-total">
+            <text>{{ item.totalScore }}</text>
+            <text class="score-label">&nbsp;&nbsp;总积分</text>
+          </view>
+        </view>
+      </template>
     </view>
   </view>
 </template>
 
 <script>
 import { StoreService } from '../../services/store.js';
+import { getUserDefaultSystem } from '../../services/permission-service.js';
+import { getPFRankings, getCurrentPeriod, formatPeriod } from '../../services/pf-service.js';
 
 export default {
   data() {
     return {
+      currentUser: null,
+      systemMode: 'credit',
+      isLoading: true,
+      // 个贷
       leaderboard: [],
       currentQuarter: StoreService.getCurrentQuarter(),
-      currentUser: null,
-      // 时间段筛选
-      showDateFilter: false,
-      dateRange: {
-        start: '',
-        end: ''
-      },
-      filterType: 'quarter', // quarter 或 month
-      // 季度选择
-      quarterOptions: ['2025Q4', '2026Q1', '2026Q2', '2026Q3', '2026Q4', '2027Q1', '2027Q2', '2027Q3', '2027Q4', '2028Q1', '2028Q2', '2028Q3', '2028Q4'],
+      filterType: 'quarter',
+      quarterOptions: ['2025Q4','2026Q1','2026Q2','2026Q3','2026Q4','2027Q1','2027Q2','2027Q3','2027Q4'],
       selectedQuarter: StoreService.getCurrentQuarter(),
-      // 加载状态
-      isLoading: true
+      dateRange: { start: '', end: '' },
+      // 个金
+      pfRankings: [],
+      pfSelectedPeriod: getCurrentPeriod(),
+      pfSelectedRole: 'manager',
+      pfRoleFilters: [
+        { label: '客户经理', value: 'manager' },
+        { label: '大堂经理', value: 'lobby_manager' },
+        { label: '弹性柜面', value: 'elastic_counter' },
+        { label: '柜面经理', value: 'counter_manager' }
+      ]
     };
   },
   computed: {
-    isAdmin() {
-      return this.currentUser && this.currentUser.role === 'admin';
-    },
-    displayPeriod() {
-      if (this.filterType === 'month') {
-        return this.formatMonth(this.selectedMonth);
-      }
-      return this.selectedQuarter;
-    },
     monthValue() {
-      if (this.selectedMonth) {
-        // 返回YYYY-MM-DD格式，使用该月第一天
-        return `${this.selectedMonth}-01`;
-      }
+      if (this.dateRange.start) return `${this.dateRange.start}-01`;
       const now = new Date();
-      const year = now.getFullYear();
-      const month = String(now.getMonth() + 1).padStart(2, '0');
-      return `${year}-${month}-01`;
+      return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-01`;
     },
     selectedMonth() {
-      if (this.dateRange.start) {
-        return this.dateRange.start;
-      }
+      if (this.dateRange.start) return this.dateRange.start;
       const now = new Date();
-      const year = now.getFullYear();
-      const month = String(now.getMonth() + 1).padStart(2, '0');
-      return `${year}-${month}`;
+      return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+    },
+    pfMonthPickerValue() {
+      return `${this.pfSelectedPeriod}-01`;
+    },
+    filteredPFRankings() {
+      return this.pfRankings.filter(item => item.role === this.pfSelectedRole);
     }
   },
   async onShow() {
@@ -162,86 +179,72 @@ export default {
       try {
         await StoreService.ensureReady();
         this.currentUser = StoreService.getCurrentUser();
-        // 重新获取排行榜数据，根据时间段筛选
-        let dateRange = {};
-        if (this.filterType === 'quarter') {
-          // 直接传递选中的季度作为dateRange对象的quarter属性
-          dateRange = { quarter: this.selectedQuarter };
+        const saved = uni.getStorageSync('system_mode');
+        const def = getUserDefaultSystem(this.currentUser);
+        this.systemMode = saved || (def === 'pf' ? 'pf' : 'credit');
+        if (this.systemMode === 'credit') {
+          await this.loadCreditLeaderboard();
         } else {
-          // 使用月份选择器的选中值
-          dateRange = this.dateRange;
+          await this.loadPFLeaderboard();
         }
-        this.leaderboard = StoreService.getLeaderboard(this.filterType, dateRange);
-        this.currentQuarter = StoreService.getCurrentQuarter();
       } catch (error) {
         uni.showToast({ title: error.message || '数据加载失败', icon: 'none' });
       } finally {
         this.isLoading = false;
       }
     },
+    async loadCreditLeaderboard() {
+      const dateRange = this.filterType === 'quarter' ? { quarter: this.selectedQuarter } : this.dateRange;
+      const data = StoreService.getLeaderboard(this.filterType, dateRange);
+      this.leaderboard = data;
+      this.currentQuarter = StoreService.getCurrentQuarter();
+    },
+    async loadPFLeaderboard() {
+      this.pfRankings = await getPFRankings(this.pfSelectedPeriod, 500);
+    },
     setFilterType(type) {
       this.filterType = type;
-      // 重置日期范围
       if (type === 'quarter') {
-        // 设置默认季度为当前季度
         this.selectedQuarter = StoreService.getCurrentQuarter();
       } else {
-        // 设置默认月份为当前月份
         const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        this.dateRange.start = `${year}-${month}`;
+        this.dateRange.start = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
         this.dateRange.end = '';
       }
-      // 清除缓存并重新获取数据
       StoreService.clearCache();
-      this.fetchData();
+      this.loadCreditLeaderboard();
     },
     handleQuarterChange(e) {
-      const index = e.detail.value;
-      this.selectedQuarter = this.quarterOptions[index];
-      // 清除缓存并重新获取数据
+      this.selectedQuarter = this.quarterOptions[e.detail.value];
       StoreService.clearCache();
-      this.fetchData();
+      this.loadCreditLeaderboard();
     },
     handleMonthChange(e) {
-      const value = e.detail.value;
-      // value格式为YYYY-MM-DD，提取YYYY-MM
-      const yearMonth = value.substring(0, 7);
-      this.dateRange.start = yearMonth;
+      this.dateRange.start = e.detail.value.substring(0, 7);
       this.dateRange.end = '';
-      // 清除缓存并重新获取数据
       StoreService.clearCache();
-      this.fetchData();
+      this.loadCreditLeaderboard();
+    },
+    handlePFMonthChange(e) {
+      this.pfSelectedPeriod = e.detail.value.substring(0, 7);
+      this.loadPFLeaderboard();
     },
     formatMonth(monthStr) {
       if (!monthStr) return '';
-      // 将YYYY-MM格式转换为YYYY年MM月
       const [year, month] = monthStr.split('-');
       return `${year}年${month}月`;
     },
-    getQuarterDateRange(quarter) {
-      if (!quarter) return {};
-      // 解析季度字符串，如2025Q4
-      const year = parseInt(quarter.substring(0, 4));
-      const q = parseInt(quarter.substring(5));
-      // 计算季度的开始和结束月份
-      const startMonth = (q - 1) * 3 + 1;
-      const endMonth = q * 3;
-      return {
-        start: `${year}-${String(startMonth).padStart(2, '0')}`,
-        end: `${year}-${String(endMonth).padStart(2, '0')}`
-      };
-    },
+    formatPeriod,
     rankColor(rank) {
       if (rank === 1) return '#fbbf24';
       if (rank === 2) return '#94a3b8';
       if (rank === 3) return '#fb923c';
       return '#cbd5f5';
     },
-    gotoDashboard() {
-      uni.switchTab({ url: '/pages/dashboard/dashboard' });
-    }
+    getRoleLabel(roleCode) {
+      return StoreService.getRoleName(roleCode);
+    },
+    gotoDashboard() { uni.switchTab({ url: '/pages/dashboard/dashboard' }); }
   }
 };
 </script>
@@ -287,6 +290,22 @@ export default {
   display: block;
   font-size: 48rpx;
   font-weight: 700;
+}
+
+.system-badge {
+  display: inline-block;
+  margin: 12rpx auto 0;
+  background: rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.9);
+  font-size: 22rpx;
+  padding: 6rpx 20rpx;
+  border-radius: 999rpx;
+  border: 1rpx solid rgba(255,255,255,0.3);
+}
+
+.leaderboard-card.highlight {
+  border: 2rpx solid #0f766e;
+  background: #f0fdfa;
 }
 
 /* 时间段筛选样式 */
@@ -562,6 +581,31 @@ export default {
   border: none;
   padding: 20rpx 48rpx;
   font-size: 28rpx;
+}
+
+/* 个金角色筛选tabs */
+.role-filter-tabs {
+  display: flex;
+  gap: 12rpx;
+  margin-top: 24rpx;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.role-tab {
+  flex-shrink: 0;
+  padding: 12rpx 28rpx;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 20rpx;
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.8);
+  transition: all 0.2s ease;
+}
+
+.role-tab.active {
+  background: rgba(255, 255, 255, 0.9);
+  color: #0f766e;
+  font-weight: 600;
 }
 </style>
 

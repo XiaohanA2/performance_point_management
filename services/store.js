@@ -1,4 +1,5 @@
 import { getCurrentQuarter, CURRENT_QUARTER, DEFAULT_BRANCHES, SCORING_RULES } from '../constants.js';
+import * as PermissionService from './permission-service.js';
 
 const API_NAME = 'appService';
 const STORAGE_KEYS = {
@@ -67,6 +68,7 @@ const createInitialState = () => ({
   branches: [...DEFAULT_BRANCHES],
   rules: [...SCORING_RULES],
   submissions: [],
+  roles: [],
   settings: createDefaultSettings(),
   cacheTimestamp: 0 // 缓存时间戳
 });
@@ -182,12 +184,24 @@ const applyBootstrap = data => {
   state.branches = (data?.branches || DEFAULT_BRANCHES).map(normalizeBranch);
   state.rules = (data?.rules || SCORING_RULES).map(normalizeRule).filter(Boolean);
   state.submissions = (data?.submissions || []).map(normalizeSubmission).filter(Boolean);
+  state.roles = data?.roles || [];
   state.settings = mergeSettings(data?.settings);
   // 总是使用动态计算的当前季度，确保季度会随时间自动变化
   const dynamicQuarter = getCurrentQuarter();
   state.currentQuarter = dynamicQuarter;
   // 更新settings中的currentQuarter，确保数据一致
   state.settings.currentQuarter = dynamicQuarter;
+
+  // Update current user cache from fresh data
+  const currentUser = getStorage(STORAGE_KEYS.CURRENT_USER);
+  if (currentUser && currentUser.id) {
+    const updatedUser = state.users.find(u => u.id === currentUser.id);
+    if (updatedUser) {
+      setStorage(STORAGE_KEYS.CURRENT_USER, updatedUser);
+      console.log('[StoreService] Current user updated:', updatedUser.role);
+    }
+  }
+
   state.initialized = true;
 };
 
@@ -252,6 +266,23 @@ export const StoreService = {
     return user;
   },
 
+  /**
+   * 强制刷新当前用户信息（从数据库获取最新数据）
+   * 用于用户角色被修改后立即更新本地缓存
+   */
+  async refreshCurrentUser() {
+    const currentUser = this.getCurrentUser();
+    if (!currentUser || !currentUser.id) {
+      return currentUser;
+    }
+
+    // 从数据库重新获取所有用户数据
+    await this.bootstrap({ force: true });
+
+    // 返回更新后的当前用户
+    return this.getCurrentUser();
+  },
+
   setCurrentUser(user) {
     const normalized = normalizeUser(user);
     setStorage(STORAGE_KEYS.CURRENT_USER, normalized);
@@ -260,6 +291,27 @@ export const StoreService = {
 
   logout() {
     setStorage(STORAGE_KEYS.CURRENT_USER, null);
+  },
+
+  /**
+   * 重新加载当前用户信息
+   * 相当于 refreshCurrentUser 的同步版本
+   */
+  reloadCurrentUser() {
+    const currentUser = this.getCurrentUser();
+    if (!currentUser || !currentUser.id) {
+      return currentUser;
+    }
+
+    // 从本地 state 中查找最新用户数据
+    const updatedUser = state.users.find(u => u.id === currentUser.id);
+    if (updatedUser) {
+      setStorage(STORAGE_KEYS.CURRENT_USER, updatedUser);
+      console.log('[StoreService] Current user reloaded:', updatedUser.role);
+      return updatedUser;
+    }
+
+    return currentUser;
   },
 
   isLoggedIn() {
@@ -295,6 +347,16 @@ export const StoreService = {
     return state.submissions;
   },
 
+  getRoles() {
+    return state.roles;
+  },
+
+  getRoleName(roleCode) {
+    if (!roleCode) return '';
+    const role = state.roles.find(r => r.roleCode === roleCode);
+    return role ? role.roleName : roleCode;
+  },
+
   getSettings() {
     return state.settings;
   },
@@ -305,10 +367,16 @@ export const StoreService = {
 
   async loginWithPassword(phone, password) {
     if (!phone || !password) throw new Error('请输入账号和密码');
-    const user = await callApi('loginWithPassword', { phone, password });
+    const result = await callApi('loginWithPassword', { phone, password });
+    console.log('callApi 返回:', result);
+
+    // 兼容两种返回格式：{ user, isDefaultPassword } 或直接返回 user 对象
+    const user = result.user || result;
+    const isDefaultPassword = result.isDefaultPassword || password === '123456';
+
     const normalized = this.setCurrentUser(user);
     await this.bootstrap({ force: true });
-    return normalized;
+    return { user: normalized, isDefaultPassword };
   },
 
   async loginWithCode(phone, code) {
@@ -380,19 +448,13 @@ export const StoreService = {
 
   async updateBranch(id, updates) {
     await this.ensureReady();
-    const original = state.branches.find(branch => branch.id === id);
     const branch = await callApi('updateBranch', { id, updates });
     const normalized = normalizeBranch(branch);
     const index = state.branches.findIndex(item => item.id === id || item.id === normalized.id);
     if (index >= 0) {
       state.branches.splice(index, 1, normalized);
     }
-    if (original && original.name !== normalized.name) {
-      state.users = state.users.map(user =>
-        user.branch === original.name ? { ...user, branch: normalized.name } : user
-      );
-    }
-    this.clearCache(); // 清除缓存
+    this.clearCache();
     return normalized;
   },
 
@@ -658,14 +720,15 @@ export const StoreService = {
       return calculateCache.get(cacheKey);
     }
     
-    const users = state.users.filter(user => user.role !== 'admin' && user.status === 'active');
+    // 业务统计只包含活跃的客户经理
+    const users = state.users.filter(user => user.role === 'manager' && user.status === 'active');
     const result = users
       .map(user => {
         const stats = this.calculateScoreForEmployee(user.id, filterType, dateRange);
         return {
           employeeId: user.id,
           name: user.name,
-          branch: user.branch,
+          branch: user.branchName || user.branch,
           totalScore: stats.totalScore,
           personalScore: stats.personalScore,
           microScore: stats.microScore,
@@ -689,7 +752,8 @@ export const StoreService = {
       return calculateCache.get(cacheKey);
     }
 
-    const users = state.users.filter(user => user.role !== 'admin' && user.status === 'active');
+    // 业务统计只包含活跃的客户经理
+    const users = state.users.filter(user => user.role === 'manager' && user.status === 'active');
     const result = users.map(user => ({
       employee: user,
       stats: this.calculateScoreForEmployee(user.id, 'quarter', { quarter: quarter }),
@@ -737,6 +801,234 @@ export const StoreService = {
       await this.bootstrap({ force: true });
       needRefresh = false;
     }
+  },
+
+  // ========== 权限管理方法 ==========
+
+  /**
+   * 检查当前用户是否有指定权限
+   * @param {String} permission - 权限标识
+   * @param {String} resourceId - 资源ID（可选）
+   * @returns {Boolean}
+   */
+  hasPermission(permission, resourceId = null) {
+    const user = this.getCurrentUser();
+    return PermissionService.hasPermission(user, permission, resourceId);
+  },
+
+  /**
+   * 检查当前用户是否可以访问指定菜单
+   * @param {String} menuId - 菜单ID
+   * @returns {Boolean}
+   */
+  canAccessMenu(menuId) {
+    const user = this.getCurrentUser();
+    return PermissionService.canAccessMenu(user, menuId);
+  },
+
+  /**
+   * 获取当前用户可访问的菜单列表
+   * @returns {Array} 菜单ID数组
+   */
+  getUserMenus() {
+    const user = this.getCurrentUser();
+    return PermissionService.getUserMenus(user);
+  },
+
+  /**
+   * 检查当前用户是否有指定角色
+   * @param {String} roleCode - 角色代码
+   * @returns {Boolean}
+   */
+  hasRole(roleCode) {
+    const user = this.getCurrentUser();
+    return PermissionService.hasRole(user, roleCode);
+  },
+
+  /**
+   * 检查当前用户是否有任一指定角色
+   * @param {Array<String>} roleCodes - 角色代码数组
+   * @returns {Boolean}
+   */
+  hasAnyRole(roleCodes) {
+    const user = this.getCurrentUser();
+    return PermissionService.hasAnyRole(user, roleCodes);
+  },
+
+  /**
+   * 根据数据权限过滤数据
+   * @param {Array} dataList - 数据列表
+   * @param {String} userField - 用户字段名
+   * @returns {Array} 过滤后的数据
+   */
+  filterDataByScope(dataList, userField = 'userId') {
+    const user = this.getCurrentUser();
+    return PermissionService.filterDataByScope(user, dataList, userField);
+  },
+
+  /**
+   * 获取当前用户的角色显示名称
+   * @returns {String} 角色显示名称
+   */
+  getUserRoleNames() {
+    const user = this.getCurrentUser();
+    return PermissionService.getUserRoleNames(user);
+  },
+
+  /**
+   * 验证当前用户是否可以访问拓展业务模块
+   * @returns {Boolean}
+   */
+  canAccessCreditBusiness() {
+    const user = this.getCurrentUser();
+    return PermissionService.canAccessCreditBusiness(user);
+  },
+
+  /**
+   * 验证当前用户是否可以访问个贷业务模块
+   * @returns {Boolean}
+   */
+  canAccessLegacyBusiness() {
+    const user = this.getCurrentUser();
+    return PermissionService.canAccessLegacyBusiness(user);
+  },
+
+  /**
+   * 获取用户的默认页面
+   * @returns {String} 页面路径
+   */
+  getUserDefaultPage() {
+    const user = this.getCurrentUser();
+    return PermissionService.getUserDefaultPage(user);
+  },
+
+  /**
+   * 为用户分配角色
+   * @param {String} userId - 用户ID
+   * @param {Array<String>} roles - 角色数组
+   * @returns {Promise}
+   */
+  async assignUserRoles(userId, roles) {
+    if (!this.isAdmin()) {
+      throw new Error('只有管理员可以分配角色');
+    }
+
+    const { result } = await uniCloud.callFunction({
+      name: API_NAME,
+      data: {
+        action: 'assignUserRoles',
+        payload: { userId, roles }
+      }
+    });
+
+    if (result.error) throw new Error(result.error);
+
+    // 更新本地状态
+    await this.bootstrap({ force: true });
+    return result.data;
+  },
+
+  /**
+   * 批量分配角色
+   * @param {Array<String>} userIds - 用户ID数组
+   * @param {String} role - 角色代码
+   * @returns {Promise}
+   */
+  async batchAssignRoles(userIds, role) {
+    if (!this.isAdmin()) {
+      throw new Error('只有管理员可以批量分配角色');
+    }
+
+    const { result } = await uniCloud.callFunction({
+      name: API_NAME,
+      data: {
+        action: 'batchAssignRoles',
+        payload: { userIds, role }
+      }
+    });
+
+    if (result.error) throw new Error(result.error);
+
+    // 更新本地状态
+    await this.bootstrap({ force: true });
+    return result.data;
+  },
+
+  /**
+   * 从云端拉取所有角色定义（用于角色管理页面）
+   * @returns {Array} 角色定义数组
+   */
+  async fetchRoles() {
+    const { result } = await uniCloud.callFunction({
+      name: API_NAME,
+      data: {
+        action: 'getRoles'
+      }
+    });
+
+    if (result.error) throw new Error(result.error);
+    return result.data;
+  },
+
+  /**
+   * 创建角色（仅超级管理员）
+   * @param {Object} payload - 角色数据
+   * @returns {Promise}
+   */
+  async createRole(payload) {
+    if (!this.isSuperAdmin()) {
+      throw new Error('只有超级管理员可以创建角色');
+    }
+
+    const { result } = await uniCloud.callFunction({
+      name: API_NAME,
+      data: {
+        action: 'createRole',
+        payload
+      }
+    });
+
+    if (result.error) throw new Error(result.error);
+    return result.data;
+  },
+
+  /**
+   * 更新角色权限（仅超级管理员）
+   * @param {String} roleCode - 角色代码
+   * @param {Object} permissions - 权限配置
+   * @returns {Promise}
+   */
+  async updateRolePermissions(roleCode, permissions) {
+    if (!this.isSuperAdmin()) {
+      throw new Error('只有超级管理员可以更新角色权限');
+    }
+
+    const { result } = await uniCloud.callFunction({
+      name: API_NAME,
+      data: {
+        action: 'updateRolePermissions',
+        payload: { roleCode, permissions }
+      }
+    });
+
+    if (result.error) throw new Error(result.error);
+    return result.data;
+  },
+
+  /**
+   * 检查当前用户是否为超级管理员
+   * @returns {Boolean}
+   */
+  isSuperAdmin() {
+    return this.hasRole('super_admin');
+  },
+
+  /**
+   * 检查当前用户是否为管理员（包括所有类型的admin）
+   * @returns {Boolean}
+   */
+  isAdmin() {
+    return this.hasAnyRole(['super_admin', 'admin', 'credit_admin', 'questionnaire_admin', 'knowledge_admin']);
   }
 };
 

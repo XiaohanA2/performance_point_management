@@ -1,4 +1,10 @@
 {
+	"easycom": {
+		"autoscan": true,
+		"custom": {
+			"^uni-(.*)": "@dcloudio/uni-ui/lib/uni-$1/uni-$1.vue"
+		}
+	},
 	"pages": [
 		{
 			"path": "pages/dashboard/dashboard",
@@ -62,6 +68,118 @@
 				"navigationBarTitleText": "提报流管理",
 				"navigationBarBackgroundColor": "#0f766e",
 				"navigationBarTextStyle": "white"
+			}
+		},
+		{
+			"path": "pages/knowledge/knowledge-list",
+			"style": {
+				"navigationBarTitleText": "知识库",
+				"navigationBarBackgroundColor": "#ffffff",
+				"navigationBarTextStyle": "black"
+			}
+		},
+		{
+			"path": "pages/knowledge/knowledge-detail",
+			"style": {
+				"navigationBarTitleText": "知识详情",
+				"navigationBarBackgroundColor": "#ffffff",
+				"navigationBarTextStyle": "black"
+			}
+		},
+		{
+			"path": "pages/knowledge/knowledge-admin",
+			"style": {
+				"navigationBarTitleText": "知识库管理",
+				"navigationBarBackgroundColor": "#ffffff",
+				"navigationBarTextStyle": "black"
+			}
+		},
+		{
+			"path": "pages/knowledge/knowledge-edit",
+			"style": {
+				"navigationBarTitleText": "编辑知识库",
+				"navigationBarBackgroundColor": "#0f766e",
+				"navigationBarTextStyle": "white"
+			}
+		},
+		{
+			"path": "pages/questionnaire/questionnaire-list",
+			"style": {
+				"navigationBarTitleText": "问卷调查",
+				"navigationBarBackgroundColor": "#ffffff",
+				"navigationBarTextStyle": "black"
+			}
+		},
+		{
+			"path": "pages/questionnaire/questionnaire-detail",
+			"style": {
+				"navigationBarTitleText": "问卷详情",
+				"navigationBarBackgroundColor": "#ffffff",
+				"navigationBarTextStyle": "black"
+			}
+		},
+		{
+			"path": "pages/questionnaire/questionnaire-admin",
+			"style": {
+				"navigationBarTitleText": "问卷管理",
+				"navigationBarBackgroundColor": "#ffffff",
+				"navigationBarTextStyle": "black"
+			}
+		},
+		{
+			"path": "pages/questionnaire/questionnaire-responses",
+			"style": {
+				"navigationBarTitleText": "回复管理",
+				"navigationBarBackgroundColor": "#ffffff",
+				"navigationBarTextStyle": "black"
+			}
+		},
+		{
+			"path": "pages/questionnaire/my-submissions",
+			"style": {
+				"navigationBarTitleText": "我的提交记录",
+				"navigationBarBackgroundColor": "#ffffff",
+				"navigationBarTextStyle": "black"
+			}
+		},
+		{
+			"path": "pages/questionnaire/submission-success",
+			"style": {
+				"navigationBarTitleText": "提交成功",
+				"navigationBarBackgroundColor": "#ffffff",
+				"navigationBarTextStyle": "black"
+			}
+		},
+		{
+			"path": "pages/questionnaire/response-detail",
+			"style": {
+				"navigationBarTitleText": "回答详情",
+				"navigationBarBackgroundColor": "#ffffff",
+				"navigationBarTextStyle": "black"
+			}
+		},
+		{
+			"path": "pages/pf-admin/pf-admin",
+			"style": {
+				"navigationBarTitleText": "个金管理",
+				"navigationBarBackgroundColor": "#ffffff",
+				"navigationBarTextStyle": "black"
+			}
+		},
+		{
+			"path": "pages/pf-admin/pf-submission-flow/pf-submission-flow",
+			"style": {
+				"navigationBarTitleText": "个金提报流",
+				"navigationBarBackgroundColor": "#ffffff",
+				"navigationBarTextStyle": "black"
+			}
+		},
+		{
+			"path": "pages/pf-admin/pf-user-details/pf-user-details",
+			"style": {
+				"navigationBarTitleText": "个金用户详情",
+				"navigationBarBackgroundColor": "#ffffff",
+				"navigationBarTextStyle": "black"
 			}
 		}
 	],

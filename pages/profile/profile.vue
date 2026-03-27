@@ -9,12 +9,14 @@
         <view class="user-info">
           <text class="user-name">{{ user?.name || '-' }}</text>
           <text class="user-role">{{ userRoleLabel }}</text>
-          <text class="user-branch">{{ user?.branch || '-' }}</text>
+          <text class="user-branch">{{ user?.branchName || user?.branch || '-' }}</text>
         </view>
       </view>
       <!-- 退出登录图标 -->
       <view v-if="user?.role !== 'guest'" class="logout-icon" @click="handleLogout">
-        <text class="logout-icon-text">🚪</text>
+        <view class="logout-icon-inner">
+          <uni-icons type="undo" :size="22" color="#ef4444" />
+        </view>
       </view>
     </view>
 
@@ -23,42 +25,42 @@
       <view class="info-card">
         <view class="info-item">
           <view class="info-item__label">
-            <text class="label-icon">👤</text>
+            <uni-icons type="person" :size="18" color="#0f766e" />
             <text>姓名</text>
           </view>
           <text class="info-item__value">{{ user?.name || '-' }}</text>
         </view>
         <view class="info-item">
           <view class="info-item__label">
-            <text class="label-icon">📞</text>
+            <uni-icons type="phone" :size="18" color="#0f766e" />
             <text>手机号</text>
           </view>
           <text class="info-item__value">{{ user?.phone || '-' }}</text>
         </view>
         <view class="info-item">
           <view class="info-item__label">
-            <text class="label-icon">📍</text>
+            <uni-icons type="location" :size="18" color="#0f766e" />
             <text>所属支行</text>
           </view>
-          <text class="info-item__value">{{ user?.branch || '-' }}</text>
+          <text class="info-item__value">{{ user?.branchName || user?.branch || '-' }}</text>
         </view>
         <view class="info-item">
           <view class="info-item__label">
-            <text class="label-icon">⭐</text>
+            <uni-icons type="star" :size="18" color="#0f766e" />
             <text>角色</text>
           </view>
           <text class="info-item__value">{{ userRoleLabel }}</text>
         </view>
       </view>
 
-      <!-- 功能按钮区 - 移到个人信息下面 -->
+      <!-- 功能按钮区 -->
       <view class="action-buttons">
         <button class="action-btn primary" @click="showEditModal = true">
-          <text class="btn-icon">✏️</text>
+          <uni-icons type="compose" :size="18" color="#fff" />
           <text>编辑信息</text>
         </button>
         <button class="action-btn secondary" @click="showPasswordModal = true">
-          <text class="btn-icon">🔒</text>
+          <uni-icons type="locked" :size="18" color="#0f766e" />
           <text>修改密码</text>
         </button>
       </view>
@@ -67,7 +69,7 @@
     <!-- 游客登录按钮 -->
     <view class="action-buttons" v-if="user?.role === 'guest'">
       <button class="action-btn primary" @click="gotoLogin">
-        <text class="btn-icon">📲</text>
+        <uni-icons type="person" :size="18" color="#fff" />
         <text>立即登录</text>
       </button>
     </view>
@@ -80,7 +82,7 @@
         <view class="modal-header">
           <text>编辑个人信息</text>
           <view class="modal-close" @click="showEditModal = false">
-            <text class="modal-close-icon">✕</text>
+            <uni-icons type="closeempty" :size="22" color="#fff" />
           </view>
         </view>
         <view class="modal-body">
@@ -97,7 +99,7 @@
             <picker class="form-picker" @change="onBranchChange" :value="selectedBranchIndex" :range="branchList">
               <view class="picker-content">
                 {{ editForm.branch || '请选择所属支行' }}
-                <text class="picker-arrow">▼</text>
+                <uni-icons type="arrowdown" :size="16" color="#64748b" />
               </view>
             </picker>
           </view>
@@ -115,7 +117,7 @@
         <view class="modal-header">
           <text>修改密码</text>
           <view class="modal-close" @click="showPasswordModal = false">
-            <text class="modal-close-icon">✕</text>
+            <uni-icons type="closeempty" :size="22" color="#fff" />
           </view>
         </view>
         <view class="modal-body">
@@ -143,6 +145,7 @@
 
 <script>
 import { StoreService } from '../../services/store.js';
+import { getUserRoleNames } from '../../services/permission-service.js';
 
 export default {
   data() {
@@ -167,17 +170,21 @@ export default {
       }
     };
   },
-  onShow() {
+  async onShow() {
     this.user = StoreService.getCurrentUser();
-    // 获取支行列表
-    this.branches = StoreService.getBranches();
-    // 初始化编辑表单数据
-    this.initEditForm();
+    try {
+      await StoreService.ensureReady();
+      this.user = StoreService.reloadCurrentUser();
+      this.branches = StoreService.getBranches();
+      this.initEditForm();
+    } catch (error) {
+      console.error('[Profile] 刷新用户信息失败:', error);
+    }
   },
   computed: {
     userRoleLabel() {
       if (!this.user) return '-';
-      return this.user.role === 'admin' ? '管理员' : '客户经理';
+      return getUserRoleNames(this.user) || '客户经理';
     },
     branchList() {
       return this.branches.map(branch => branch.name);
@@ -190,13 +197,18 @@ export default {
         this.editForm = {
           name: this.user.name,
           phone: this.user.phone,
-          branch: this.user.branch
+          branch: this.user.branchName || this.user.branch
         };
-        // 设置默认选中的支行索引
         this.selectedBranchIndex = Math.max(
-          this.branchList.findIndex(name => name === this.user.branch),
+          this.branches.findIndex(b => b.id === this.user.branchId),
           0
         );
+        if (this.selectedBranchIndex < 0) {
+          this.selectedBranchIndex = Math.max(
+            this.branchList.findIndex(name => name === (this.user.branchName || this.user.branch)),
+            0
+          );
+        }
       }
     },
     gotoLogin() {
@@ -205,7 +217,9 @@ export default {
     // 支行选择变化处理
     onBranchChange(e) {
       this.selectedBranchIndex = e.detail.value;
-      this.editForm.branch = this.branchList[this.selectedBranchIndex];
+      const selected = this.branches[this.selectedBranchIndex];
+      this.editForm.branchId = selected ? selected.id : '';
+      this.editForm.branch = selected ? selected.name : '';
     },
     // 编辑信息
     async handleEditInfo() {
@@ -220,16 +234,17 @@ export default {
         return;
       }
       try {
-        await StoreService.updateUserInfo({
-          id: this.user.id,
+        await StoreService.updateUser(this.user.id, {
           name: this.editForm.name,
           phone: this.editForm.phone,
-          branch: this.editForm.branch
+          branch: this.editForm.branch,
+          branchId: this.editForm.branchId || ''
         });
         uni.showToast({ title: '信息已更新', icon: 'success' });
         this.showEditModal = false;
-        // 重新加载用户信息
-        this.user = StoreService.getCurrentUser();
+        await StoreService.ensureReady();
+        this.user = StoreService.reloadCurrentUser();
+        this.initEditForm();
       } catch (error) {
         uni.showToast({ title: error.message || '修改失败', icon: 'none' });
       }
@@ -320,16 +335,14 @@ export default {
   border-radius: 50%;
   background: #fef2f2;
   cursor: pointer;
-  transition: all 0.2s ease;
 }
 
 .logout-icon:active {
-  transform: scale(0.95);
   background: #fee2e2;
 }
 
-.logout-icon-text {
-  font-size: 32rpx;
+.logout-icon-inner {
+  transform: scaleX(-1);
 }
 
 .user-avatar {
@@ -398,15 +411,6 @@ export default {
   font-weight: 600;
   border: none;
   min-width: 180rpx;
-  transition: all 0.3s ease;
-}
-
-.action-btn:active {
-  transform: translateY(4rpx);
-}
-
-.btn-icon {
-  font-size: 24rpx;
 }
 
 .action-btn.primary {
@@ -558,17 +562,10 @@ export default {
   justify-content: center;
   cursor: pointer;
   border-radius: 50%;
-  transition: all 0.2s ease;
 }
 
 .modal-close:active {
   background: rgba(255, 255, 255, 0.2);
-}
-
-.modal-close-icon {
-  font-size: 28rpx;
-  font-weight: 600;
-  color: #fff;
 }
 
 .modal-body {
@@ -691,16 +688,6 @@ export default {
   line-height: 80rpx;
 }
 
-.picker-arrow {
-  font-size: 20rpx;
-  color: #64748b;
-  margin-left: 8rpx;
-}
-
-/* 信息项标签样式 */
-.label-icon {
-  font-size: 28rpx;
-}
 
 /* 登录区域 */
 .login-section {

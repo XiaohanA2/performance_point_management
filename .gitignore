@@ -34,6 +34,15 @@ pnpm-debug.log*
 uniCloud-aliyun/cloudfunctions/appService/default-data.js
 uniCloud-aliyun/cloudfunctions/appService/appService.param.json
 
+# Test environment configs (contains sensitive space info)
+manifest.test.json
+manifest.dev.json
+*.backup
+
+# Test data and scripts output
+scripts/*.log
+scripts/output/
+
 # Database files
 *.sqlite
 *.db
@@ -42,3 +51,30 @@ uniCloud-aliyun/cloudfunctions/appService/appService.param.json
 *.tmp
 *.temp
 .cache/
+
+# Claude AI
+.claude/
+
+# Test files
+test-*.txt
+
+# Backup files
+*-backup.vue
+*.backup
+
+# Third-party miniapp packages
+tg-miniapp-*/
+
+# Excel/Word files (user data)
+*.xls
+*.xlsx
+*.doc
+*.docx
+
+# Markdown notes (user data)
+*知识库*.md
+*导入*.md
+*名单*.md
+
+# Skills (local development)
+*.skill

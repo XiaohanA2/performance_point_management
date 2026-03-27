@@ -1,0 +1,237 @@
+{
+  "bsonType": "object",
+  "description": "个金业务系统数据库Schema定义",
+  "collections": {
+    "pf_tasks": {
+      "description": "个金业务配置表",
+      "required": ["taskId", "taskName", "category", "unit", "scoreConfig"],
+      "properties": {
+        "_id": {
+          "bsonType": "string",
+          "description": "文档ID"
+        },
+        "taskId": {
+          "bsonType": "string",
+          "description": "业务ID，如: fund_valid, bind_card"
+        },
+        "taskName": {
+          "bsonType": "string",
+          "description": "业务名称，如: 基金有效户、绑卡"
+        },
+        "category": {
+          "bsonType": "string",
+          "enum": ["required", "bonus"],
+          "description": "业务类型: required(必选) / bonus(加分)"
+        },
+        "unit": {
+          "bsonType": "string",
+          "description": "单位: 户/笔/万元"
+        },
+        "description": {
+          "bsonType": "string",
+          "description": "业务说明"
+        },
+        "scoreConfig": {
+          "bsonType": "object",
+          "required": ["type"],
+          "properties": {
+            "type": {
+              "bsonType": "string",
+              "enum": ["benchmark", "linear"],
+              "description": "计分类型: benchmark(标杆公式) / linear(线性公式)"
+            },
+            "maxScore": {
+              "bsonType": "number",
+              "description": "满分(必选业务使用)"
+            },
+            "unitPrice": {
+              "bsonType": "number",
+              "description": "单价(加分业务使用)"
+            },
+            "weight": {
+              "bsonType": "number",
+              "description": "权重系数，默认1.0"
+            }
+          }
+        },
+        "applicableRoles": {
+          "bsonType": "array",
+          "description": "适用角色列表",
+          "items": {
+            "bsonType": "string"
+          }
+        },
+        "isActive": {
+          "bsonType": "bool",
+          "description": "是否启用"
+        },
+        "sortOrder": {
+          "bsonType": "int",
+          "description": "排序"
+        },
+        "createdBy": {
+          "bsonType": "string",
+          "description": "创建人"
+        },
+        "createdAt": {
+          "bsonType": "number",
+          "description": "创建时间戳"
+        },
+        "updatedAt": {
+          "bsonType": "number",
+          "description": "更新时间戳"
+        }
+      }
+    },
+    "pf_submissions": {
+      "description": "个金提报记录表",
+      "required": ["userId", "userName", "branchId", "taskId", "period", "date", "value"],
+      "properties": {
+        "_id": {
+          "bsonType": "string",
+          "description": "文档ID"
+        },
+        "userId": {
+          "bsonType": "string",
+          "description": "用户ID"
+        },
+        "userName": {
+          "bsonType": "string",
+          "description": "用户姓名"
+        },
+        "branchId": {
+          "bsonType": "string",
+          "description": "支行ID"
+        },
+        "branchName": {
+          "bsonType": "string",
+          "description": "支行名称"
+        },
+        "taskId": {
+          "bsonType": "string",
+          "description": "业务ID，关联pf_tasks"
+        },
+        "period": {
+          "bsonType": "string",
+          "description": "月度周期，格式: 2026-03"
+        },
+        "date": {
+          "bsonType": "string",
+          "description": "提报日期，格式: 2026-03-15"
+        },
+        "value": {
+          "bsonType": "number",
+          "description": "完成数量"
+        },
+        "score": {
+          "bsonType": "number",
+          "description": "计算得分"
+        },
+        "createdAt": {
+          "bsonType": "number",
+          "description": "创建时间戳"
+        },
+        "updatedAt": {
+          "bsonType": "number",
+          "description": "更新时间戳"
+        }
+      }
+    },
+    "pf_monthly_stats": {
+      "description": "个金月度统计表",
+      "required": ["userId", "userName", "branchId", "period"],
+      "properties": {
+        "_id": {
+          "bsonType": "string",
+          "description": "文档ID"
+        },
+        "userId": {
+          "bsonType": "string",
+          "description": "用户ID"
+        },
+        "userName": {
+          "bsonType": "string",
+          "description": "用户姓名"
+        },
+        "branchId": {
+          "bsonType": "string",
+          "description": "支行ID"
+        },
+        "period": {
+          "bsonType": "string",
+          "description": "月度周期，格式: 2026-03"
+        },
+        "requiredTasks": {
+          "bsonType": "array",
+          "description": "必选业务统计",
+          "items": {
+            "bsonType": "object",
+            "properties": {
+              "taskId": {
+                "bsonType": "string"
+              },
+              "taskName": {
+                "bsonType": "string"
+              },
+              "totalValue": {
+                "bsonType": "number",
+                "description": "月度累计完成数"
+              },
+              "score": {
+                "bsonType": "number",
+                "description": "得分"
+              },
+              "benchmarkValue": {
+                "bsonType": "number",
+                "description": "标杆值(当月第一名)"
+              }
+            }
+          }
+        },
+        "bonusTasks": {
+          "bsonType": "array",
+          "description": "加分业务统计",
+          "items": {
+            "bsonType": "object",
+            "properties": {
+              "taskId": {
+                "bsonType": "string"
+              },
+              "taskName": {
+                "bsonType": "string"
+              },
+              "totalValue": {
+                "bsonType": "number",
+                "description": "月度累计完成数"
+              },
+              "score": {
+                "bsonType": "number",
+                "description": "得分"
+              }
+            }
+          }
+        },
+        "requiredScore": {
+          "bsonType": "number",
+          "description": "必选业务总分"
+        },
+        "bonusScore": {
+          "bsonType": "number",
+          "description": "加分业务总分"
+        },
+        "totalScore": {
+          "bsonType": "number",
+          "description": "总分"
+        },
+        "rank": {
+          "bsonType": "int",
+          "description": "排名"
+        },
+        "updatedAt": {
+          "bsonType": "number",
+          "description": "更新时间戳"
+        }
+      }
+    }
+  }
+}

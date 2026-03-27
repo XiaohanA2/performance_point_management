@@ -147,7 +147,7 @@ export default {
   },
   computed: {
     isAdmin() {
-      return this.currentUser && this.currentUser.role === 'admin';
+      return this.currentUser && ['admin', 'super_admin', 'credit_admin', 'branch_leader'].includes(this.currentUser.role);
     },
     filteredSubmissions() {
       let filtered = this.allSubmissions;
@@ -166,7 +166,7 @@ export default {
           const rule = this.rules.find(r => r.id === sub.ruleId);
           return (
             (employee && employee.name.toLowerCase().includes(keyword)) ||
-            (employee && employee.branch.toLowerCase().includes(keyword)) ||
+            (employee && (employee.branchName || employee.branch).toLowerCase().includes(keyword)) ||
             (rule && rule.name.toLowerCase().includes(keyword))
           );
         });
@@ -306,7 +306,7 @@ export default {
     },
     getEmployeeBranch(employeeId) {
       const user = this.users.find(u => u.id === employeeId);
-      return user ? user.branch : '未知支行';
+      return user ? (user.branchName || user.branch) : '未知支行';
     },
     getRuleName(ruleId) {
       const rule = this.rules.find(r => r.id === ruleId);
@@ -361,7 +361,7 @@ export default {
           rule?.name || '未知业务',
           sub.type === 'new' ? '新增' : '存量',
           sub.count,
-          sub.amount,
+          Number(sub.amount).toFixed(2),
           this.calculateSubmissionScore(sub),
           this.formatDate(sub.timestamp, 'time'),
         ];

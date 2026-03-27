@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@dcloudio/uni-ui": "^1.5.11",
+    "marked": "^17.0.4"
+  }
+}
