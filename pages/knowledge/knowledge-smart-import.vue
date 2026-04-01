@@ -25,7 +25,7 @@
         <textarea
           class="content-input"
           v-model="inputContent"
-          placeholder="支持 Markdown 格式&#10;&#10;示例：&#10;# 个人贷款申请流程&#10;&#10;## 准备材料&#10;1. 身份证&#10;2. 收入证明&#10;..."
+          placeholder="支持 Markdown 格式，可直接粘贴文档内容..."
           :maxlength="10000"
         />
         <view class="char-count">{{ inputContent.length }}/10000</view>
