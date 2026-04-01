@@ -292,7 +292,7 @@ ${content.substring(0, 2000)}
           max_tokens: 500
         },
         headers: {
-          'Authorization': 'Bearer sk-e2d2ae18a3644b64afc87546d5afeed9',
+          'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`,
           'Content-Type': 'application/json'
         },
         dataType: 'json',
