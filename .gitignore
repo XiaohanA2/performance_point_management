@@ -35,6 +35,7 @@ uniCloud-aliyun/cloudfunctions/appService/default-data.js
 uniCloud-aliyun/cloudfunctions/appService/appService.param.json
 
 # Test environment configs (contains sensitive space info)
+manifest.json
 manifest.test.json
 manifest.dev.json
 *.backup
