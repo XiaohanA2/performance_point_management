@@ -40,7 +40,10 @@
           <view class="submission-user-groups">
             <view v-for="(userSubmissions, userId) in dateGroup" :key="userId" class="submission-group">
               <view class="submission-group-header">
-                <text class="submission-group-name">{{ getUserName(userId) }}</text>
+                <view class="user-info">
+                  <text class="submission-group-name">{{ getUserName(userId) }}</text>
+                  <text class="user-role-tag">{{ getUserRoleLabel(userId) }}</text>
+                </view>
                 <text class="submission-group-branch">{{ getUserBranch(userId) }}</text>
                 <text class="user-total">{{ userSubmissions.length }} 条</text>
               </view>
@@ -87,7 +90,7 @@
     </view>
 
     <!-- 编辑弹窗 -->
-    <view v-if="showEditModal" class="modal-overlay" @tap.self="cancelEdit">
+    <view v-if="showEditModal" class="modal-overlay">
       <view class="edit-modal">
         <view class="edit-modal__header">
           <text class="edit-modal__title">编辑提报</text>
@@ -136,7 +139,7 @@
 
 <script>
 import { StoreService } from '../../../services/store.js';
-import { getAllPFSubmissions, getPFTasks, updatePFSubmission, deletePFSubmission, getCurrentPeriod, formatPeriod } from '../../../services/pf-service.js';
+import { getAllPFSubmissions, getPFTasks, updatePFSubmission, deletePFSubmission, getCurrentPeriod, formatPeriod, invalidateAllCache } from '../../../services/pf-service.js';
 
 export default {
   data() {
@@ -283,6 +286,11 @@ export default {
       const sub = this.allSubmissions.find(s => (s.userId || s.userName) === userId);
       return sub ? (sub.branchName || '') : (this.usersMap[userId]?.branchName || '');
     },
+    getUserRoleLabel(userId) {
+      const sub = this.allSubmissions.find(s => (s.userId || s.userName) === userId);
+      const role = sub ? sub.role : this.usersMap[userId]?.role;
+      return StoreService.getRoleName(role) || '';
+    },
     getTaskName(taskId) { return this.tasksMap[taskId]?.taskName || '未知业务'; },
     getTaskUnit(taskId) { return this.tasksMap[taskId]?.unit || ''; },
     getTaskCategory(taskId) { return this.tasksMap[taskId]?.category || 'required'; },
@@ -311,6 +319,8 @@ export default {
         await updatePFSubmission(this.editingSub._id, parseFloat(this.editValue));
         uni.showToast({ title: '修改成功', icon: 'success' });
         this.cancelEdit();
+        invalidateAllCache();
+        StoreService.clearCache();
         await this.loadData();
       } catch (e) {
         uni.showToast({ title: e.message || '修改失败', icon: 'none' });
@@ -331,6 +341,8 @@ export default {
             await deletePFSubmission(target._id);
             uni.showToast({ title: '删除成功', icon: 'success' });
             this.cancelEdit();
+            invalidateAllCache();
+            StoreService.clearCache();
             await this.loadData();
           } catch (e) {
             uni.showToast({ title: e.message || '删除失败', icon: 'none' });
@@ -349,22 +361,45 @@ export default {
       const rows = this.filteredSubmissions.map(s =>
         `${s.date},${s.userName},${s.branchName || '-'},${StoreService.getRoleName(s.role)},${this.getTaskName(s.taskId)},${s.value},${this.getTaskUnit(s.taskId)}`
       );
-      const csv = [header, ...rows].join('\n');
+      const csv = '\uFEFF' + [header, ...rows].join('\n');
+      const filename = `个金提报流_${this.selectedPeriod}.csv`;
       // #ifdef H5
-      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `个金提报流_${this.selectedPeriod}.csv`;
+      a.download = filename;
       a.click();
       URL.revokeObjectURL(url);
       uni.showToast({ title: '导出成功', icon: 'success' });
       // #endif
       // #ifdef MP-WEIXIN
-      uni.setClipboardData({
-        data: csv,
-        success: () => uni.showToast({ title: '数据已复制到剪贴板', icon: 'success' })
-      });
+      const isWeChat = typeof wx !== 'undefined' && !!wx.getFileSystemManager;
+      if (isWeChat) {
+        try {
+          const fs = wx.getFileSystemManager();
+          const filePath = `${wx.env.USER_DATA_PATH}/${filename}`;
+          try {
+            const files = fs.readdirSync(wx.env.USER_DATA_PATH) || [];
+            files.filter(name => /\.(csv)$/.test(name)).forEach(name => {
+              try { fs.unlinkSync(`${wx.env.USER_DATA_PATH}/${name}`); } catch (e) {}
+            });
+          } catch (e) {}
+          fs.writeFileSync(filePath, csv, 'utf-8');
+          if (wx.shareFileMessage) {
+            wx.shareFileMessage({
+              filePath: filePath,
+              fileName: filename,
+              success: () => uni.showToast({ title: '分享成功', icon: 'success' }),
+              fail: (error) => uni.showToast({ title: '分享失败：' + (error.errMsg || ''), icon: 'none' })
+            });
+          } else {
+            uni.showToast({ title: '当前微信版本不支持分享', icon: 'none' });
+          }
+        } catch (error) {
+          uni.showToast({ title: '导出失败：' + (error.message || ''), icon: 'none' });
+        }
+      }
       // #endif
     },
     gotoLogin() {
@@ -570,11 +605,25 @@ export default {
   border-bottom: 1rpx solid #e2e8f0;
 }
 
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  flex: 1;
+}
+
 .submission-group-name {
   font-size: 28rpx;
   font-weight: 600;
   color: #0f172a;
-  flex: 1;
+}
+
+.user-role-tag {
+  font-size: 20rpx;
+  color: #0f766e;
+  background: #ecfdf5;
+  padding: 2rpx 10rpx;
+  border-radius: 8rpx;
 }
 
 .submission-group-branch {
@@ -601,7 +650,7 @@ export default {
   position: relative;
   background: #fff;
   border-radius: 10rpx;
-  padding: 16rpx;
+  padding: 10rpx 16rpx;
   box-shadow: 0 1rpx 3rpx rgba(0, 0, 0, 0.05);
   display: flex;
   justify-content: space-between;
@@ -681,6 +730,21 @@ export default {
 .submission-time {
   font-size: 24rpx;
   color: #94a3b8;
+}
+
+.submission-meta {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-top: 6rpx;
+}
+
+.submission-branch {
+  font-size: 22rpx;
+  color: #64748b;
+  background: #f1f5f9;
+  padding: 2rpx 10rpx;
+  border-radius: 8rpx;
 }
 
 .submission-item__stats {

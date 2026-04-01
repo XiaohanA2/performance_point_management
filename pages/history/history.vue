@@ -80,7 +80,7 @@
           </view>
           <view class="submission-list">
             <view v-for="sub in dateGroup" :key="sub._id" class="history-card">
-              <view class="history-card__bar" :class="getPFTaskCategory(sub.taskId)" />
+              <view class="history-card__bar" :class="getPFTaskCategory(sub.taskId) === 'personal' ? 'bar-pf-required' : 'bar-pf-bonus'" />
               <view class="history-card__body">
                 <view class="history-card__info">
                   <view class="history-card__info-content">
@@ -95,14 +95,6 @@
                 </view>
                 <view class="history-card__stats">
                   <text class="history-card__count">{{ sub.value }} {{ getPFTaskUnit(sub.taskId) }}</text>
-                  <view class="pf-score-badge" :class="getPFTaskCategory(sub.taskId) === 'personal' ? 'badge-required' : 'badge-bonus'">
-                    <text v-if="getPFTaskCategory(sub.taskId) === 'micro'" class="history-card__score">
-                      +{{ calcBonusScore(sub) }}
-                    </text>
-                    <text v-else class="history-card__score history-card__score--dynamic">
-                      动态积分
-                    </text>
-                  </view>
                 </view>
                 <button class="edit-btn" v-if="pfCanModify(sub)" @click="handlePFEdit(sub)">编辑</button>
               </view>
@@ -122,7 +114,7 @@
     />
 
     <!-- 个金编辑弹窗 -->
-    <view v-if="showPFEditModal" class="modal-overlay" @tap.self="cancelPFEdit">
+    <view v-if="showPFEditModal" class="modal-overlay">
       <view class="pf-edit-modal">
         <view class="pf-edit-modal__header">
           <view class="pf-edit-modal__header-left">
@@ -152,10 +144,6 @@
               <input class="pf-edit-input" type="digit" v-model="pfEditValue" placeholder="输入新数量" focus />
               <text class="pf-edit-unit">{{ getPFTaskUnit(pfEditingSubmission && pfEditingSubmission.taskId) }}</text>
             </view>
-          </view>
-          <view v-if="pfEditValue && parseFloat(pfEditValue) > 0 && getPFTaskCategory(pfEditingSubmission && pfEditingSubmission.taskId) === 'micro'" class="pf-edit-preview">
-            <text class="pf-edit-preview-label">修改后预计积分</text>
-            <text class="pf-edit-preview-score">+{{ calcBonusScoreByValue(pfEditingSubmission && pfEditingSubmission.taskId, parseFloat(pfEditValue)) }}</text>
           </view>
         </view>
         <view class="pf-edit-modal__footer">
@@ -287,18 +275,7 @@ export default {
     getPFTaskUnit(taskId) { return this.pfTasksMap[taskId]?.unit || ''; },
     getPFTaskCategory(taskId) { return this.pfTasksMap[taskId]?.category === 'required' ? 'personal' : 'micro'; },
     getPFCategoryLabel(taskId) { return this.pfTasksMap[taskId]?.category === 'required' ? '必选' : '加分'; },
-    getPFCategoryClass(taskId) { return this.pfTasksMap[taskId]?.category === 'required' ? 'category-personal' : 'category-micro'; },
-    calcBonusScoreByValue(taskId, value) {
-      const task = this.pfTasksMap[taskId];
-      if (!task || task.category !== 'bonus') return '0';
-      const unitPrice = task.scoreConfig?.unitPrice || 0;
-      const maxScore = task.scoreConfig?.maxScore || null;
-      const raw = value * unitPrice;
-      return (maxScore ? Math.min(raw, maxScore) : raw).toFixed(1);
-    },
-    calcBonusScore(sub) {
-      return this.calcBonusScoreByValue(sub.taskId, sub.value);
-    },
+    getPFCategoryClass(taskId) { return this.pfTasksMap[taskId]?.category === 'required' ? 'category-required' : 'category-bonus'; },
     pfCanModify(sub) {
       if (!this.currentUser) return false;
       const isAdmin = ['super_admin', 'personal_finance_admin'].includes(this.currentUser.role);
@@ -311,10 +288,19 @@ export default {
       if (!this.pfEditValue || parseFloat(this.pfEditValue) <= 0) { uni.showToast({ title: '请输入有效数量', icon: 'none' }); return; }
       try {
         uni.showLoading({ title: '保存中...' });
-        await updatePFSubmission(this.pfEditingSubmission._id, parseFloat(this.pfEditValue));
+        const submissionId = this.pfEditingSubmission._id;
+        const newValue = parseFloat(this.pfEditValue);
+
+        await updatePFSubmission(submissionId, newValue);
         uni.showToast({ title: '修改成功', icon: 'success' });
+
+        // 立即更新本地数据
+        const sub = this.pfSubmissions.find(s => s._id === submissionId);
+        if (sub) {
+          sub.value = newValue;
+        }
+
         this.cancelPFEdit();
-        await this.fetchPFData();
       } catch (error) {
         uni.showToast({ title: error.message || '修改失败', icon: 'none' });
       } finally { uni.hideLoading(); }
@@ -328,8 +314,14 @@ export default {
             uni.showLoading({ title: '删除中...' });
             await deletePFSubmission(this.pfEditingSubmission._id);
             uni.showToast({ title: '删除成功', icon: 'success' });
+
+            // 立即从本地移除
+            const index = this.pfSubmissions.findIndex(s => s._id === this.pfEditingSubmission._id);
+            if (index > -1) {
+              this.pfSubmissions.splice(index, 1);
+            }
+
             this.cancelPFEdit();
-            await this.fetchPFData();
           } catch (error) {
             uni.showToast({ title: error.message || '删除失败', icon: 'none' });
           } finally { uni.hideLoading(); }
@@ -432,14 +424,18 @@ export default {
 .history-card__bar { position: absolute; left: 0; top: 0; bottom: 0; width: 8rpx; border-top-left-radius: 10rpx; border-bottom-left-radius: 10rpx; }
 .history-card__bar.personal { background: #3b82f6; }
 .history-card__bar.micro { background: #14b8a6; }
+.bar-pf-required { background: #14b8a6; }
+.bar-pf-bonus { background: #f59e0b; }
 .history-card__body { display: flex; justify-content: space-between; align-items: flex-start; flex: 1; gap: 20rpx; padding-left: 16rpx; }
 .history-card__info { flex: 1; min-width: 0; }
 .history-card__info-content { flex: 1; min-width: 0; }
 .submission-rule-info { display: flex; align-items: center; gap: 12rpx; margin-bottom: 6rpx; }
-.submission-category { font-size: 22rpx; font-weight: 600; padding: 4rpx 12rpx; border-radius: 10rpx; }
+.submission-category { font-size: 22rpx; font-weight: 600; padding: 4rpx 12rpx; border-radius: 10rpx; flex-shrink: 0; }
 .category-personal { background: #dbeafe; color: #1e40af; }
 .category-micro { background: #dcfce7; color: #166534; }
-.history-card__title { font-size: 30rpx; font-weight: 600; color: #0f172a; }
+.category-required { background: #ecfdf5; color: #0f766e; }
+.category-bonus { background: #fffbeb; color: #d97706; }
+.history-card__title { font-size: 30rpx; font-weight: 600; color: #0f172a; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .submission-meta { display: flex; align-items: center; gap: 16rpx; font-size: 24rpx; color: #94a3b8; }
 .submission-type { padding: 4rpx 14rpx; border-radius: 12rpx; font-size: 20rpx; font-weight: 600; }
 .type-gray { background: #f1f5f9; color: #64748b; }

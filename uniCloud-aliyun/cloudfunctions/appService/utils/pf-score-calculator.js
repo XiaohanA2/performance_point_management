@@ -7,11 +7,8 @@
  *   完成数 == 0：得分 = 0
  *   封顶 maxScore
  *
- * 加分业务使用线性公式：完成数 × 单价，封顶 maxScore（null = 无上限）
- * 加分总分封顶 40 分
+ * 加分业务：仅记录完成量，不计算积分
  */
-
-const BONUS_TOTAL_CAP = 40;
 
 /**
  * 贡献度公式计算单项必选得分
@@ -41,12 +38,8 @@ function calculateBenchmarkScore(userTotal, allTotals, weightScore, maxScore) {
 }
 
 /**
- * 线性公式计算单项加分得分
+ * 加分业务不再计算积分，仅记录完成量
  */
-function calculateBonusScore(userTotal, unitPrice, maxScore) {
-  const score = userTotal * unitPrice;
-  return maxScore != null ? Math.min(score, maxScore) : score;
-}
 
 /**
  * 获取同组所有用户某业务的月度完成数
@@ -105,63 +98,80 @@ async function getUserMonthlyTotal(db, userId, taskId, period) {
  * 计算用户月度统计（主入口）
  * 必选业务需要同组数据，加分业务独立计算
  */
-async function calculateMonthlyStats(db, userId, period, requiredTaskIds, bonusTaskIds, tasksMap) {
-  // 获取同组用户ID
-  const groupUserIds = await getGroupUserIds(db, userId);
+async function calculateMonthlyStats(db, userId, period, requiredTaskIds, bonusTaskIds, tasksMap, groupUserIds, userTaskTotals) {
+  // 如果没有传入预查询数据，则使用原逻辑
+  if (!groupUserIds) {
+    groupUserIds = await getGroupUserIds(db, userId);
+  }
 
   // 必选业务
   const requiredTasks = [];
+  const taskScores = {};
   let requiredScore = 0;
 
   for (const taskId of requiredTaskIds) {
     const task = tasksMap[taskId];
     if (!task) continue;
 
-    const { map, totals } = await getGroupTotals(db, taskId, period, groupUserIds);
+    let map, totals;
+    if (userTaskTotals) {
+      // 使用预查询数据
+      map = {};
+      totals = [];
+      groupUserIds.forEach(uid => {
+        const key = `${uid}_${taskId}`;
+        const total = userTaskTotals[key] || 0;
+        map[uid] = total;
+        totals.push(total);
+      });
+    } else {
+      // 原逻辑：查询数据库
+      const result = await getGroupTotals(db, taskId, period, groupUserIds);
+      map = result.map;
+      totals = result.totals;
+    }
+
     const userTotal = map[userId] || 0;
     const { weightScore, maxScore } = task.scoreConfig;
     const score = calculateBenchmarkScore(userTotal, totals, weightScore, maxScore);
+    const groupAvg = totals.length > 0 ? Math.round((totals.reduce((s, v) => s + v, 0) / totals.length) * 100) / 100 : 0;
 
+    const roundedScore = Math.round(score * 100) / 100;
     requiredTasks.push({
       taskId,
       taskName: task.taskName,
       totalValue: userTotal,
-      score: Math.round(score * 100) / 100
+      score: roundedScore,
+      groupAvg
     });
+    taskScores[taskId] = roundedScore;
     requiredScore += score;
   }
 
-  // 加分业务
+  // 加分业务：仅记录完成量，不计分
   const bonusTasks = [];
-  let bonusScore = 0;
-
   for (const taskId of bonusTaskIds) {
     const task = tasksMap[taskId];
     if (!task) continue;
 
-    const userTotal = await getUserMonthlyTotal(db, userId, taskId, period);
-    const { unitPrice, maxScore } = task.scoreConfig;
-    const score = calculateBonusScore(userTotal, unitPrice, maxScore);
+    const key = `${userId}_${taskId}`;
+    const userTotal = userTaskTotals ? (userTaskTotals[key] || 0) : (await getUserMonthlyTotal(db, userId, taskId, period));
 
     bonusTasks.push({
       taskId,
       taskName: task.taskName,
-      totalValue: userTotal,
-      score: Math.round(score * 100) / 100
+      totalValue: userTotal
     });
-    bonusScore += score;
   }
 
-  // 加分封顶40分
-  bonusScore = Math.min(bonusScore, BONUS_TOTAL_CAP);
-  const totalScore = requiredScore + bonusScore;
+  const totalScore = requiredScore;
 
   return {
     requiredTasks,
     bonusTasks,
     requiredScore: Math.round(requiredScore * 100) / 100,
-    bonusScore: Math.round(bonusScore * 100) / 100,
-    totalScore: Math.round(totalScore * 100) / 100
+    totalScore: Math.round(totalScore * 100) / 100,
+    taskScores
   };
 }
 
@@ -170,15 +180,23 @@ async function calculateMonthlyStats(db, userId, period, requiredTaskIds, bonusT
  */
 async function updateRankings(db, period) {
   const collection = db.collection('pf_monthly_stats');
-  const result = await collection.where({ period }).orderBy('totalScore', 'desc').get();
+  const result = await collection.where({ period }).orderBy('totalScore', 'desc').limit(1000).get();
   if (!result.data || result.data.length === 0) return;
+
+  // 批量获取用户信息（分批处理，每批20个）
+  const userIds = result.data.map(s => s.userId).filter(Boolean);
+  const userRoleMap = {};
+  for (let i = 0; i < userIds.length; i += 20) {
+    const batch = userIds.slice(i, i + 20);
+    const usersRes = await db.collection('users').where({ _id: db.command.in(batch) }).field({ _id: true, role: true }).get();
+    usersRes.data.forEach(u => { userRoleMap[u._id] = u.role; });
+  }
 
   // 按角色分组排名
   const byRole = {};
   for (const stat of result.data) {
-    if (!stat.userId) continue;  // 跳过 userId 缺失的脏数据
-    const userRes = await db.collection('users').doc(stat.userId).get();
-    const role = userRes.data && userRes.data[0] ? userRes.data[0].role : 'unknown';
+    if (!stat.userId) continue;
+    const role = userRoleMap[stat.userId] || 'unknown';
     if (!byRole[role]) byRole[role] = [];
     byRole[role].push(stat);
   }
@@ -197,7 +215,6 @@ async function updateRankings(db, period) {
 
 module.exports = {
   calculateBenchmarkScore,
-  calculateBonusScore,
   getGroupTotals,
   getGroupUserIds,
   getUserMonthlyTotal,

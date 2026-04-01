@@ -1,0 +1,6946 @@
+[
+  {
+    "name": "陈耀",
+    "branch": "西洋支行",
+    "role": "lobby_manager",
+    "taskId": "fund_valid",
+    "target": 15
+  },
+  {
+    "name": "陈耀",
+    "branch": "西洋支行",
+    "role": "lobby_manager",
+    "taskId": "bind_card",
+    "target": 100
+  },
+  {
+    "name": "陈耀",
+    "branch": "西洋支行",
+    "role": "lobby_manager",
+    "taskId": "insurance",
+    "target": 18
+  },
+  {
+    "name": "陈耀",
+    "branch": "西洋支行",
+    "role": "lobby_manager",
+    "taskId": "pension_account",
+    "target": 35
+  },
+  {
+    "name": "陈耀",
+    "branch": "西洋支行",
+    "role": "lobby_manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "陈耀",
+    "branch": "西洋支行",
+    "role": "lobby_manager",
+    "taskId": "credit_installment",
+    "target": 50
+  },
+  {
+    "name": "陈耀",
+    "branch": "西洋支行",
+    "role": "lobby_manager",
+    "taskId": "credit_new_active",
+    "target": 10
+  },
+  {
+    "name": "陈耀",
+    "branch": "西洋支行",
+    "role": "lobby_manager",
+    "taskId": "wechat_welfare",
+    "target": 35
+  },
+  {
+    "name": "董文英",
+    "branch": "联新支行",
+    "role": "lobby_manager",
+    "taskId": "fund_valid",
+    "target": 15
+  },
+  {
+    "name": "董文英",
+    "branch": "联新支行",
+    "role": "lobby_manager",
+    "taskId": "bind_card",
+    "target": 100
+  },
+  {
+    "name": "董文英",
+    "branch": "联新支行",
+    "role": "lobby_manager",
+    "taskId": "insurance",
+    "target": 13
+  },
+  {
+    "name": "董文英",
+    "branch": "联新支行",
+    "role": "lobby_manager",
+    "taskId": "pension_account",
+    "target": 35
+  },
+  {
+    "name": "董文英",
+    "branch": "联新支行",
+    "role": "lobby_manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "董文英",
+    "branch": "联新支行",
+    "role": "lobby_manager",
+    "taskId": "credit_installment",
+    "target": 50
+  },
+  {
+    "name": "董文英",
+    "branch": "联新支行",
+    "role": "lobby_manager",
+    "taskId": "credit_new_active",
+    "target": 10
+  },
+  {
+    "name": "董文英",
+    "branch": "联新支行",
+    "role": "lobby_manager",
+    "taskId": "wechat_welfare",
+    "target": 35
+  },
+  {
+    "name": "郑潇",
+    "branch": "营业厅",
+    "role": "lobby_manager",
+    "taskId": "fund_valid",
+    "target": 20
+  },
+  {
+    "name": "郑潇",
+    "branch": "营业厅",
+    "role": "lobby_manager",
+    "taskId": "bind_card",
+    "target": 100
+  },
+  {
+    "name": "郑潇",
+    "branch": "营业厅",
+    "role": "lobby_manager",
+    "taskId": "insurance",
+    "target": 20
+  },
+  {
+    "name": "郑潇",
+    "branch": "营业厅",
+    "role": "lobby_manager",
+    "taskId": "pension_account",
+    "target": 35
+  },
+  {
+    "name": "郑潇",
+    "branch": "营业厅",
+    "role": "lobby_manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "郑潇",
+    "branch": "营业厅",
+    "role": "lobby_manager",
+    "taskId": "credit_installment",
+    "target": 50
+  },
+  {
+    "name": "郑潇",
+    "branch": "营业厅",
+    "role": "lobby_manager",
+    "taskId": "credit_new_active",
+    "target": 10
+  },
+  {
+    "name": "郑潇",
+    "branch": "营业厅",
+    "role": "lobby_manager",
+    "taskId": "wechat_welfare",
+    "target": 35
+  },
+  {
+    "name": "陈柄瑾",
+    "branch": "郑和支行",
+    "role": "lobby_manager",
+    "taskId": "fund_valid",
+    "target": 15
+  },
+  {
+    "name": "陈柄瑾",
+    "branch": "郑和支行",
+    "role": "lobby_manager",
+    "taskId": "bind_card",
+    "target": 100
+  },
+  {
+    "name": "陈柄瑾",
+    "branch": "郑和支行",
+    "role": "lobby_manager",
+    "taskId": "insurance",
+    "target": 15
+  },
+  {
+    "name": "陈柄瑾",
+    "branch": "郑和支行",
+    "role": "lobby_manager",
+    "taskId": "pension_account",
+    "target": 35
+  },
+  {
+    "name": "陈柄瑾",
+    "branch": "郑和支行",
+    "role": "lobby_manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "陈柄瑾",
+    "branch": "郑和支行",
+    "role": "lobby_manager",
+    "taskId": "credit_installment",
+    "target": 50
+  },
+  {
+    "name": "陈柄瑾",
+    "branch": "郑和支行",
+    "role": "lobby_manager",
+    "taskId": "credit_new_active",
+    "target": 10
+  },
+  {
+    "name": "陈柄瑾",
+    "branch": "郑和支行",
+    "role": "lobby_manager",
+    "taskId": "wechat_welfare",
+    "target": 35
+  },
+  {
+    "name": "张游",
+    "branch": "郑和支行",
+    "role": "lobby_manager",
+    "taskId": "fund_valid",
+    "target": 15
+  },
+  {
+    "name": "张游",
+    "branch": "郑和支行",
+    "role": "lobby_manager",
+    "taskId": "bind_card",
+    "target": 100
+  },
+  {
+    "name": "张游",
+    "branch": "郑和支行",
+    "role": "lobby_manager",
+    "taskId": "insurance",
+    "target": 15
+  },
+  {
+    "name": "张游",
+    "branch": "郑和支行",
+    "role": "lobby_manager",
+    "taskId": "pension_account",
+    "target": 35
+  },
+  {
+    "name": "张游",
+    "branch": "郑和支行",
+    "role": "lobby_manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "张游",
+    "branch": "郑和支行",
+    "role": "lobby_manager",
+    "taskId": "credit_installment",
+    "target": 50
+  },
+  {
+    "name": "张游",
+    "branch": "郑和支行",
+    "role": "lobby_manager",
+    "taskId": "credit_new_active",
+    "target": 10
+  },
+  {
+    "name": "张游",
+    "branch": "郑和支行",
+    "role": "lobby_manager",
+    "taskId": "wechat_welfare",
+    "target": 35
+  },
+  {
+    "name": "陈梦妮",
+    "branch": "朝阳支行",
+    "role": "lobby_manager",
+    "taskId": "fund_valid",
+    "target": 15
+  },
+  {
+    "name": "陈梦妮",
+    "branch": "朝阳支行",
+    "role": "lobby_manager",
+    "taskId": "bind_card",
+    "target": 100
+  },
+  {
+    "name": "陈梦妮",
+    "branch": "朝阳支行",
+    "role": "lobby_manager",
+    "taskId": "insurance",
+    "target": 15
+  },
+  {
+    "name": "陈梦妮",
+    "branch": "朝阳支行",
+    "role": "lobby_manager",
+    "taskId": "pension_account",
+    "target": 35
+  },
+  {
+    "name": "陈梦妮",
+    "branch": "朝阳支行",
+    "role": "lobby_manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "陈梦妮",
+    "branch": "朝阳支行",
+    "role": "lobby_manager",
+    "taskId": "credit_installment",
+    "target": 50
+  },
+  {
+    "name": "陈梦妮",
+    "branch": "朝阳支行",
+    "role": "lobby_manager",
+    "taskId": "credit_new_active",
+    "target": 10
+  },
+  {
+    "name": "陈梦妮",
+    "branch": "朝阳支行",
+    "role": "lobby_manager",
+    "taskId": "wechat_welfare",
+    "target": 35
+  },
+  {
+    "name": "张佳敏",
+    "branch": "朝阳支行",
+    "role": "lobby_manager",
+    "taskId": "fund_valid",
+    "target": 15
+  },
+  {
+    "name": "张佳敏",
+    "branch": "朝阳支行",
+    "role": "lobby_manager",
+    "taskId": "bind_card",
+    "target": 100
+  },
+  {
+    "name": "张佳敏",
+    "branch": "朝阳支行",
+    "role": "lobby_manager",
+    "taskId": "insurance",
+    "target": 15
+  },
+  {
+    "name": "张佳敏",
+    "branch": "朝阳支行",
+    "role": "lobby_manager",
+    "taskId": "pension_account",
+    "target": 35
+  },
+  {
+    "name": "张佳敏",
+    "branch": "朝阳支行",
+    "role": "lobby_manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "张佳敏",
+    "branch": "朝阳支行",
+    "role": "lobby_manager",
+    "taskId": "credit_installment",
+    "target": 50
+  },
+  {
+    "name": "张佳敏",
+    "branch": "朝阳支行",
+    "role": "lobby_manager",
+    "taskId": "credit_new_active",
+    "target": 10
+  },
+  {
+    "name": "张佳敏",
+    "branch": "朝阳支行",
+    "role": "lobby_manager",
+    "taskId": "wechat_welfare",
+    "target": 35
+  },
+  {
+    "name": "邹晖",
+    "branch": "营业厅",
+    "role": "lobby_manager",
+    "taskId": "fund_valid",
+    "target": 20
+  },
+  {
+    "name": "邹晖",
+    "branch": "营业厅",
+    "role": "lobby_manager",
+    "taskId": "bind_card",
+    "target": 100
+  },
+  {
+    "name": "邹晖",
+    "branch": "营业厅",
+    "role": "lobby_manager",
+    "taskId": "insurance",
+    "target": 20
+  },
+  {
+    "name": "邹晖",
+    "branch": "营业厅",
+    "role": "lobby_manager",
+    "taskId": "pension_account",
+    "target": 35
+  },
+  {
+    "name": "邹晖",
+    "branch": "营业厅",
+    "role": "lobby_manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "邹晖",
+    "branch": "营业厅",
+    "role": "lobby_manager",
+    "taskId": "credit_installment",
+    "target": 50
+  },
+  {
+    "name": "邹晖",
+    "branch": "营业厅",
+    "role": "lobby_manager",
+    "taskId": "credit_new_active",
+    "target": 10
+  },
+  {
+    "name": "邹晖",
+    "branch": "营业厅",
+    "role": "lobby_manager",
+    "taskId": "wechat_welfare",
+    "target": 35
+  },
+  {
+    "name": "陈婷",
+    "branch": "锦江支行",
+    "role": "lobby_manager",
+    "taskId": "fund_valid",
+    "target": 15
+  },
+  {
+    "name": "陈婷",
+    "branch": "锦江支行",
+    "role": "lobby_manager",
+    "taskId": "bind_card",
+    "target": 100
+  },
+  {
+    "name": "陈婷",
+    "branch": "锦江支行",
+    "role": "lobby_manager",
+    "taskId": "insurance",
+    "target": 18
+  },
+  {
+    "name": "陈婷",
+    "branch": "锦江支行",
+    "role": "lobby_manager",
+    "taskId": "pension_account",
+    "target": 35
+  },
+  {
+    "name": "陈婷",
+    "branch": "锦江支行",
+    "role": "lobby_manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "陈婷",
+    "branch": "锦江支行",
+    "role": "lobby_manager",
+    "taskId": "credit_installment",
+    "target": 50
+  },
+  {
+    "name": "陈婷",
+    "branch": "锦江支行",
+    "role": "lobby_manager",
+    "taskId": "credit_new_active",
+    "target": 10
+  },
+  {
+    "name": "陈婷",
+    "branch": "锦江支行",
+    "role": "lobby_manager",
+    "taskId": "wechat_welfare",
+    "target": 35
+  },
+  {
+    "name": "冯潇媛",
+    "branch": "锦江支行",
+    "role": "lobby_manager",
+    "taskId": "fund_valid",
+    "target": 15
+  },
+  {
+    "name": "冯潇媛",
+    "branch": "锦江支行",
+    "role": "lobby_manager",
+    "taskId": "bind_card",
+    "target": 100
+  },
+  {
+    "name": "冯潇媛",
+    "branch": "锦江支行",
+    "role": "lobby_manager",
+    "taskId": "insurance",
+    "target": 18
+  },
+  {
+    "name": "冯潇媛",
+    "branch": "锦江支行",
+    "role": "lobby_manager",
+    "taskId": "pension_account",
+    "target": 35
+  },
+  {
+    "name": "冯潇媛",
+    "branch": "锦江支行",
+    "role": "lobby_manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "冯潇媛",
+    "branch": "锦江支行",
+    "role": "lobby_manager",
+    "taskId": "credit_installment",
+    "target": 50
+  },
+  {
+    "name": "冯潇媛",
+    "branch": "锦江支行",
+    "role": "lobby_manager",
+    "taskId": "credit_new_active",
+    "target": 10
+  },
+  {
+    "name": "冯潇媛",
+    "branch": "锦江支行",
+    "role": "lobby_manager",
+    "taskId": "wechat_welfare",
+    "target": 35
+  },
+  {
+    "name": "邹长瑜",
+    "branch": "进城支行",
+    "role": "lobby_manager",
+    "taskId": "fund_valid",
+    "target": 15
+  },
+  {
+    "name": "邹长瑜",
+    "branch": "进城支行",
+    "role": "lobby_manager",
+    "taskId": "bind_card",
+    "target": 100
+  },
+  {
+    "name": "邹长瑜",
+    "branch": "进城支行",
+    "role": "lobby_manager",
+    "taskId": "insurance",
+    "target": 18
+  },
+  {
+    "name": "邹长瑜",
+    "branch": "进城支行",
+    "role": "lobby_manager",
+    "taskId": "pension_account",
+    "target": 35
+  },
+  {
+    "name": "邹长瑜",
+    "branch": "进城支行",
+    "role": "lobby_manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "邹长瑜",
+    "branch": "进城支行",
+    "role": "lobby_manager",
+    "taskId": "credit_installment",
+    "target": 50
+  },
+  {
+    "name": "邹长瑜",
+    "branch": "进城支行",
+    "role": "lobby_manager",
+    "taskId": "credit_new_active",
+    "target": 10
+  },
+  {
+    "name": "邹长瑜",
+    "branch": "进城支行",
+    "role": "lobby_manager",
+    "taskId": "wechat_welfare",
+    "target": 35
+  },
+  {
+    "name": "李昕",
+    "branch": "联新支行",
+    "role": "lobby_manager",
+    "taskId": "fund_valid",
+    "target": 15
+  },
+  {
+    "name": "李昕",
+    "branch": "联新支行",
+    "role": "lobby_manager",
+    "taskId": "bind_card",
+    "target": 100
+  },
+  {
+    "name": "李昕",
+    "branch": "联新支行",
+    "role": "lobby_manager",
+    "taskId": "insurance",
+    "target": 13
+  },
+  {
+    "name": "李昕",
+    "branch": "联新支行",
+    "role": "lobby_manager",
+    "taskId": "pension_account",
+    "target": 35
+  },
+  {
+    "name": "李昕",
+    "branch": "联新支行",
+    "role": "lobby_manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "李昕",
+    "branch": "联新支行",
+    "role": "lobby_manager",
+    "taskId": "credit_installment",
+    "target": 50
+  },
+  {
+    "name": "李昕",
+    "branch": "联新支行",
+    "role": "lobby_manager",
+    "taskId": "credit_new_active",
+    "target": 10
+  },
+  {
+    "name": "李昕",
+    "branch": "联新支行",
+    "role": "lobby_manager",
+    "taskId": "wechat_welfare",
+    "target": 35
+  },
+  {
+    "name": "周仕培",
+    "branch": "金峰支行",
+    "role": "lobby_manager",
+    "taskId": "fund_valid",
+    "target": 20
+  },
+  {
+    "name": "周仕培",
+    "branch": "金峰支行",
+    "role": "lobby_manager",
+    "taskId": "bind_card",
+    "target": 100
+  },
+  {
+    "name": "周仕培",
+    "branch": "金峰支行",
+    "role": "lobby_manager",
+    "taskId": "insurance",
+    "target": 20
+  },
+  {
+    "name": "周仕培",
+    "branch": "金峰支行",
+    "role": "lobby_manager",
+    "taskId": "pension_account",
+    "target": 35
+  },
+  {
+    "name": "周仕培",
+    "branch": "金峰支行",
+    "role": "lobby_manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "周仕培",
+    "branch": "金峰支行",
+    "role": "lobby_manager",
+    "taskId": "credit_installment",
+    "target": 50
+  },
+  {
+    "name": "周仕培",
+    "branch": "金峰支行",
+    "role": "lobby_manager",
+    "taskId": "credit_new_active",
+    "target": 10
+  },
+  {
+    "name": "周仕培",
+    "branch": "金峰支行",
+    "role": "lobby_manager",
+    "taskId": "wechat_welfare",
+    "target": 35
+  },
+  {
+    "name": "张丽芳",
+    "branch": "金峰支行",
+    "role": "lobby_manager",
+    "taskId": "fund_valid",
+    "target": 20
+  },
+  {
+    "name": "张丽芳",
+    "branch": "金峰支行",
+    "role": "lobby_manager",
+    "taskId": "bind_card",
+    "target": 100
+  },
+  {
+    "name": "张丽芳",
+    "branch": "金峰支行",
+    "role": "lobby_manager",
+    "taskId": "insurance",
+    "target": 20
+  },
+  {
+    "name": "张丽芳",
+    "branch": "金峰支行",
+    "role": "lobby_manager",
+    "taskId": "pension_account",
+    "target": 35
+  },
+  {
+    "name": "张丽芳",
+    "branch": "金峰支行",
+    "role": "lobby_manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "张丽芳",
+    "branch": "金峰支行",
+    "role": "lobby_manager",
+    "taskId": "credit_installment",
+    "target": 50
+  },
+  {
+    "name": "张丽芳",
+    "branch": "金峰支行",
+    "role": "lobby_manager",
+    "taskId": "credit_new_active",
+    "target": 10
+  },
+  {
+    "name": "张丽芳",
+    "branch": "金峰支行",
+    "role": "lobby_manager",
+    "taskId": "wechat_welfare",
+    "target": 35
+  },
+  {
+    "name": "郑诚国",
+    "branch": "金峰支行",
+    "role": "lobby_manager",
+    "taskId": "fund_valid",
+    "target": 20
+  },
+  {
+    "name": "郑诚国",
+    "branch": "金峰支行",
+    "role": "lobby_manager",
+    "taskId": "bind_card",
+    "target": 100
+  },
+  {
+    "name": "郑诚国",
+    "branch": "金峰支行",
+    "role": "lobby_manager",
+    "taskId": "insurance",
+    "target": 20
+  },
+  {
+    "name": "郑诚国",
+    "branch": "金峰支行",
+    "role": "lobby_manager",
+    "taskId": "pension_account",
+    "target": 35
+  },
+  {
+    "name": "郑诚国",
+    "branch": "金峰支行",
+    "role": "lobby_manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "郑诚国",
+    "branch": "金峰支行",
+    "role": "lobby_manager",
+    "taskId": "credit_installment",
+    "target": 50
+  },
+  {
+    "name": "郑诚国",
+    "branch": "金峰支行",
+    "role": "lobby_manager",
+    "taskId": "credit_new_active",
+    "target": 10
+  },
+  {
+    "name": "郑诚国",
+    "branch": "金峰支行",
+    "role": "lobby_manager",
+    "taskId": "wechat_welfare",
+    "target": 35
+  },
+  {
+    "name": "王锦祥",
+    "branch": "金峰支行",
+    "role": "lobby_manager",
+    "taskId": "fund_valid",
+    "target": 20
+  },
+  {
+    "name": "王锦祥",
+    "branch": "金峰支行",
+    "role": "lobby_manager",
+    "taskId": "bind_card",
+    "target": 100
+  },
+  {
+    "name": "王锦祥",
+    "branch": "金峰支行",
+    "role": "lobby_manager",
+    "taskId": "insurance",
+    "target": 20
+  },
+  {
+    "name": "王锦祥",
+    "branch": "金峰支行",
+    "role": "lobby_manager",
+    "taskId": "pension_account",
+    "target": 35
+  },
+  {
+    "name": "王锦祥",
+    "branch": "金峰支行",
+    "role": "lobby_manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "王锦祥",
+    "branch": "金峰支行",
+    "role": "lobby_manager",
+    "taskId": "credit_installment",
+    "target": 50
+  },
+  {
+    "name": "王锦祥",
+    "branch": "金峰支行",
+    "role": "lobby_manager",
+    "taskId": "credit_new_active",
+    "target": 10
+  },
+  {
+    "name": "王锦祥",
+    "branch": "金峰支行",
+    "role": "lobby_manager",
+    "taskId": "wechat_welfare",
+    "target": 35
+  },
+  {
+    "name": "吴会兰",
+    "branch": "胪峰支行",
+    "role": "lobby_manager",
+    "taskId": "fund_valid",
+    "target": 15
+  },
+  {
+    "name": "吴会兰",
+    "branch": "胪峰支行",
+    "role": "lobby_manager",
+    "taskId": "bind_card",
+    "target": 100
+  },
+  {
+    "name": "吴会兰",
+    "branch": "胪峰支行",
+    "role": "lobby_manager",
+    "taskId": "insurance",
+    "target": 15
+  },
+  {
+    "name": "吴会兰",
+    "branch": "胪峰支行",
+    "role": "lobby_manager",
+    "taskId": "pension_account",
+    "target": 35
+  },
+  {
+    "name": "吴会兰",
+    "branch": "胪峰支行",
+    "role": "lobby_manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "吴会兰",
+    "branch": "胪峰支行",
+    "role": "lobby_manager",
+    "taskId": "credit_installment",
+    "target": 50
+  },
+  {
+    "name": "吴会兰",
+    "branch": "胪峰支行",
+    "role": "lobby_manager",
+    "taskId": "credit_new_active",
+    "target": 10
+  },
+  {
+    "name": "吴会兰",
+    "branch": "胪峰支行",
+    "role": "lobby_manager",
+    "taskId": "wechat_welfare",
+    "target": 35
+  },
+  {
+    "name": "江秀运",
+    "branch": "振兴支行",
+    "role": "lobby_manager",
+    "taskId": "fund_valid",
+    "target": 15
+  },
+  {
+    "name": "江秀运",
+    "branch": "振兴支行",
+    "role": "lobby_manager",
+    "taskId": "bind_card",
+    "target": 100
+  },
+  {
+    "name": "江秀运",
+    "branch": "振兴支行",
+    "role": "lobby_manager",
+    "taskId": "insurance",
+    "target": 15
+  },
+  {
+    "name": "江秀运",
+    "branch": "振兴支行",
+    "role": "lobby_manager",
+    "taskId": "pension_account",
+    "target": 35
+  },
+  {
+    "name": "江秀运",
+    "branch": "振兴支行",
+    "role": "lobby_manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "江秀运",
+    "branch": "振兴支行",
+    "role": "lobby_manager",
+    "taskId": "credit_installment",
+    "target": 50
+  },
+  {
+    "name": "江秀运",
+    "branch": "振兴支行",
+    "role": "lobby_manager",
+    "taskId": "credit_new_active",
+    "target": 10
+  },
+  {
+    "name": "江秀运",
+    "branch": "振兴支行",
+    "role": "lobby_manager",
+    "taskId": "wechat_welfare",
+    "target": 35
+  },
+  {
+    "name": "黄永杰",
+    "branch": "潭头支行",
+    "role": "lobby_manager",
+    "taskId": "fund_valid",
+    "target": 10
+  },
+  {
+    "name": "黄永杰",
+    "branch": "潭头支行",
+    "role": "lobby_manager",
+    "taskId": "bind_card",
+    "target": 55
+  },
+  {
+    "name": "黄永杰",
+    "branch": "潭头支行",
+    "role": "lobby_manager",
+    "taskId": "insurance",
+    "target": 13
+  },
+  {
+    "name": "黄永杰",
+    "branch": "潭头支行",
+    "role": "lobby_manager",
+    "taskId": "pension_account",
+    "target": 25
+  },
+  {
+    "name": "黄永杰",
+    "branch": "潭头支行",
+    "role": "lobby_manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "黄永杰",
+    "branch": "潭头支行",
+    "role": "lobby_manager",
+    "taskId": "credit_installment",
+    "target": 50
+  },
+  {
+    "name": "黄永杰",
+    "branch": "潭头支行",
+    "role": "lobby_manager",
+    "taskId": "credit_new_active",
+    "target": 10
+  },
+  {
+    "name": "黄永杰",
+    "branch": "潭头支行",
+    "role": "lobby_manager",
+    "taskId": "wechat_welfare",
+    "target": 35
+  },
+  {
+    "name": "徐忠祥",
+    "branch": "潭头支行",
+    "role": "lobby_manager",
+    "taskId": "fund_valid",
+    "target": 10
+  },
+  {
+    "name": "徐忠祥",
+    "branch": "潭头支行",
+    "role": "lobby_manager",
+    "taskId": "bind_card",
+    "target": 55
+  },
+  {
+    "name": "徐忠祥",
+    "branch": "潭头支行",
+    "role": "lobby_manager",
+    "taskId": "insurance",
+    "target": 13
+  },
+  {
+    "name": "徐忠祥",
+    "branch": "潭头支行",
+    "role": "lobby_manager",
+    "taskId": "pension_account",
+    "target": 25
+  },
+  {
+    "name": "徐忠祥",
+    "branch": "潭头支行",
+    "role": "lobby_manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "徐忠祥",
+    "branch": "潭头支行",
+    "role": "lobby_manager",
+    "taskId": "credit_installment",
+    "target": 52
+  },
+  {
+    "name": "徐忠祥",
+    "branch": "潭头支行",
+    "role": "lobby_manager",
+    "taskId": "credit_new_active",
+    "target": 10
+  },
+  {
+    "name": "徐忠祥",
+    "branch": "潭头支行",
+    "role": "lobby_manager",
+    "taskId": "wechat_welfare",
+    "target": 35
+  },
+  {
+    "name": "杨静娴",
+    "branch": "皇庭名郡支行",
+    "role": "lobby_manager",
+    "taskId": "fund_valid",
+    "target": 15
+  },
+  {
+    "name": "杨静娴",
+    "branch": "皇庭名郡支行",
+    "role": "lobby_manager",
+    "taskId": "bind_card",
+    "target": 100
+  },
+  {
+    "name": "杨静娴",
+    "branch": "皇庭名郡支行",
+    "role": "lobby_manager",
+    "taskId": "insurance",
+    "target": 13
+  },
+  {
+    "name": "杨静娴",
+    "branch": "皇庭名郡支行",
+    "role": "lobby_manager",
+    "taskId": "pension_account",
+    "target": 35
+  },
+  {
+    "name": "杨静娴",
+    "branch": "皇庭名郡支行",
+    "role": "lobby_manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "杨静娴",
+    "branch": "皇庭名郡支行",
+    "role": "lobby_manager",
+    "taskId": "credit_installment",
+    "target": 50
+  },
+  {
+    "name": "杨静娴",
+    "branch": "皇庭名郡支行",
+    "role": "lobby_manager",
+    "taskId": "credit_new_active",
+    "target": 10
+  },
+  {
+    "name": "杨静娴",
+    "branch": "皇庭名郡支行",
+    "role": "lobby_manager",
+    "taskId": "wechat_welfare",
+    "target": 35
+  },
+  {
+    "name": "黄焕焕",
+    "branch": "皇庭名郡支行",
+    "role": "lobby_manager",
+    "taskId": "fund_valid",
+    "target": 15
+  },
+  {
+    "name": "黄焕焕",
+    "branch": "皇庭名郡支行",
+    "role": "lobby_manager",
+    "taskId": "bind_card",
+    "target": 100
+  },
+  {
+    "name": "黄焕焕",
+    "branch": "皇庭名郡支行",
+    "role": "lobby_manager",
+    "taskId": "insurance",
+    "target": 13
+  },
+  {
+    "name": "黄焕焕",
+    "branch": "皇庭名郡支行",
+    "role": "lobby_manager",
+    "taskId": "pension_account",
+    "target": 35
+  },
+  {
+    "name": "黄焕焕",
+    "branch": "皇庭名郡支行",
+    "role": "lobby_manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "黄焕焕",
+    "branch": "皇庭名郡支行",
+    "role": "lobby_manager",
+    "taskId": "credit_installment",
+    "target": 50
+  },
+  {
+    "name": "黄焕焕",
+    "branch": "皇庭名郡支行",
+    "role": "lobby_manager",
+    "taskId": "credit_new_active",
+    "target": 10
+  },
+  {
+    "name": "黄焕焕",
+    "branch": "皇庭名郡支行",
+    "role": "lobby_manager",
+    "taskId": "wechat_welfare",
+    "target": 35
+  },
+  {
+    "name": "高简捷",
+    "branch": "皇庭名郡支行",
+    "role": "lobby_manager",
+    "taskId": "fund_valid",
+    "target": 15
+  },
+  {
+    "name": "高简捷",
+    "branch": "皇庭名郡支行",
+    "role": "lobby_manager",
+    "taskId": "bind_card",
+    "target": 100
+  },
+  {
+    "name": "高简捷",
+    "branch": "皇庭名郡支行",
+    "role": "lobby_manager",
+    "taskId": "insurance",
+    "target": 13
+  },
+  {
+    "name": "高简捷",
+    "branch": "皇庭名郡支行",
+    "role": "lobby_manager",
+    "taskId": "pension_account",
+    "target": 35
+  },
+  {
+    "name": "高简捷",
+    "branch": "皇庭名郡支行",
+    "role": "lobby_manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "高简捷",
+    "branch": "皇庭名郡支行",
+    "role": "lobby_manager",
+    "taskId": "credit_installment",
+    "target": 50
+  },
+  {
+    "name": "高简捷",
+    "branch": "皇庭名郡支行",
+    "role": "lobby_manager",
+    "taskId": "credit_new_active",
+    "target": 10
+  },
+  {
+    "name": "高简捷",
+    "branch": "皇庭名郡支行",
+    "role": "lobby_manager",
+    "taskId": "wechat_welfare",
+    "target": 35
+  },
+  {
+    "name": "林惠云",
+    "branch": "江田支行",
+    "role": "lobby_manager",
+    "taskId": "fund_valid",
+    "target": 15
+  },
+  {
+    "name": "林惠云",
+    "branch": "江田支行",
+    "role": "lobby_manager",
+    "taskId": "bind_card",
+    "target": 100
+  },
+  {
+    "name": "林惠云",
+    "branch": "江田支行",
+    "role": "lobby_manager",
+    "taskId": "insurance",
+    "target": 13
+  },
+  {
+    "name": "林惠云",
+    "branch": "江田支行",
+    "role": "lobby_manager",
+    "taskId": "pension_account",
+    "target": 35
+  },
+  {
+    "name": "林惠云",
+    "branch": "江田支行",
+    "role": "lobby_manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "林惠云",
+    "branch": "江田支行",
+    "role": "lobby_manager",
+    "taskId": "credit_installment",
+    "target": 50
+  },
+  {
+    "name": "林惠云",
+    "branch": "江田支行",
+    "role": "lobby_manager",
+    "taskId": "credit_new_active",
+    "target": 10
+  },
+  {
+    "name": "林惠云",
+    "branch": "江田支行",
+    "role": "lobby_manager",
+    "taskId": "wechat_welfare",
+    "target": 35
+  },
+  {
+    "name": "陈雯昕",
+    "branch": "江田支行",
+    "role": "lobby_manager",
+    "taskId": "fund_valid",
+    "target": 15
+  },
+  {
+    "name": "陈雯昕",
+    "branch": "江田支行",
+    "role": "lobby_manager",
+    "taskId": "bind_card",
+    "target": 100
+  },
+  {
+    "name": "陈雯昕",
+    "branch": "江田支行",
+    "role": "lobby_manager",
+    "taskId": "insurance",
+    "target": 13
+  },
+  {
+    "name": "陈雯昕",
+    "branch": "江田支行",
+    "role": "lobby_manager",
+    "taskId": "pension_account",
+    "target": 35
+  },
+  {
+    "name": "陈雯昕",
+    "branch": "江田支行",
+    "role": "lobby_manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "陈雯昕",
+    "branch": "江田支行",
+    "role": "lobby_manager",
+    "taskId": "credit_installment",
+    "target": 50
+  },
+  {
+    "name": "陈雯昕",
+    "branch": "江田支行",
+    "role": "lobby_manager",
+    "taskId": "credit_new_active",
+    "target": 10
+  },
+  {
+    "name": "陈雯昕",
+    "branch": "江田支行",
+    "role": "lobby_manager",
+    "taskId": "wechat_welfare",
+    "target": 35
+  },
+  {
+    "name": "郑妍",
+    "branch": "漳港支行",
+    "role": "lobby_manager",
+    "taskId": "fund_valid",
+    "target": 15
+  },
+  {
+    "name": "郑妍",
+    "branch": "漳港支行",
+    "role": "lobby_manager",
+    "taskId": "bind_card",
+    "target": 100
+  },
+  {
+    "name": "郑妍",
+    "branch": "漳港支行",
+    "role": "lobby_manager",
+    "taskId": "insurance",
+    "target": 14
+  },
+  {
+    "name": "郑妍",
+    "branch": "漳港支行",
+    "role": "lobby_manager",
+    "taskId": "pension_account",
+    "target": 35
+  },
+  {
+    "name": "郑妍",
+    "branch": "漳港支行",
+    "role": "lobby_manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "郑妍",
+    "branch": "漳港支行",
+    "role": "lobby_manager",
+    "taskId": "credit_installment",
+    "target": 50
+  },
+  {
+    "name": "郑妍",
+    "branch": "漳港支行",
+    "role": "lobby_manager",
+    "taskId": "credit_new_active",
+    "target": 10
+  },
+  {
+    "name": "郑妍",
+    "branch": "漳港支行",
+    "role": "lobby_manager",
+    "taskId": "wechat_welfare",
+    "target": 35
+  },
+  {
+    "name": "张婷",
+    "branch": "西洋支行",
+    "role": "lobby_manager",
+    "taskId": "fund_valid",
+    "target": 15
+  },
+  {
+    "name": "张婷",
+    "branch": "西洋支行",
+    "role": "lobby_manager",
+    "taskId": "bind_card",
+    "target": 100
+  },
+  {
+    "name": "张婷",
+    "branch": "西洋支行",
+    "role": "lobby_manager",
+    "taskId": "insurance",
+    "target": 18
+  },
+  {
+    "name": "张婷",
+    "branch": "西洋支行",
+    "role": "lobby_manager",
+    "taskId": "pension_account",
+    "target": 35
+  },
+  {
+    "name": "张婷",
+    "branch": "西洋支行",
+    "role": "lobby_manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "张婷",
+    "branch": "西洋支行",
+    "role": "lobby_manager",
+    "taskId": "credit_installment",
+    "target": 50
+  },
+  {
+    "name": "张婷",
+    "branch": "西洋支行",
+    "role": "lobby_manager",
+    "taskId": "credit_new_active",
+    "target": 10
+  },
+  {
+    "name": "张婷",
+    "branch": "西洋支行",
+    "role": "lobby_manager",
+    "taskId": "wechat_welfare",
+    "target": 35
+  },
+  {
+    "name": "李婷婷",
+    "branch": "滨海支行",
+    "role": "lobby_manager",
+    "taskId": "fund_valid",
+    "target": 10
+  },
+  {
+    "name": "李婷婷",
+    "branch": "滨海支行",
+    "role": "lobby_manager",
+    "taskId": "bind_card",
+    "target": 55
+  },
+  {
+    "name": "李婷婷",
+    "branch": "滨海支行",
+    "role": "lobby_manager",
+    "taskId": "insurance",
+    "target": 5
+  },
+  {
+    "name": "李婷婷",
+    "branch": "滨海支行",
+    "role": "lobby_manager",
+    "taskId": "pension_account",
+    "target": 25
+  },
+  {
+    "name": "李婷婷",
+    "branch": "滨海支行",
+    "role": "lobby_manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "李婷婷",
+    "branch": "滨海支行",
+    "role": "lobby_manager",
+    "taskId": "credit_installment",
+    "target": 50
+  },
+  {
+    "name": "李婷婷",
+    "branch": "滨海支行",
+    "role": "lobby_manager",
+    "taskId": "credit_new_active",
+    "target": 10
+  },
+  {
+    "name": "李婷婷",
+    "branch": "滨海支行",
+    "role": "lobby_manager",
+    "taskId": "wechat_welfare",
+    "target": 35
+  },
+  {
+    "name": "石苔曼",
+    "branch": "玉田支行",
+    "role": "lobby_manager",
+    "taskId": "fund_valid",
+    "target": 10
+  },
+  {
+    "name": "石苔曼",
+    "branch": "玉田支行",
+    "role": "lobby_manager",
+    "taskId": "bind_card",
+    "target": 55
+  },
+  {
+    "name": "石苔曼",
+    "branch": "玉田支行",
+    "role": "lobby_manager",
+    "taskId": "insurance",
+    "target": 13
+  },
+  {
+    "name": "石苔曼",
+    "branch": "玉田支行",
+    "role": "lobby_manager",
+    "taskId": "pension_account",
+    "target": 25
+  },
+  {
+    "name": "石苔曼",
+    "branch": "玉田支行",
+    "role": "lobby_manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "石苔曼",
+    "branch": "玉田支行",
+    "role": "lobby_manager",
+    "taskId": "credit_installment",
+    "target": 50
+  },
+  {
+    "name": "石苔曼",
+    "branch": "玉田支行",
+    "role": "lobby_manager",
+    "taskId": "credit_new_active",
+    "target": 10
+  },
+  {
+    "name": "石苔曼",
+    "branch": "玉田支行",
+    "role": "lobby_manager",
+    "taskId": "wechat_welfare",
+    "target": 35
+  },
+  {
+    "name": "陈志伟",
+    "branch": "进城支行",
+    "role": "lobby_manager",
+    "taskId": "fund_valid",
+    "target": 15
+  },
+  {
+    "name": "陈志伟",
+    "branch": "进城支行",
+    "role": "lobby_manager",
+    "taskId": "bind_card",
+    "target": 100
+  },
+  {
+    "name": "陈志伟",
+    "branch": "进城支行",
+    "role": "lobby_manager",
+    "taskId": "insurance",
+    "target": 18
+  },
+  {
+    "name": "陈志伟",
+    "branch": "进城支行",
+    "role": "lobby_manager",
+    "taskId": "pension_account",
+    "target": 35
+  },
+  {
+    "name": "陈志伟",
+    "branch": "进城支行",
+    "role": "lobby_manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "陈志伟",
+    "branch": "进城支行",
+    "role": "lobby_manager",
+    "taskId": "credit_installment",
+    "target": 50
+  },
+  {
+    "name": "陈志伟",
+    "branch": "进城支行",
+    "role": "lobby_manager",
+    "taskId": "credit_new_active",
+    "target": 10
+  },
+  {
+    "name": "陈志伟",
+    "branch": "进城支行",
+    "role": "lobby_manager",
+    "taskId": "wechat_welfare",
+    "target": 35
+  },
+  {
+    "name": "李惠星",
+    "branch": "鹤上支行",
+    "role": "lobby_manager",
+    "taskId": "fund_valid",
+    "target": 15
+  },
+  {
+    "name": "李惠星",
+    "branch": "鹤上支行",
+    "role": "lobby_manager",
+    "taskId": "bind_card",
+    "target": 100
+  },
+  {
+    "name": "李惠星",
+    "branch": "鹤上支行",
+    "role": "lobby_manager",
+    "taskId": "insurance",
+    "target": 18
+  },
+  {
+    "name": "李惠星",
+    "branch": "鹤上支行",
+    "role": "lobby_manager",
+    "taskId": "pension_account",
+    "target": 35
+  },
+  {
+    "name": "李惠星",
+    "branch": "鹤上支行",
+    "role": "lobby_manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "李惠星",
+    "branch": "鹤上支行",
+    "role": "lobby_manager",
+    "taskId": "credit_installment",
+    "target": 50
+  },
+  {
+    "name": "李惠星",
+    "branch": "鹤上支行",
+    "role": "lobby_manager",
+    "taskId": "credit_new_active",
+    "target": 10
+  },
+  {
+    "name": "李惠星",
+    "branch": "鹤上支行",
+    "role": "lobby_manager",
+    "taskId": "wechat_welfare",
+    "target": 35
+  },
+  {
+    "name": "胡楚桐",
+    "branch": "西洋支行",
+    "role": "lobby_manager",
+    "taskId": "fund_valid",
+    "target": 15
+  },
+  {
+    "name": "胡楚桐",
+    "branch": "西洋支行",
+    "role": "lobby_manager",
+    "taskId": "bind_card",
+    "target": 100
+  },
+  {
+    "name": "胡楚桐",
+    "branch": "西洋支行",
+    "role": "lobby_manager",
+    "taskId": "insurance",
+    "target": 18
+  },
+  {
+    "name": "胡楚桐",
+    "branch": "西洋支行",
+    "role": "lobby_manager",
+    "taskId": "pension_account",
+    "target": 17.5
+  },
+  {
+    "name": "胡楚桐",
+    "branch": "西洋支行",
+    "role": "lobby_manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "胡楚桐",
+    "branch": "西洋支行",
+    "role": "lobby_manager",
+    "taskId": "credit_installment",
+    "target": 50
+  },
+  {
+    "name": "胡楚桐",
+    "branch": "西洋支行",
+    "role": "lobby_manager",
+    "taskId": "credit_new_active",
+    "target": 10
+  },
+  {
+    "name": "胡楚桐",
+    "branch": "西洋支行",
+    "role": "lobby_manager",
+    "taskId": "wechat_welfare",
+    "target": 35
+  },
+  {
+    "name": "陈怡昕",
+    "branch": "营业厅",
+    "role": "lobby_manager",
+    "taskId": "fund_valid",
+    "target": 20
+  },
+  {
+    "name": "陈怡昕",
+    "branch": "营业厅",
+    "role": "lobby_manager",
+    "taskId": "bind_card",
+    "target": 100
+  },
+  {
+    "name": "陈怡昕",
+    "branch": "营业厅",
+    "role": "lobby_manager",
+    "taskId": "insurance",
+    "target": 20
+  },
+  {
+    "name": "陈怡昕",
+    "branch": "营业厅",
+    "role": "lobby_manager",
+    "taskId": "pension_account",
+    "target": 35
+  },
+  {
+    "name": "陈怡昕",
+    "branch": "营业厅",
+    "role": "lobby_manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "陈怡昕",
+    "branch": "营业厅",
+    "role": "lobby_manager",
+    "taskId": "credit_installment",
+    "target": 50
+  },
+  {
+    "name": "陈怡昕",
+    "branch": "营业厅",
+    "role": "lobby_manager",
+    "taskId": "credit_new_active",
+    "target": 10
+  },
+  {
+    "name": "陈怡昕",
+    "branch": "营业厅",
+    "role": "lobby_manager",
+    "taskId": "wechat_welfare",
+    "target": 35
+  },
+  {
+    "name": "江钐",
+    "branch": "营业厅",
+    "role": "elastic_counter",
+    "taskId": "fund_valid",
+    "target": 15
+  },
+  {
+    "name": "江钐",
+    "branch": "营业厅",
+    "role": "elastic_counter",
+    "taskId": "bind_card",
+    "target": 75
+  },
+  {
+    "name": "江钐",
+    "branch": "营业厅",
+    "role": "elastic_counter",
+    "taskId": "insurance",
+    "target": 11
+  },
+  {
+    "name": "江钐",
+    "branch": "营业厅",
+    "role": "elastic_counter",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "江钐",
+    "branch": "营业厅",
+    "role": "elastic_counter",
+    "taskId": "merchant",
+    "target": 2
+  },
+  {
+    "name": "江钐",
+    "branch": "营业厅",
+    "role": "elastic_counter",
+    "taskId": "credit_installment",
+    "target": 40
+  },
+  {
+    "name": "江钐",
+    "branch": "营业厅",
+    "role": "elastic_counter",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "江钐",
+    "branch": "营业厅",
+    "role": "elastic_counter",
+    "taskId": "wechat_welfare",
+    "target": 30
+  },
+  {
+    "name": "齐航",
+    "branch": "营业厅",
+    "role": "elastic_counter",
+    "taskId": "fund_valid",
+    "target": 15
+  },
+  {
+    "name": "齐航",
+    "branch": "营业厅",
+    "role": "elastic_counter",
+    "taskId": "bind_card",
+    "target": 75
+  },
+  {
+    "name": "齐航",
+    "branch": "营业厅",
+    "role": "elastic_counter",
+    "taskId": "insurance",
+    "target": 5.5
+  },
+  {
+    "name": "齐航",
+    "branch": "营业厅",
+    "role": "elastic_counter",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "齐航",
+    "branch": "营业厅",
+    "role": "elastic_counter",
+    "taskId": "merchant",
+    "target": 2
+  },
+  {
+    "name": "齐航",
+    "branch": "营业厅",
+    "role": "elastic_counter",
+    "taskId": "credit_installment",
+    "target": 40
+  },
+  {
+    "name": "齐航",
+    "branch": "营业厅",
+    "role": "elastic_counter",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "齐航",
+    "branch": "营业厅",
+    "role": "elastic_counter",
+    "taskId": "wechat_welfare",
+    "target": 30
+  },
+  {
+    "name": "张潇蓓",
+    "branch": "西洋支行",
+    "role": "elastic_counter",
+    "taskId": "fund_valid",
+    "target": 10
+  },
+  {
+    "name": "张潇蓓",
+    "branch": "西洋支行",
+    "role": "elastic_counter",
+    "taskId": "bind_card",
+    "target": 75
+  },
+  {
+    "name": "张潇蓓",
+    "branch": "西洋支行",
+    "role": "elastic_counter",
+    "taskId": "insurance",
+    "target": 9
+  },
+  {
+    "name": "张潇蓓",
+    "branch": "西洋支行",
+    "role": "elastic_counter",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "张潇蓓",
+    "branch": "西洋支行",
+    "role": "elastic_counter",
+    "taskId": "merchant",
+    "target": 2
+  },
+  {
+    "name": "张潇蓓",
+    "branch": "西洋支行",
+    "role": "elastic_counter",
+    "taskId": "credit_installment",
+    "target": 40
+  },
+  {
+    "name": "张潇蓓",
+    "branch": "西洋支行",
+    "role": "elastic_counter",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "张潇蓓",
+    "branch": "西洋支行",
+    "role": "elastic_counter",
+    "taskId": "wechat_welfare",
+    "target": 30
+  },
+  {
+    "name": "林铛",
+    "branch": "朝阳支行",
+    "role": "elastic_counter",
+    "taskId": "fund_valid",
+    "target": 10
+  },
+  {
+    "name": "林铛",
+    "branch": "朝阳支行",
+    "role": "elastic_counter",
+    "taskId": "bind_card",
+    "target": 75
+  },
+  {
+    "name": "林铛",
+    "branch": "朝阳支行",
+    "role": "elastic_counter",
+    "taskId": "insurance",
+    "target": 9
+  },
+  {
+    "name": "林铛",
+    "branch": "朝阳支行",
+    "role": "elastic_counter",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "林铛",
+    "branch": "朝阳支行",
+    "role": "elastic_counter",
+    "taskId": "merchant",
+    "target": 2
+  },
+  {
+    "name": "林铛",
+    "branch": "朝阳支行",
+    "role": "elastic_counter",
+    "taskId": "credit_installment",
+    "target": 40
+  },
+  {
+    "name": "林铛",
+    "branch": "朝阳支行",
+    "role": "elastic_counter",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "林铛",
+    "branch": "朝阳支行",
+    "role": "elastic_counter",
+    "taskId": "wechat_welfare",
+    "target": 30
+  },
+  {
+    "name": "王炜杰",
+    "branch": "鹤上支行",
+    "role": "elastic_counter",
+    "taskId": "fund_valid",
+    "target": 10
+  },
+  {
+    "name": "王炜杰",
+    "branch": "鹤上支行",
+    "role": "elastic_counter",
+    "taskId": "bind_card",
+    "target": 75
+  },
+  {
+    "name": "王炜杰",
+    "branch": "鹤上支行",
+    "role": "elastic_counter",
+    "taskId": "insurance",
+    "target": 9
+  },
+  {
+    "name": "王炜杰",
+    "branch": "鹤上支行",
+    "role": "elastic_counter",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "王炜杰",
+    "branch": "鹤上支行",
+    "role": "elastic_counter",
+    "taskId": "merchant",
+    "target": 2
+  },
+  {
+    "name": "王炜杰",
+    "branch": "鹤上支行",
+    "role": "elastic_counter",
+    "taskId": "credit_installment",
+    "target": 40
+  },
+  {
+    "name": "王炜杰",
+    "branch": "鹤上支行",
+    "role": "elastic_counter",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "王炜杰",
+    "branch": "鹤上支行",
+    "role": "elastic_counter",
+    "taskId": "wechat_welfare",
+    "target": 30
+  },
+  {
+    "name": "蔡玲",
+    "branch": "皇庭名郡支行",
+    "role": "elastic_counter",
+    "taskId": "fund_valid",
+    "target": 10
+  },
+  {
+    "name": "蔡玲",
+    "branch": "皇庭名郡支行",
+    "role": "elastic_counter",
+    "taskId": "bind_card",
+    "target": 75
+  },
+  {
+    "name": "蔡玲",
+    "branch": "皇庭名郡支行",
+    "role": "elastic_counter",
+    "taskId": "insurance",
+    "target": 7
+  },
+  {
+    "name": "蔡玲",
+    "branch": "皇庭名郡支行",
+    "role": "elastic_counter",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "蔡玲",
+    "branch": "皇庭名郡支行",
+    "role": "elastic_counter",
+    "taskId": "merchant",
+    "target": 2
+  },
+  {
+    "name": "蔡玲",
+    "branch": "皇庭名郡支行",
+    "role": "elastic_counter",
+    "taskId": "credit_installment",
+    "target": 40
+  },
+  {
+    "name": "蔡玲",
+    "branch": "皇庭名郡支行",
+    "role": "elastic_counter",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "蔡玲",
+    "branch": "皇庭名郡支行",
+    "role": "elastic_counter",
+    "taskId": "wechat_welfare",
+    "target": 30
+  },
+  {
+    "name": "张晓霞",
+    "branch": "进城支行",
+    "role": "elastic_counter",
+    "taskId": "fund_valid",
+    "target": 10
+  },
+  {
+    "name": "张晓霞",
+    "branch": "进城支行",
+    "role": "elastic_counter",
+    "taskId": "bind_card",
+    "target": 75
+  },
+  {
+    "name": "张晓霞",
+    "branch": "进城支行",
+    "role": "elastic_counter",
+    "taskId": "insurance",
+    "target": 9
+  },
+  {
+    "name": "张晓霞",
+    "branch": "进城支行",
+    "role": "elastic_counter",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "张晓霞",
+    "branch": "进城支行",
+    "role": "elastic_counter",
+    "taskId": "merchant",
+    "target": 2
+  },
+  {
+    "name": "张晓霞",
+    "branch": "进城支行",
+    "role": "elastic_counter",
+    "taskId": "credit_installment",
+    "target": 40
+  },
+  {
+    "name": "张晓霞",
+    "branch": "进城支行",
+    "role": "elastic_counter",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "张晓霞",
+    "branch": "进城支行",
+    "role": "elastic_counter",
+    "taskId": "wechat_welfare",
+    "target": 30
+  },
+  {
+    "name": "林文婷",
+    "branch": "玉田支行",
+    "role": "elastic_counter",
+    "taskId": "fund_valid",
+    "target": 8
+  },
+  {
+    "name": "林文婷",
+    "branch": "玉田支行",
+    "role": "elastic_counter",
+    "taskId": "bind_card",
+    "target": 40
+  },
+  {
+    "name": "林文婷",
+    "branch": "玉田支行",
+    "role": "elastic_counter",
+    "taskId": "insurance",
+    "target": 7
+  },
+  {
+    "name": "林文婷",
+    "branch": "玉田支行",
+    "role": "elastic_counter",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "林文婷",
+    "branch": "玉田支行",
+    "role": "elastic_counter",
+    "taskId": "merchant",
+    "target": 2
+  },
+  {
+    "name": "林文婷",
+    "branch": "玉田支行",
+    "role": "elastic_counter",
+    "taskId": "credit_installment",
+    "target": 40
+  },
+  {
+    "name": "林文婷",
+    "branch": "玉田支行",
+    "role": "elastic_counter",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "林文婷",
+    "branch": "玉田支行",
+    "role": "elastic_counter",
+    "taskId": "wechat_welfare",
+    "target": 30
+  },
+  {
+    "name": "江信星",
+    "branch": "金峰支行",
+    "role": "elastic_counter",
+    "taskId": "fund_valid",
+    "target": 15
+  },
+  {
+    "name": "江信星",
+    "branch": "金峰支行",
+    "role": "elastic_counter",
+    "taskId": "bind_card",
+    "target": 75
+  },
+  {
+    "name": "江信星",
+    "branch": "金峰支行",
+    "role": "elastic_counter",
+    "taskId": "insurance",
+    "target": 11
+  },
+  {
+    "name": "江信星",
+    "branch": "金峰支行",
+    "role": "elastic_counter",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "江信星",
+    "branch": "金峰支行",
+    "role": "elastic_counter",
+    "taskId": "merchant",
+    "target": 2
+  },
+  {
+    "name": "江信星",
+    "branch": "金峰支行",
+    "role": "elastic_counter",
+    "taskId": "credit_installment",
+    "target": 40
+  },
+  {
+    "name": "江信星",
+    "branch": "金峰支行",
+    "role": "elastic_counter",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "江信星",
+    "branch": "金峰支行",
+    "role": "elastic_counter",
+    "taskId": "wechat_welfare",
+    "target": 30
+  },
+  {
+    "name": "陈伟豪",
+    "branch": "潭头支行",
+    "role": "elastic_counter",
+    "taskId": "fund_valid",
+    "target": 3
+  },
+  {
+    "name": "陈伟豪",
+    "branch": "潭头支行",
+    "role": "elastic_counter",
+    "taskId": "bind_card",
+    "target": 35
+  },
+  {
+    "name": "陈伟豪",
+    "branch": "潭头支行",
+    "role": "elastic_counter",
+    "taskId": "insurance",
+    "target": 5
+  },
+  {
+    "name": "陈伟豪",
+    "branch": "潭头支行",
+    "role": "elastic_counter",
+    "taskId": "pension_account",
+    "target": 10
+  },
+  {
+    "name": "陈伟豪",
+    "branch": "潭头支行",
+    "role": "elastic_counter",
+    "taskId": "merchant",
+    "target": 1
+  },
+  {
+    "name": "陈伟豪",
+    "branch": "潭头支行",
+    "role": "elastic_counter",
+    "taskId": "credit_installment",
+    "target": 20
+  },
+  {
+    "name": "陈伟豪",
+    "branch": "潭头支行",
+    "role": "elastic_counter",
+    "taskId": "credit_new_active",
+    "target": 5
+  },
+  {
+    "name": "陈伟豪",
+    "branch": "潭头支行",
+    "role": "elastic_counter",
+    "taskId": "wechat_welfare",
+    "target": 20
+  },
+  {
+    "name": "刘杰",
+    "branch": "胪峰支行",
+    "role": "elastic_counter",
+    "taskId": "fund_valid",
+    "target": 10
+  },
+  {
+    "name": "刘杰",
+    "branch": "胪峰支行",
+    "role": "elastic_counter",
+    "taskId": "bind_card",
+    "target": 75
+  },
+  {
+    "name": "刘杰",
+    "branch": "胪峰支行",
+    "role": "elastic_counter",
+    "taskId": "insurance",
+    "target": 8
+  },
+  {
+    "name": "刘杰",
+    "branch": "胪峰支行",
+    "role": "elastic_counter",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "刘杰",
+    "branch": "胪峰支行",
+    "role": "elastic_counter",
+    "taskId": "merchant",
+    "target": 2
+  },
+  {
+    "name": "刘杰",
+    "branch": "胪峰支行",
+    "role": "elastic_counter",
+    "taskId": "credit_installment",
+    "target": 40
+  },
+  {
+    "name": "刘杰",
+    "branch": "胪峰支行",
+    "role": "elastic_counter",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "刘杰",
+    "branch": "胪峰支行",
+    "role": "elastic_counter",
+    "taskId": "wechat_welfare",
+    "target": 30
+  },
+  {
+    "name": "林国龙",
+    "branch": "郑和支行",
+    "role": "elastic_counter",
+    "taskId": "fund_valid",
+    "target": 10
+  },
+  {
+    "name": "林国龙",
+    "branch": "郑和支行",
+    "role": "elastic_counter",
+    "taskId": "bind_card",
+    "target": 75
+  },
+  {
+    "name": "林国龙",
+    "branch": "郑和支行",
+    "role": "elastic_counter",
+    "taskId": "insurance",
+    "target": 8
+  },
+  {
+    "name": "林国龙",
+    "branch": "郑和支行",
+    "role": "elastic_counter",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "林国龙",
+    "branch": "郑和支行",
+    "role": "elastic_counter",
+    "taskId": "merchant",
+    "target": 2
+  },
+  {
+    "name": "林国龙",
+    "branch": "郑和支行",
+    "role": "elastic_counter",
+    "taskId": "credit_installment",
+    "target": 40
+  },
+  {
+    "name": "林国龙",
+    "branch": "郑和支行",
+    "role": "elastic_counter",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "林国龙",
+    "branch": "郑和支行",
+    "role": "elastic_counter",
+    "taskId": "wechat_welfare",
+    "target": 30
+  },
+  {
+    "name": "吴佳颖",
+    "branch": "郑和支行",
+    "role": "elastic_counter",
+    "taskId": "fund_valid",
+    "target": 10
+  },
+  {
+    "name": "吴佳颖",
+    "branch": "郑和支行",
+    "role": "elastic_counter",
+    "taskId": "bind_card",
+    "target": 75
+  },
+  {
+    "name": "吴佳颖",
+    "branch": "郑和支行",
+    "role": "elastic_counter",
+    "taskId": "insurance",
+    "target": 8
+  },
+  {
+    "name": "吴佳颖",
+    "branch": "郑和支行",
+    "role": "elastic_counter",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "吴佳颖",
+    "branch": "郑和支行",
+    "role": "elastic_counter",
+    "taskId": "merchant",
+    "target": 2
+  },
+  {
+    "name": "吴佳颖",
+    "branch": "郑和支行",
+    "role": "elastic_counter",
+    "taskId": "credit_installment",
+    "target": 40
+  },
+  {
+    "name": "吴佳颖",
+    "branch": "郑和支行",
+    "role": "elastic_counter",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "吴佳颖",
+    "branch": "郑和支行",
+    "role": "elastic_counter",
+    "taskId": "wechat_welfare",
+    "target": 30
+  },
+  {
+    "name": "刘婷婷",
+    "branch": "皇庭名郡支行",
+    "role": "elastic_counter",
+    "taskId": "fund_valid",
+    "target": 10
+  },
+  {
+    "name": "刘婷婷",
+    "branch": "皇庭名郡支行",
+    "role": "elastic_counter",
+    "taskId": "bind_card",
+    "target": 75
+  },
+  {
+    "name": "刘婷婷",
+    "branch": "皇庭名郡支行",
+    "role": "elastic_counter",
+    "taskId": "insurance",
+    "target": 7
+  },
+  {
+    "name": "刘婷婷",
+    "branch": "皇庭名郡支行",
+    "role": "elastic_counter",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "刘婷婷",
+    "branch": "皇庭名郡支行",
+    "role": "elastic_counter",
+    "taskId": "merchant",
+    "target": 2
+  },
+  {
+    "name": "刘婷婷",
+    "branch": "皇庭名郡支行",
+    "role": "elastic_counter",
+    "taskId": "credit_installment",
+    "target": 40
+  },
+  {
+    "name": "刘婷婷",
+    "branch": "皇庭名郡支行",
+    "role": "elastic_counter",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "刘婷婷",
+    "branch": "皇庭名郡支行",
+    "role": "elastic_counter",
+    "taskId": "wechat_welfare",
+    "target": 30
+  },
+  {
+    "name": "冯振远",
+    "branch": "振兴支行",
+    "role": "elastic_counter",
+    "taskId": "fund_valid",
+    "target": 10
+  },
+  {
+    "name": "冯振远",
+    "branch": "振兴支行",
+    "role": "elastic_counter",
+    "taskId": "bind_card",
+    "target": 75
+  },
+  {
+    "name": "冯振远",
+    "branch": "振兴支行",
+    "role": "elastic_counter",
+    "taskId": "insurance",
+    "target": 8
+  },
+  {
+    "name": "冯振远",
+    "branch": "振兴支行",
+    "role": "elastic_counter",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "冯振远",
+    "branch": "振兴支行",
+    "role": "elastic_counter",
+    "taskId": "merchant",
+    "target": 2
+  },
+  {
+    "name": "冯振远",
+    "branch": "振兴支行",
+    "role": "elastic_counter",
+    "taskId": "credit_installment",
+    "target": 40
+  },
+  {
+    "name": "冯振远",
+    "branch": "振兴支行",
+    "role": "elastic_counter",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "冯振远",
+    "branch": "振兴支行",
+    "role": "elastic_counter",
+    "taskId": "wechat_welfare",
+    "target": 30
+  },
+  {
+    "name": "柯清新",
+    "branch": "漳港支行",
+    "role": "elastic_counter",
+    "taskId": "fund_valid",
+    "target": 10
+  },
+  {
+    "name": "柯清新",
+    "branch": "漳港支行",
+    "role": "elastic_counter",
+    "taskId": "bind_card",
+    "target": 75
+  },
+  {
+    "name": "柯清新",
+    "branch": "漳港支行",
+    "role": "elastic_counter",
+    "taskId": "insurance",
+    "target": 7
+  },
+  {
+    "name": "柯清新",
+    "branch": "漳港支行",
+    "role": "elastic_counter",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "柯清新",
+    "branch": "漳港支行",
+    "role": "elastic_counter",
+    "taskId": "merchant",
+    "target": 2
+  },
+  {
+    "name": "柯清新",
+    "branch": "漳港支行",
+    "role": "elastic_counter",
+    "taskId": "credit_installment",
+    "target": 40
+  },
+  {
+    "name": "柯清新",
+    "branch": "漳港支行",
+    "role": "elastic_counter",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "柯清新",
+    "branch": "漳港支行",
+    "role": "elastic_counter",
+    "taskId": "wechat_welfare",
+    "target": 30
+  },
+  {
+    "name": "黄雨杉",
+    "branch": "漳港支行",
+    "role": "elastic_counter",
+    "taskId": "fund_valid",
+    "target": 10
+  },
+  {
+    "name": "黄雨杉",
+    "branch": "漳港支行",
+    "role": "elastic_counter",
+    "taskId": "bind_card",
+    "target": 75
+  },
+  {
+    "name": "黄雨杉",
+    "branch": "漳港支行",
+    "role": "elastic_counter",
+    "taskId": "insurance",
+    "target": 7
+  },
+  {
+    "name": "黄雨杉",
+    "branch": "漳港支行",
+    "role": "elastic_counter",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "黄雨杉",
+    "branch": "漳港支行",
+    "role": "elastic_counter",
+    "taskId": "merchant",
+    "target": 2
+  },
+  {
+    "name": "黄雨杉",
+    "branch": "漳港支行",
+    "role": "elastic_counter",
+    "taskId": "credit_installment",
+    "target": 40
+  },
+  {
+    "name": "黄雨杉",
+    "branch": "漳港支行",
+    "role": "elastic_counter",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "黄雨杉",
+    "branch": "漳港支行",
+    "role": "elastic_counter",
+    "taskId": "wechat_welfare",
+    "target": 30
+  },
+  {
+    "name": "潘自魁",
+    "branch": "漳港支行",
+    "role": "elastic_counter",
+    "taskId": "fund_valid",
+    "target": 10
+  },
+  {
+    "name": "潘自魁",
+    "branch": "漳港支行",
+    "role": "elastic_counter",
+    "taskId": "bind_card",
+    "target": 75
+  },
+  {
+    "name": "潘自魁",
+    "branch": "漳港支行",
+    "role": "elastic_counter",
+    "taskId": "insurance",
+    "target": 7
+  },
+  {
+    "name": "潘自魁",
+    "branch": "漳港支行",
+    "role": "elastic_counter",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "潘自魁",
+    "branch": "漳港支行",
+    "role": "elastic_counter",
+    "taskId": "merchant",
+    "target": 2
+  },
+  {
+    "name": "潘自魁",
+    "branch": "漳港支行",
+    "role": "elastic_counter",
+    "taskId": "credit_installment",
+    "target": 40
+  },
+  {
+    "name": "潘自魁",
+    "branch": "漳港支行",
+    "role": "elastic_counter",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "潘自魁",
+    "branch": "漳港支行",
+    "role": "elastic_counter",
+    "taskId": "wechat_welfare",
+    "target": 30
+  },
+  {
+    "name": "张俊杰",
+    "branch": "漳港支行",
+    "role": "elastic_counter",
+    "taskId": "fund_valid",
+    "target": 10
+  },
+  {
+    "name": "张俊杰",
+    "branch": "漳港支行",
+    "role": "elastic_counter",
+    "taskId": "bind_card",
+    "target": 75
+  },
+  {
+    "name": "张俊杰",
+    "branch": "漳港支行",
+    "role": "elastic_counter",
+    "taskId": "insurance",
+    "target": 7
+  },
+  {
+    "name": "张俊杰",
+    "branch": "漳港支行",
+    "role": "elastic_counter",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "张俊杰",
+    "branch": "漳港支行",
+    "role": "elastic_counter",
+    "taskId": "merchant",
+    "target": 2
+  },
+  {
+    "name": "张俊杰",
+    "branch": "漳港支行",
+    "role": "elastic_counter",
+    "taskId": "credit_installment",
+    "target": 40
+  },
+  {
+    "name": "张俊杰",
+    "branch": "漳港支行",
+    "role": "elastic_counter",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "张俊杰",
+    "branch": "漳港支行",
+    "role": "elastic_counter",
+    "taskId": "wechat_welfare",
+    "target": 30
+  },
+  {
+    "name": "郑威",
+    "branch": "锦江支行",
+    "role": "elastic_counter",
+    "taskId": "fund_valid",
+    "target": 10
+  },
+  {
+    "name": "郑威",
+    "branch": "锦江支行",
+    "role": "elastic_counter",
+    "taskId": "bind_card",
+    "target": 75
+  },
+  {
+    "name": "郑威",
+    "branch": "锦江支行",
+    "role": "elastic_counter",
+    "taskId": "insurance",
+    "target": 8
+  },
+  {
+    "name": "郑威",
+    "branch": "锦江支行",
+    "role": "elastic_counter",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "郑威",
+    "branch": "锦江支行",
+    "role": "elastic_counter",
+    "taskId": "merchant",
+    "target": 2
+  },
+  {
+    "name": "郑威",
+    "branch": "锦江支行",
+    "role": "elastic_counter",
+    "taskId": "credit_installment",
+    "target": 40
+  },
+  {
+    "name": "郑威",
+    "branch": "锦江支行",
+    "role": "elastic_counter",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "郑威",
+    "branch": "锦江支行",
+    "role": "elastic_counter",
+    "taskId": "wechat_welfare",
+    "target": 30
+  },
+  {
+    "name": "陈旭",
+    "branch": "营业厅",
+    "role": "manager",
+    "taskId": "fund_valid",
+    "target": 12
+  },
+  {
+    "name": "陈旭",
+    "branch": "营业厅",
+    "role": "manager",
+    "taskId": "bind_card",
+    "target": 85
+  },
+  {
+    "name": "陈旭",
+    "branch": "营业厅",
+    "role": "manager",
+    "taskId": "insurance",
+    "target": 13
+  },
+  {
+    "name": "陈旭",
+    "branch": "营业厅",
+    "role": "manager",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "陈旭",
+    "branch": "营业厅",
+    "role": "manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "陈旭",
+    "branch": "营业厅",
+    "role": "manager",
+    "taskId": "credit_installment",
+    "target": 33
+  },
+  {
+    "name": "陈旭",
+    "branch": "营业厅",
+    "role": "manager",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "陈旭",
+    "branch": "营业厅",
+    "role": "manager",
+    "taskId": "wechat_welfare",
+    "target": 25
+  },
+  {
+    "name": "林鑫",
+    "branch": "营业厅",
+    "role": "manager",
+    "taskId": "fund_valid",
+    "target": 12
+  },
+  {
+    "name": "林鑫",
+    "branch": "营业厅",
+    "role": "manager",
+    "taskId": "bind_card",
+    "target": 85
+  },
+  {
+    "name": "林鑫",
+    "branch": "营业厅",
+    "role": "manager",
+    "taskId": "insurance",
+    "target": 13
+  },
+  {
+    "name": "林鑫",
+    "branch": "营业厅",
+    "role": "manager",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "林鑫",
+    "branch": "营业厅",
+    "role": "manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "林鑫",
+    "branch": "营业厅",
+    "role": "manager",
+    "taskId": "credit_installment",
+    "target": 33
+  },
+  {
+    "name": "林鑫",
+    "branch": "营业厅",
+    "role": "manager",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "林鑫",
+    "branch": "营业厅",
+    "role": "manager",
+    "taskId": "wechat_welfare",
+    "target": 25
+  },
+  {
+    "name": "郝敏",
+    "branch": "进城支行",
+    "role": "manager",
+    "taskId": "fund_valid",
+    "target": 8
+  },
+  {
+    "name": "郝敏",
+    "branch": "进城支行",
+    "role": "manager",
+    "taskId": "bind_card",
+    "target": 85
+  },
+  {
+    "name": "郝敏",
+    "branch": "进城支行",
+    "role": "manager",
+    "taskId": "insurance",
+    "target": 12
+  },
+  {
+    "name": "郝敏",
+    "branch": "进城支行",
+    "role": "manager",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "郝敏",
+    "branch": "进城支行",
+    "role": "manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "郝敏",
+    "branch": "进城支行",
+    "role": "manager",
+    "taskId": "credit_installment",
+    "target": 33
+  },
+  {
+    "name": "郝敏",
+    "branch": "进城支行",
+    "role": "manager",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "郝敏",
+    "branch": "进城支行",
+    "role": "manager",
+    "taskId": "wechat_welfare",
+    "target": 25
+  },
+  {
+    "name": "邱子炀",
+    "branch": "朝阳支行",
+    "role": "manager",
+    "taskId": "fund_valid",
+    "target": 8
+  },
+  {
+    "name": "邱子炀",
+    "branch": "朝阳支行",
+    "role": "manager",
+    "taskId": "bind_card",
+    "target": 85
+  },
+  {
+    "name": "邱子炀",
+    "branch": "朝阳支行",
+    "role": "manager",
+    "taskId": "insurance",
+    "target": 10
+  },
+  {
+    "name": "邱子炀",
+    "branch": "朝阳支行",
+    "role": "manager",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "邱子炀",
+    "branch": "朝阳支行",
+    "role": "manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "邱子炀",
+    "branch": "朝阳支行",
+    "role": "manager",
+    "taskId": "credit_installment",
+    "target": 33
+  },
+  {
+    "name": "邱子炀",
+    "branch": "朝阳支行",
+    "role": "manager",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "邱子炀",
+    "branch": "朝阳支行",
+    "role": "manager",
+    "taskId": "wechat_welfare",
+    "target": 25
+  },
+  {
+    "name": "李宇轩",
+    "branch": "郑和支行",
+    "role": "manager",
+    "taskId": "fund_valid",
+    "target": 8
+  },
+  {
+    "name": "李宇轩",
+    "branch": "郑和支行",
+    "role": "manager",
+    "taskId": "bind_card",
+    "target": 85
+  },
+  {
+    "name": "李宇轩",
+    "branch": "郑和支行",
+    "role": "manager",
+    "taskId": "insurance",
+    "target": 10
+  },
+  {
+    "name": "李宇轩",
+    "branch": "郑和支行",
+    "role": "manager",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "李宇轩",
+    "branch": "郑和支行",
+    "role": "manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "李宇轩",
+    "branch": "郑和支行",
+    "role": "manager",
+    "taskId": "credit_installment",
+    "target": 33
+  },
+  {
+    "name": "李宇轩",
+    "branch": "郑和支行",
+    "role": "manager",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "李宇轩",
+    "branch": "郑和支行",
+    "role": "manager",
+    "taskId": "wechat_welfare",
+    "target": 25
+  },
+  {
+    "name": "黄辰骏",
+    "branch": "鹤上支行",
+    "role": "manager",
+    "taskId": "fund_valid",
+    "target": 8
+  },
+  {
+    "name": "黄辰骏",
+    "branch": "鹤上支行",
+    "role": "manager",
+    "taskId": "bind_card",
+    "target": 85
+  },
+  {
+    "name": "黄辰骏",
+    "branch": "鹤上支行",
+    "role": "manager",
+    "taskId": "insurance",
+    "target": 8
+  },
+  {
+    "name": "黄辰骏",
+    "branch": "鹤上支行",
+    "role": "manager",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "黄辰骏",
+    "branch": "鹤上支行",
+    "role": "manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "黄辰骏",
+    "branch": "鹤上支行",
+    "role": "manager",
+    "taskId": "credit_installment",
+    "target": 33
+  },
+  {
+    "name": "黄辰骏",
+    "branch": "鹤上支行",
+    "role": "manager",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "黄辰骏",
+    "branch": "鹤上支行",
+    "role": "manager",
+    "taskId": "wechat_welfare",
+    "target": 25
+  },
+  {
+    "name": "郑行辉",
+    "branch": "西洋支行",
+    "role": "manager",
+    "taskId": "fund_valid",
+    "target": 8
+  },
+  {
+    "name": "郑行辉",
+    "branch": "西洋支行",
+    "role": "manager",
+    "taskId": "bind_card",
+    "target": 85
+  },
+  {
+    "name": "郑行辉",
+    "branch": "西洋支行",
+    "role": "manager",
+    "taskId": "insurance",
+    "target": 12
+  },
+  {
+    "name": "郑行辉",
+    "branch": "西洋支行",
+    "role": "manager",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "郑行辉",
+    "branch": "西洋支行",
+    "role": "manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "郑行辉",
+    "branch": "西洋支行",
+    "role": "manager",
+    "taskId": "credit_installment",
+    "target": 33
+  },
+  {
+    "name": "郑行辉",
+    "branch": "西洋支行",
+    "role": "manager",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "郑行辉",
+    "branch": "西洋支行",
+    "role": "manager",
+    "taskId": "wechat_welfare",
+    "target": 25
+  },
+  {
+    "name": "陈雅",
+    "branch": "进城支行",
+    "role": "manager",
+    "taskId": "fund_valid",
+    "target": 8
+  },
+  {
+    "name": "陈雅",
+    "branch": "进城支行",
+    "role": "manager",
+    "taskId": "bind_card",
+    "target": 85
+  },
+  {
+    "name": "陈雅",
+    "branch": "进城支行",
+    "role": "manager",
+    "taskId": "insurance",
+    "target": 12
+  },
+  {
+    "name": "陈雅",
+    "branch": "进城支行",
+    "role": "manager",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "陈雅",
+    "branch": "进城支行",
+    "role": "manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "陈雅",
+    "branch": "进城支行",
+    "role": "manager",
+    "taskId": "credit_installment",
+    "target": 33
+  },
+  {
+    "name": "陈雅",
+    "branch": "进城支行",
+    "role": "manager",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "陈雅",
+    "branch": "进城支行",
+    "role": "manager",
+    "taskId": "wechat_welfare",
+    "target": 25
+  },
+  {
+    "name": "吴树",
+    "branch": "营业厅",
+    "role": "manager",
+    "taskId": "fund_valid",
+    "target": 12
+  },
+  {
+    "name": "吴树",
+    "branch": "营业厅",
+    "role": "manager",
+    "taskId": "bind_card",
+    "target": 85
+  },
+  {
+    "name": "吴树",
+    "branch": "营业厅",
+    "role": "manager",
+    "taskId": "insurance",
+    "target": 13
+  },
+  {
+    "name": "吴树",
+    "branch": "营业厅",
+    "role": "manager",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "吴树",
+    "branch": "营业厅",
+    "role": "manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "吴树",
+    "branch": "营业厅",
+    "role": "manager",
+    "taskId": "credit_installment",
+    "target": 33
+  },
+  {
+    "name": "吴树",
+    "branch": "营业厅",
+    "role": "manager",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "吴树",
+    "branch": "营业厅",
+    "role": "manager",
+    "taskId": "wechat_welfare",
+    "target": 25
+  },
+  {
+    "name": "陈宏毅",
+    "branch": "营业厅",
+    "role": "manager",
+    "taskId": "fund_valid",
+    "target": 12
+  },
+  {
+    "name": "陈宏毅",
+    "branch": "营业厅",
+    "role": "manager",
+    "taskId": "bind_card",
+    "target": 85
+  },
+  {
+    "name": "陈宏毅",
+    "branch": "营业厅",
+    "role": "manager",
+    "taskId": "insurance",
+    "target": 13
+  },
+  {
+    "name": "陈宏毅",
+    "branch": "营业厅",
+    "role": "manager",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "陈宏毅",
+    "branch": "营业厅",
+    "role": "manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "陈宏毅",
+    "branch": "营业厅",
+    "role": "manager",
+    "taskId": "credit_installment",
+    "target": 33
+  },
+  {
+    "name": "陈宏毅",
+    "branch": "营业厅",
+    "role": "manager",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "陈宏毅",
+    "branch": "营业厅",
+    "role": "manager",
+    "taskId": "wechat_welfare",
+    "target": 25
+  },
+  {
+    "name": "黄舒琦",
+    "branch": "锦江支行",
+    "role": "manager",
+    "taskId": "fund_valid",
+    "target": 8
+  },
+  {
+    "name": "黄舒琦",
+    "branch": "锦江支行",
+    "role": "manager",
+    "taskId": "bind_card",
+    "target": 85
+  },
+  {
+    "name": "黄舒琦",
+    "branch": "锦江支行",
+    "role": "manager",
+    "taskId": "insurance",
+    "target": 12
+  },
+  {
+    "name": "黄舒琦",
+    "branch": "锦江支行",
+    "role": "manager",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "黄舒琦",
+    "branch": "锦江支行",
+    "role": "manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "黄舒琦",
+    "branch": "锦江支行",
+    "role": "manager",
+    "taskId": "credit_installment",
+    "target": 33
+  },
+  {
+    "name": "黄舒琦",
+    "branch": "锦江支行",
+    "role": "manager",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "黄舒琦",
+    "branch": "锦江支行",
+    "role": "manager",
+    "taskId": "wechat_welfare",
+    "target": 25
+  },
+  {
+    "name": "林曈烯",
+    "branch": "联新支行",
+    "role": "manager",
+    "taskId": "fund_valid",
+    "target": 8
+  },
+  {
+    "name": "林曈烯",
+    "branch": "联新支行",
+    "role": "manager",
+    "taskId": "bind_card",
+    "target": 85
+  },
+  {
+    "name": "林曈烯",
+    "branch": "联新支行",
+    "role": "manager",
+    "taskId": "insurance",
+    "target": 8
+  },
+  {
+    "name": "林曈烯",
+    "branch": "联新支行",
+    "role": "manager",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "林曈烯",
+    "branch": "联新支行",
+    "role": "manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "林曈烯",
+    "branch": "联新支行",
+    "role": "manager",
+    "taskId": "credit_installment",
+    "target": 33
+  },
+  {
+    "name": "林曈烯",
+    "branch": "联新支行",
+    "role": "manager",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "林曈烯",
+    "branch": "联新支行",
+    "role": "manager",
+    "taskId": "wechat_welfare",
+    "target": 25
+  },
+  {
+    "name": "陈鸿耀",
+    "branch": "联新支行",
+    "role": "manager",
+    "taskId": "fund_valid",
+    "target": 8
+  },
+  {
+    "name": "陈鸿耀",
+    "branch": "联新支行",
+    "role": "manager",
+    "taskId": "bind_card",
+    "target": 85
+  },
+  {
+    "name": "陈鸿耀",
+    "branch": "联新支行",
+    "role": "manager",
+    "taskId": "insurance",
+    "target": 8
+  },
+  {
+    "name": "陈鸿耀",
+    "branch": "联新支行",
+    "role": "manager",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "陈鸿耀",
+    "branch": "联新支行",
+    "role": "manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "陈鸿耀",
+    "branch": "联新支行",
+    "role": "manager",
+    "taskId": "credit_installment",
+    "target": 33
+  },
+  {
+    "name": "陈鸿耀",
+    "branch": "联新支行",
+    "role": "manager",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "陈鸿耀",
+    "branch": "联新支行",
+    "role": "manager",
+    "taskId": "wechat_welfare",
+    "target": 25
+  },
+  {
+    "name": "朱伟调",
+    "branch": "金峰支行",
+    "role": "manager",
+    "taskId": "fund_valid",
+    "target": 12
+  },
+  {
+    "name": "朱伟调",
+    "branch": "金峰支行",
+    "role": "manager",
+    "taskId": "bind_card",
+    "target": 85
+  },
+  {
+    "name": "朱伟调",
+    "branch": "金峰支行",
+    "role": "manager",
+    "taskId": "insurance",
+    "target": 13
+  },
+  {
+    "name": "朱伟调",
+    "branch": "金峰支行",
+    "role": "manager",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "朱伟调",
+    "branch": "金峰支行",
+    "role": "manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "朱伟调",
+    "branch": "金峰支行",
+    "role": "manager",
+    "taskId": "credit_installment",
+    "target": 33
+  },
+  {
+    "name": "朱伟调",
+    "branch": "金峰支行",
+    "role": "manager",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "朱伟调",
+    "branch": "金峰支行",
+    "role": "manager",
+    "taskId": "wechat_welfare",
+    "target": 25
+  },
+  {
+    "name": "陈昱",
+    "branch": "胪峰支行",
+    "role": "manager",
+    "taskId": "fund_valid",
+    "target": 8
+  },
+  {
+    "name": "陈昱",
+    "branch": "胪峰支行",
+    "role": "manager",
+    "taskId": "bind_card",
+    "target": 85
+  },
+  {
+    "name": "陈昱",
+    "branch": "胪峰支行",
+    "role": "manager",
+    "taskId": "insurance",
+    "target": 10
+  },
+  {
+    "name": "陈昱",
+    "branch": "胪峰支行",
+    "role": "manager",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "陈昱",
+    "branch": "胪峰支行",
+    "role": "manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "陈昱",
+    "branch": "胪峰支行",
+    "role": "manager",
+    "taskId": "credit_installment",
+    "target": 33
+  },
+  {
+    "name": "陈昱",
+    "branch": "胪峰支行",
+    "role": "manager",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "陈昱",
+    "branch": "胪峰支行",
+    "role": "manager",
+    "taskId": "wechat_welfare",
+    "target": 25
+  },
+  {
+    "name": "朱清源",
+    "branch": "潭头支行",
+    "role": "manager",
+    "taskId": "fund_valid",
+    "target": 8
+  },
+  {
+    "name": "朱清源",
+    "branch": "潭头支行",
+    "role": "manager",
+    "taskId": "bind_card",
+    "target": 85
+  },
+  {
+    "name": "朱清源",
+    "branch": "潭头支行",
+    "role": "manager",
+    "taskId": "insurance",
+    "target": 10
+  },
+  {
+    "name": "朱清源",
+    "branch": "潭头支行",
+    "role": "manager",
+    "taskId": "pension_account",
+    "target": 10
+  },
+  {
+    "name": "朱清源",
+    "branch": "潭头支行",
+    "role": "manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "朱清源",
+    "branch": "潭头支行",
+    "role": "manager",
+    "taskId": "credit_installment",
+    "target": 33
+  },
+  {
+    "name": "朱清源",
+    "branch": "潭头支行",
+    "role": "manager",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "朱清源",
+    "branch": "潭头支行",
+    "role": "manager",
+    "taskId": "wechat_welfare",
+    "target": 25
+  },
+  {
+    "name": "王航宇",
+    "branch": "振兴支行",
+    "role": "manager",
+    "taskId": "fund_valid",
+    "target": 8
+  },
+  {
+    "name": "王航宇",
+    "branch": "振兴支行",
+    "role": "manager",
+    "taskId": "bind_card",
+    "target": 85
+  },
+  {
+    "name": "王航宇",
+    "branch": "振兴支行",
+    "role": "manager",
+    "taskId": "insurance",
+    "target": 10
+  },
+  {
+    "name": "王航宇",
+    "branch": "振兴支行",
+    "role": "manager",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "王航宇",
+    "branch": "振兴支行",
+    "role": "manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "王航宇",
+    "branch": "振兴支行",
+    "role": "manager",
+    "taskId": "credit_installment",
+    "target": 33
+  },
+  {
+    "name": "王航宇",
+    "branch": "振兴支行",
+    "role": "manager",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "王航宇",
+    "branch": "振兴支行",
+    "role": "manager",
+    "taskId": "wechat_welfare",
+    "target": 25
+  },
+  {
+    "name": "陈家伟",
+    "branch": "潭头支行",
+    "role": "manager",
+    "taskId": "fund_valid",
+    "target": 5
+  },
+  {
+    "name": "陈家伟",
+    "branch": "潭头支行",
+    "role": "manager",
+    "taskId": "bind_card",
+    "target": 45
+  },
+  {
+    "name": "陈家伟",
+    "branch": "潭头支行",
+    "role": "manager",
+    "taskId": "insurance",
+    "target": 8
+  },
+  {
+    "name": "陈家伟",
+    "branch": "潭头支行",
+    "role": "manager",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "陈家伟",
+    "branch": "潭头支行",
+    "role": "manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "陈家伟",
+    "branch": "潭头支行",
+    "role": "manager",
+    "taskId": "credit_installment",
+    "target": 33
+  },
+  {
+    "name": "陈家伟",
+    "branch": "潭头支行",
+    "role": "manager",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "陈家伟",
+    "branch": "潭头支行",
+    "role": "manager",
+    "taskId": "wechat_welfare",
+    "target": 25
+  },
+  {
+    "name": "卓凌宇",
+    "branch": "皇庭名郡支行",
+    "role": "manager",
+    "taskId": "fund_valid",
+    "target": 8
+  },
+  {
+    "name": "卓凌宇",
+    "branch": "皇庭名郡支行",
+    "role": "manager",
+    "taskId": "bind_card",
+    "target": 85
+  },
+  {
+    "name": "卓凌宇",
+    "branch": "皇庭名郡支行",
+    "role": "manager",
+    "taskId": "insurance",
+    "target": 8
+  },
+  {
+    "name": "卓凌宇",
+    "branch": "皇庭名郡支行",
+    "role": "manager",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "卓凌宇",
+    "branch": "皇庭名郡支行",
+    "role": "manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "卓凌宇",
+    "branch": "皇庭名郡支行",
+    "role": "manager",
+    "taskId": "credit_installment",
+    "target": 33
+  },
+  {
+    "name": "卓凌宇",
+    "branch": "皇庭名郡支行",
+    "role": "manager",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "卓凌宇",
+    "branch": "皇庭名郡支行",
+    "role": "manager",
+    "taskId": "wechat_welfare",
+    "target": 25
+  },
+  {
+    "name": "陈嘉辉",
+    "branch": "江田支行",
+    "role": "manager",
+    "taskId": "fund_valid",
+    "target": 8
+  },
+  {
+    "name": "陈嘉辉",
+    "branch": "江田支行",
+    "role": "manager",
+    "taskId": "bind_card",
+    "target": 85
+  },
+  {
+    "name": "陈嘉辉",
+    "branch": "江田支行",
+    "role": "manager",
+    "taskId": "insurance",
+    "target": 8
+  },
+  {
+    "name": "陈嘉辉",
+    "branch": "江田支行",
+    "role": "manager",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "陈嘉辉",
+    "branch": "江田支行",
+    "role": "manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "陈嘉辉",
+    "branch": "江田支行",
+    "role": "manager",
+    "taskId": "credit_installment",
+    "target": 33
+  },
+  {
+    "name": "陈嘉辉",
+    "branch": "江田支行",
+    "role": "manager",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "陈嘉辉",
+    "branch": "江田支行",
+    "role": "manager",
+    "taskId": "wechat_welfare",
+    "target": 25
+  },
+  {
+    "name": "叶海霞",
+    "branch": "江田支行",
+    "role": "manager",
+    "taskId": "fund_valid",
+    "target": 8
+  },
+  {
+    "name": "叶海霞",
+    "branch": "江田支行",
+    "role": "manager",
+    "taskId": "bind_card",
+    "target": 85
+  },
+  {
+    "name": "叶海霞",
+    "branch": "江田支行",
+    "role": "manager",
+    "taskId": "insurance",
+    "target": 8
+  },
+  {
+    "name": "叶海霞",
+    "branch": "江田支行",
+    "role": "manager",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "叶海霞",
+    "branch": "江田支行",
+    "role": "manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "叶海霞",
+    "branch": "江田支行",
+    "role": "manager",
+    "taskId": "credit_installment",
+    "target": 33
+  },
+  {
+    "name": "叶海霞",
+    "branch": "江田支行",
+    "role": "manager",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "叶海霞",
+    "branch": "江田支行",
+    "role": "manager",
+    "taskId": "wechat_welfare",
+    "target": 25
+  },
+  {
+    "name": "高若汐",
+    "branch": "郑和支行",
+    "role": "manager",
+    "taskId": "fund_valid",
+    "target": 8
+  },
+  {
+    "name": "高若汐",
+    "branch": "郑和支行",
+    "role": "manager",
+    "taskId": "bind_card",
+    "target": 85
+  },
+  {
+    "name": "高若汐",
+    "branch": "郑和支行",
+    "role": "manager",
+    "taskId": "insurance",
+    "target": 10
+  },
+  {
+    "name": "高若汐",
+    "branch": "郑和支行",
+    "role": "manager",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "高若汐",
+    "branch": "郑和支行",
+    "role": "manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "高若汐",
+    "branch": "郑和支行",
+    "role": "manager",
+    "taskId": "credit_installment",
+    "target": 33
+  },
+  {
+    "name": "高若汐",
+    "branch": "郑和支行",
+    "role": "manager",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "高若汐",
+    "branch": "郑和支行",
+    "role": "manager",
+    "taskId": "wechat_welfare",
+    "target": 25
+  },
+  {
+    "name": "王尹星",
+    "branch": "漳港支行",
+    "role": "manager",
+    "taskId": "fund_valid",
+    "target": 8
+  },
+  {
+    "name": "王尹星",
+    "branch": "漳港支行",
+    "role": "manager",
+    "taskId": "bind_card",
+    "target": 85
+  },
+  {
+    "name": "王尹星",
+    "branch": "漳港支行",
+    "role": "manager",
+    "taskId": "insurance",
+    "target": 9
+  },
+  {
+    "name": "王尹星",
+    "branch": "漳港支行",
+    "role": "manager",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "王尹星",
+    "branch": "漳港支行",
+    "role": "manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "王尹星",
+    "branch": "漳港支行",
+    "role": "manager",
+    "taskId": "credit_installment",
+    "target": 33
+  },
+  {
+    "name": "王尹星",
+    "branch": "漳港支行",
+    "role": "manager",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "王尹星",
+    "branch": "漳港支行",
+    "role": "manager",
+    "taskId": "wechat_welfare",
+    "target": 25
+  },
+  {
+    "name": "黄华山",
+    "branch": "潭头支行",
+    "role": "manager",
+    "taskId": "fund_valid",
+    "target": 5
+  },
+  {
+    "name": "黄华山",
+    "branch": "潭头支行",
+    "role": "manager",
+    "taskId": "bind_card",
+    "target": 45
+  },
+  {
+    "name": "黄华山",
+    "branch": "潭头支行",
+    "role": "manager",
+    "taskId": "insurance",
+    "target": 8
+  },
+  {
+    "name": "黄华山",
+    "branch": "潭头支行",
+    "role": "manager",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "黄华山",
+    "branch": "潭头支行",
+    "role": "manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "黄华山",
+    "branch": "潭头支行",
+    "role": "manager",
+    "taskId": "credit_installment",
+    "target": 33
+  },
+  {
+    "name": "黄华山",
+    "branch": "潭头支行",
+    "role": "manager",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "黄华山",
+    "branch": "潭头支行",
+    "role": "manager",
+    "taskId": "wechat_welfare",
+    "target": 25
+  },
+  {
+    "name": "李文斌",
+    "branch": "漳港支行",
+    "role": "manager",
+    "taskId": "fund_valid",
+    "target": 8
+  },
+  {
+    "name": "李文斌",
+    "branch": "漳港支行",
+    "role": "manager",
+    "taskId": "bind_card",
+    "target": 85
+  },
+  {
+    "name": "李文斌",
+    "branch": "漳港支行",
+    "role": "manager",
+    "taskId": "insurance",
+    "target": 9
+  },
+  {
+    "name": "李文斌",
+    "branch": "漳港支行",
+    "role": "manager",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "李文斌",
+    "branch": "漳港支行",
+    "role": "manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "李文斌",
+    "branch": "漳港支行",
+    "role": "manager",
+    "taskId": "credit_installment",
+    "target": 33
+  },
+  {
+    "name": "李文斌",
+    "branch": "漳港支行",
+    "role": "manager",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "李文斌",
+    "branch": "漳港支行",
+    "role": "manager",
+    "taskId": "wechat_welfare",
+    "target": 25
+  },
+  {
+    "name": "林圣鑫",
+    "branch": "鹤上支行",
+    "role": "manager",
+    "taskId": "fund_valid",
+    "target": 8
+  },
+  {
+    "name": "林圣鑫",
+    "branch": "鹤上支行",
+    "role": "manager",
+    "taskId": "bind_card",
+    "target": 85
+  },
+  {
+    "name": "林圣鑫",
+    "branch": "鹤上支行",
+    "role": "manager",
+    "taskId": "insurance",
+    "target": 8
+  },
+  {
+    "name": "林圣鑫",
+    "branch": "鹤上支行",
+    "role": "manager",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "林圣鑫",
+    "branch": "鹤上支行",
+    "role": "manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "林圣鑫",
+    "branch": "鹤上支行",
+    "role": "manager",
+    "taskId": "credit_installment",
+    "target": 33
+  },
+  {
+    "name": "林圣鑫",
+    "branch": "鹤上支行",
+    "role": "manager",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "林圣鑫",
+    "branch": "鹤上支行",
+    "role": "manager",
+    "taskId": "wechat_welfare",
+    "target": 25
+  },
+  {
+    "name": "陈其城",
+    "branch": "朝阳支行",
+    "role": "manager",
+    "taskId": "fund_valid",
+    "target": 8
+  },
+  {
+    "name": "陈其城",
+    "branch": "朝阳支行",
+    "role": "manager",
+    "taskId": "bind_card",
+    "target": 85
+  },
+  {
+    "name": "陈其城",
+    "branch": "朝阳支行",
+    "role": "manager",
+    "taskId": "insurance",
+    "target": 10
+  },
+  {
+    "name": "陈其城",
+    "branch": "朝阳支行",
+    "role": "manager",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "陈其城",
+    "branch": "朝阳支行",
+    "role": "manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "陈其城",
+    "branch": "朝阳支行",
+    "role": "manager",
+    "taskId": "credit_installment",
+    "target": 33
+  },
+  {
+    "name": "陈其城",
+    "branch": "朝阳支行",
+    "role": "manager",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "陈其城",
+    "branch": "朝阳支行",
+    "role": "manager",
+    "taskId": "wechat_welfare",
+    "target": 25
+  },
+  {
+    "name": "林祺慧",
+    "branch": "皇庭名郡支行",
+    "role": "manager",
+    "taskId": "fund_valid",
+    "target": 8
+  },
+  {
+    "name": "林祺慧",
+    "branch": "皇庭名郡支行",
+    "role": "manager",
+    "taskId": "bind_card",
+    "target": 85
+  },
+  {
+    "name": "林祺慧",
+    "branch": "皇庭名郡支行",
+    "role": "manager",
+    "taskId": "insurance",
+    "target": 8
+  },
+  {
+    "name": "林祺慧",
+    "branch": "皇庭名郡支行",
+    "role": "manager",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "林祺慧",
+    "branch": "皇庭名郡支行",
+    "role": "manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "林祺慧",
+    "branch": "皇庭名郡支行",
+    "role": "manager",
+    "taskId": "credit_installment",
+    "target": 33
+  },
+  {
+    "name": "林祺慧",
+    "branch": "皇庭名郡支行",
+    "role": "manager",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "林祺慧",
+    "branch": "皇庭名郡支行",
+    "role": "manager",
+    "taskId": "wechat_welfare",
+    "target": 25
+  },
+  {
+    "name": "林腾",
+    "branch": "玉田支行",
+    "role": "manager",
+    "taskId": "fund_valid",
+    "target": 5
+  },
+  {
+    "name": "林腾",
+    "branch": "玉田支行",
+    "role": "manager",
+    "taskId": "bind_card",
+    "target": 45
+  },
+  {
+    "name": "林腾",
+    "branch": "玉田支行",
+    "role": "manager",
+    "taskId": "insurance",
+    "target": 8
+  },
+  {
+    "name": "林腾",
+    "branch": "玉田支行",
+    "role": "manager",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "林腾",
+    "branch": "玉田支行",
+    "role": "manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "林腾",
+    "branch": "玉田支行",
+    "role": "manager",
+    "taskId": "credit_installment",
+    "target": 33
+  },
+  {
+    "name": "林腾",
+    "branch": "玉田支行",
+    "role": "manager",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "林腾",
+    "branch": "玉田支行",
+    "role": "manager",
+    "taskId": "wechat_welfare",
+    "target": 25
+  },
+  {
+    "name": "张欣怡",
+    "branch": "玉田支行",
+    "role": "manager",
+    "taskId": "fund_valid",
+    "target": 5
+  },
+  {
+    "name": "张欣怡",
+    "branch": "玉田支行",
+    "role": "manager",
+    "taskId": "bind_card",
+    "target": 45
+  },
+  {
+    "name": "张欣怡",
+    "branch": "玉田支行",
+    "role": "manager",
+    "taskId": "insurance",
+    "target": 8
+  },
+  {
+    "name": "张欣怡",
+    "branch": "玉田支行",
+    "role": "manager",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "张欣怡",
+    "branch": "玉田支行",
+    "role": "manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "张欣怡",
+    "branch": "玉田支行",
+    "role": "manager",
+    "taskId": "credit_installment",
+    "target": 33
+  },
+  {
+    "name": "张欣怡",
+    "branch": "玉田支行",
+    "role": "manager",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "张欣怡",
+    "branch": "玉田支行",
+    "role": "manager",
+    "taskId": "wechat_welfare",
+    "target": 25
+  },
+  {
+    "name": "陈方舟",
+    "branch": "锦江支行",
+    "role": "manager",
+    "taskId": "fund_valid",
+    "target": 8
+  },
+  {
+    "name": "陈方舟",
+    "branch": "锦江支行",
+    "role": "manager",
+    "taskId": "bind_card",
+    "target": 85
+  },
+  {
+    "name": "陈方舟",
+    "branch": "锦江支行",
+    "role": "manager",
+    "taskId": "insurance",
+    "target": 12
+  },
+  {
+    "name": "陈方舟",
+    "branch": "锦江支行",
+    "role": "manager",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "陈方舟",
+    "branch": "锦江支行",
+    "role": "manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "陈方舟",
+    "branch": "锦江支行",
+    "role": "manager",
+    "taskId": "credit_installment",
+    "target": 33
+  },
+  {
+    "name": "陈方舟",
+    "branch": "锦江支行",
+    "role": "manager",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "陈方舟",
+    "branch": "锦江支行",
+    "role": "manager",
+    "taskId": "wechat_welfare",
+    "target": 25
+  },
+  {
+    "name": "李华",
+    "branch": "滨海支行",
+    "role": "manager",
+    "taskId": "fund_valid",
+    "target": 5
+  },
+  {
+    "name": "李华",
+    "branch": "滨海支行",
+    "role": "manager",
+    "taskId": "bind_card",
+    "target": 45
+  },
+  {
+    "name": "李华",
+    "branch": "滨海支行",
+    "role": "manager",
+    "taskId": "insurance",
+    "target": 3
+  },
+  {
+    "name": "李华",
+    "branch": "滨海支行",
+    "role": "manager",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "李华",
+    "branch": "滨海支行",
+    "role": "manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "李华",
+    "branch": "滨海支行",
+    "role": "manager",
+    "taskId": "credit_installment",
+    "target": 33
+  },
+  {
+    "name": "李华",
+    "branch": "滨海支行",
+    "role": "manager",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "李华",
+    "branch": "滨海支行",
+    "role": "manager",
+    "taskId": "wechat_welfare",
+    "target": 25
+  },
+  {
+    "name": "林兹睿",
+    "branch": "滨海支行",
+    "role": "manager",
+    "taskId": "fund_valid",
+    "target": 5
+  },
+  {
+    "name": "林兹睿",
+    "branch": "滨海支行",
+    "role": "manager",
+    "taskId": "bind_card",
+    "target": 45
+  },
+  {
+    "name": "林兹睿",
+    "branch": "滨海支行",
+    "role": "manager",
+    "taskId": "insurance",
+    "target": 3
+  },
+  {
+    "name": "林兹睿",
+    "branch": "滨海支行",
+    "role": "manager",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "林兹睿",
+    "branch": "滨海支行",
+    "role": "manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "林兹睿",
+    "branch": "滨海支行",
+    "role": "manager",
+    "taskId": "credit_installment",
+    "target": 33
+  },
+  {
+    "name": "林兹睿",
+    "branch": "滨海支行",
+    "role": "manager",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "林兹睿",
+    "branch": "滨海支行",
+    "role": "manager",
+    "taskId": "wechat_welfare",
+    "target": 26
+  },
+  {
+    "name": "董宇辉",
+    "branch": "西洋支行",
+    "role": "manager",
+    "taskId": "fund_valid",
+    "target": 8
+  },
+  {
+    "name": "董宇辉",
+    "branch": "西洋支行",
+    "role": "manager",
+    "taskId": "bind_card",
+    "target": 85
+  },
+  {
+    "name": "董宇辉",
+    "branch": "西洋支行",
+    "role": "manager",
+    "taskId": "insurance",
+    "target": 12
+  },
+  {
+    "name": "董宇辉",
+    "branch": "西洋支行",
+    "role": "manager",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "董宇辉",
+    "branch": "西洋支行",
+    "role": "manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "董宇辉",
+    "branch": "西洋支行",
+    "role": "manager",
+    "taskId": "credit_installment",
+    "target": 33
+  },
+  {
+    "name": "董宇辉",
+    "branch": "西洋支行",
+    "role": "manager",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "董宇辉",
+    "branch": "西洋支行",
+    "role": "manager",
+    "taskId": "wechat_welfare",
+    "target": 25
+  },
+  {
+    "name": "林栋",
+    "branch": "金峰支行",
+    "role": "manager",
+    "taskId": "fund_valid",
+    "target": 12
+  },
+  {
+    "name": "林栋",
+    "branch": "金峰支行",
+    "role": "manager",
+    "taskId": "bind_card",
+    "target": 85
+  },
+  {
+    "name": "林栋",
+    "branch": "金峰支行",
+    "role": "manager",
+    "taskId": "insurance",
+    "target": 13
+  },
+  {
+    "name": "林栋",
+    "branch": "金峰支行",
+    "role": "manager",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "林栋",
+    "branch": "金峰支行",
+    "role": "manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "林栋",
+    "branch": "金峰支行",
+    "role": "manager",
+    "taskId": "credit_installment",
+    "target": 33
+  },
+  {
+    "name": "林栋",
+    "branch": "金峰支行",
+    "role": "manager",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "林栋",
+    "branch": "金峰支行",
+    "role": "manager",
+    "taskId": "wechat_welfare",
+    "target": 25
+  },
+  {
+    "name": "吴震宇",
+    "branch": "金峰支行",
+    "role": "manager",
+    "taskId": "fund_valid",
+    "target": 12
+  },
+  {
+    "name": "吴震宇",
+    "branch": "金峰支行",
+    "role": "manager",
+    "taskId": "bind_card",
+    "target": 85
+  },
+  {
+    "name": "吴震宇",
+    "branch": "金峰支行",
+    "role": "manager",
+    "taskId": "insurance",
+    "target": 13
+  },
+  {
+    "name": "吴震宇",
+    "branch": "金峰支行",
+    "role": "manager",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "吴震宇",
+    "branch": "金峰支行",
+    "role": "manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "吴震宇",
+    "branch": "金峰支行",
+    "role": "manager",
+    "taskId": "credit_installment",
+    "target": 33
+  },
+  {
+    "name": "吴震宇",
+    "branch": "金峰支行",
+    "role": "manager",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "吴震宇",
+    "branch": "金峰支行",
+    "role": "manager",
+    "taskId": "wechat_welfare",
+    "target": 25
+  },
+  {
+    "name": "林启睿",
+    "branch": "金峰支行",
+    "role": "manager",
+    "taskId": "fund_valid",
+    "target": 12
+  },
+  {
+    "name": "林启睿",
+    "branch": "金峰支行",
+    "role": "manager",
+    "taskId": "bind_card",
+    "target": 85
+  },
+  {
+    "name": "林启睿",
+    "branch": "金峰支行",
+    "role": "manager",
+    "taskId": "insurance",
+    "target": 13
+  },
+  {
+    "name": "林启睿",
+    "branch": "金峰支行",
+    "role": "manager",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "林启睿",
+    "branch": "金峰支行",
+    "role": "manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "林启睿",
+    "branch": "金峰支行",
+    "role": "manager",
+    "taskId": "credit_installment",
+    "target": 33
+  },
+  {
+    "name": "林启睿",
+    "branch": "金峰支行",
+    "role": "manager",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "林启睿",
+    "branch": "金峰支行",
+    "role": "manager",
+    "taskId": "wechat_welfare",
+    "target": 25
+  },
+  {
+    "name": "许明宇",
+    "branch": "胪峰支行",
+    "role": "manager",
+    "taskId": "fund_valid",
+    "target": 8
+  },
+  {
+    "name": "许明宇",
+    "branch": "胪峰支行",
+    "role": "manager",
+    "taskId": "bind_card",
+    "target": 85
+  },
+  {
+    "name": "许明宇",
+    "branch": "胪峰支行",
+    "role": "manager",
+    "taskId": "insurance",
+    "target": 10
+  },
+  {
+    "name": "许明宇",
+    "branch": "胪峰支行",
+    "role": "manager",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "许明宇",
+    "branch": "胪峰支行",
+    "role": "manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "许明宇",
+    "branch": "胪峰支行",
+    "role": "manager",
+    "taskId": "credit_installment",
+    "target": 33
+  },
+  {
+    "name": "许明宇",
+    "branch": "胪峰支行",
+    "role": "manager",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "许明宇",
+    "branch": "胪峰支行",
+    "role": "manager",
+    "taskId": "wechat_welfare",
+    "target": 25
+  },
+  {
+    "name": "董智健",
+    "branch": "振兴支行",
+    "role": "manager",
+    "taskId": "fund_valid",
+    "target": 8
+  },
+  {
+    "name": "董智健",
+    "branch": "振兴支行",
+    "role": "manager",
+    "taskId": "bind_card",
+    "target": 85
+  },
+  {
+    "name": "董智健",
+    "branch": "振兴支行",
+    "role": "manager",
+    "taskId": "insurance",
+    "target": 10
+  },
+  {
+    "name": "董智健",
+    "branch": "振兴支行",
+    "role": "manager",
+    "taskId": "pension_account",
+    "target": 20
+  },
+  {
+    "name": "董智健",
+    "branch": "振兴支行",
+    "role": "manager",
+    "taskId": "merchant",
+    "target": 4
+  },
+  {
+    "name": "董智健",
+    "branch": "振兴支行",
+    "role": "manager",
+    "taskId": "credit_installment",
+    "target": 33
+  },
+  {
+    "name": "董智健",
+    "branch": "振兴支行",
+    "role": "manager",
+    "taskId": "credit_new_active",
+    "target": 8
+  },
+  {
+    "name": "董智健",
+    "branch": "振兴支行",
+    "role": "manager",
+    "taskId": "wechat_welfare",
+    "target": 25
+  },
+  {
+    "name": "彭婉琴",
+    "branch": "金峰支行",
+    "role": "counter_manager",
+    "taskId": "fund_valid",
+    "target": 10
+  },
+  {
+    "name": "彭婉琴",
+    "branch": "金峰支行",
+    "role": "counter_manager",
+    "taskId": "bind_card",
+    "target": 55
+  },
+  {
+    "name": "彭婉琴",
+    "branch": "金峰支行",
+    "role": "counter_manager",
+    "taskId": "insurance",
+    "target": 11
+  },
+  {
+    "name": "彭婉琴",
+    "branch": "金峰支行",
+    "role": "counter_manager",
+    "taskId": "pension_account",
+    "target": 10
+  },
+  {
+    "name": "彭婉琴",
+    "branch": "金峰支行",
+    "role": "counter_manager",
+    "taskId": "merchant",
+    "target": 1
+  },
+  {
+    "name": "彭婉琴",
+    "branch": "金峰支行",
+    "role": "counter_manager",
+    "taskId": "credit_installment",
+    "target": 20
+  },
+  {
+    "name": "彭婉琴",
+    "branch": "金峰支行",
+    "role": "counter_manager",
+    "taskId": "credit_new_active",
+    "target": 5
+  },
+  {
+    "name": "彭婉琴",
+    "branch": "金峰支行",
+    "role": "counter_manager",
+    "taskId": "wechat_welfare",
+    "target": 20
+  },
+  {
+    "name": "林心瑜",
+    "branch": "朝阳支行",
+    "role": "counter_manager",
+    "taskId": "fund_valid",
+    "target": 5
+  },
+  {
+    "name": "林心瑜",
+    "branch": "朝阳支行",
+    "role": "counter_manager",
+    "taskId": "bind_card",
+    "target": 55
+  },
+  {
+    "name": "林心瑜",
+    "branch": "朝阳支行",
+    "role": "counter_manager",
+    "taskId": "insurance",
+    "target": 8
+  },
+  {
+    "name": "林心瑜",
+    "branch": "朝阳支行",
+    "role": "counter_manager",
+    "taskId": "pension_account",
+    "target": 10
+  },
+  {
+    "name": "林心瑜",
+    "branch": "朝阳支行",
+    "role": "counter_manager",
+    "taskId": "merchant",
+    "target": 1
+  },
+  {
+    "name": "林心瑜",
+    "branch": "朝阳支行",
+    "role": "counter_manager",
+    "taskId": "credit_installment",
+    "target": 20
+  },
+  {
+    "name": "林心瑜",
+    "branch": "朝阳支行",
+    "role": "counter_manager",
+    "taskId": "credit_new_active",
+    "target": 5
+  },
+  {
+    "name": "林心瑜",
+    "branch": "朝阳支行",
+    "role": "counter_manager",
+    "taskId": "wechat_welfare",
+    "target": 20
+  },
+  {
+    "name": "郑灵怡",
+    "branch": "联新支行",
+    "role": "counter_manager",
+    "taskId": "fund_valid",
+    "target": 5
+  },
+  {
+    "name": "郑灵怡",
+    "branch": "联新支行",
+    "role": "counter_manager",
+    "taskId": "bind_card",
+    "target": 55
+  },
+  {
+    "name": "郑灵怡",
+    "branch": "联新支行",
+    "role": "counter_manager",
+    "taskId": "insurance",
+    "target": 8
+  },
+  {
+    "name": "郑灵怡",
+    "branch": "联新支行",
+    "role": "counter_manager",
+    "taskId": "pension_account",
+    "target": 10
+  },
+  {
+    "name": "郑灵怡",
+    "branch": "联新支行",
+    "role": "counter_manager",
+    "taskId": "merchant",
+    "target": 1
+  },
+  {
+    "name": "郑灵怡",
+    "branch": "联新支行",
+    "role": "counter_manager",
+    "taskId": "credit_installment",
+    "target": 20
+  },
+  {
+    "name": "郑灵怡",
+    "branch": "联新支行",
+    "role": "counter_manager",
+    "taskId": "credit_new_active",
+    "target": 5
+  },
+  {
+    "name": "郑灵怡",
+    "branch": "联新支行",
+    "role": "counter_manager",
+    "taskId": "wechat_welfare",
+    "target": 20
+  },
+  {
+    "name": "刘嘉",
+    "branch": "联新支行",
+    "role": "counter_manager",
+    "taskId": "fund_valid",
+    "target": 5
+  },
+  {
+    "name": "刘嘉",
+    "branch": "联新支行",
+    "role": "counter_manager",
+    "taskId": "bind_card",
+    "target": 55
+  },
+  {
+    "name": "刘嘉",
+    "branch": "联新支行",
+    "role": "counter_manager",
+    "taskId": "insurance",
+    "target": 8
+  },
+  {
+    "name": "刘嘉",
+    "branch": "联新支行",
+    "role": "counter_manager",
+    "taskId": "pension_account",
+    "target": 10
+  },
+  {
+    "name": "刘嘉",
+    "branch": "联新支行",
+    "role": "counter_manager",
+    "taskId": "merchant",
+    "target": 1
+  },
+  {
+    "name": "刘嘉",
+    "branch": "联新支行",
+    "role": "counter_manager",
+    "taskId": "credit_installment",
+    "target": 20
+  },
+  {
+    "name": "刘嘉",
+    "branch": "联新支行",
+    "role": "counter_manager",
+    "taskId": "credit_new_active",
+    "target": 5
+  },
+  {
+    "name": "刘嘉",
+    "branch": "联新支行",
+    "role": "counter_manager",
+    "taskId": "wechat_welfare",
+    "target": 20
+  },
+  {
+    "name": "黄云霞",
+    "branch": "胪峰支行",
+    "role": "counter_manager",
+    "taskId": "fund_valid",
+    "target": 5
+  },
+  {
+    "name": "黄云霞",
+    "branch": "胪峰支行",
+    "role": "counter_manager",
+    "taskId": "bind_card",
+    "target": 55
+  },
+  {
+    "name": "黄云霞",
+    "branch": "胪峰支行",
+    "role": "counter_manager",
+    "taskId": "insurance",
+    "target": 8
+  },
+  {
+    "name": "黄云霞",
+    "branch": "胪峰支行",
+    "role": "counter_manager",
+    "taskId": "pension_account",
+    "target": 10
+  },
+  {
+    "name": "黄云霞",
+    "branch": "胪峰支行",
+    "role": "counter_manager",
+    "taskId": "merchant",
+    "target": 1
+  },
+  {
+    "name": "黄云霞",
+    "branch": "胪峰支行",
+    "role": "counter_manager",
+    "taskId": "credit_installment",
+    "target": 20
+  },
+  {
+    "name": "黄云霞",
+    "branch": "胪峰支行",
+    "role": "counter_manager",
+    "taskId": "credit_new_active",
+    "target": 5
+  },
+  {
+    "name": "黄云霞",
+    "branch": "胪峰支行",
+    "role": "counter_manager",
+    "taskId": "wechat_welfare",
+    "target": 20
+  },
+  {
+    "name": "张宸言",
+    "branch": "皇庭名郡支行",
+    "role": "counter_manager",
+    "taskId": "fund_valid",
+    "target": 5
+  },
+  {
+    "name": "张宸言",
+    "branch": "皇庭名郡支行",
+    "role": "counter_manager",
+    "taskId": "bind_card",
+    "target": 55
+  },
+  {
+    "name": "张宸言",
+    "branch": "皇庭名郡支行",
+    "role": "counter_manager",
+    "taskId": "insurance",
+    "target": 8
+  },
+  {
+    "name": "张宸言",
+    "branch": "皇庭名郡支行",
+    "role": "counter_manager",
+    "taskId": "pension_account",
+    "target": 10
+  },
+  {
+    "name": "张宸言",
+    "branch": "皇庭名郡支行",
+    "role": "counter_manager",
+    "taskId": "merchant",
+    "target": 1
+  },
+  {
+    "name": "张宸言",
+    "branch": "皇庭名郡支行",
+    "role": "counter_manager",
+    "taskId": "credit_installment",
+    "target": 20
+  },
+  {
+    "name": "张宸言",
+    "branch": "皇庭名郡支行",
+    "role": "counter_manager",
+    "taskId": "credit_new_active",
+    "target": 5
+  },
+  {
+    "name": "张宸言",
+    "branch": "皇庭名郡支行",
+    "role": "counter_manager",
+    "taskId": "wechat_welfare",
+    "target": 20
+  },
+  {
+    "name": "陈娜",
+    "branch": "金峰支行",
+    "role": "counter_manager",
+    "taskId": "fund_valid",
+    "target": 10
+  },
+  {
+    "name": "陈娜",
+    "branch": "金峰支行",
+    "role": "counter_manager",
+    "taskId": "bind_card",
+    "target": 55
+  },
+  {
+    "name": "陈娜",
+    "branch": "金峰支行",
+    "role": "counter_manager",
+    "taskId": "insurance",
+    "target": 11
+  },
+  {
+    "name": "陈娜",
+    "branch": "金峰支行",
+    "role": "counter_manager",
+    "taskId": "pension_account",
+    "target": 10
+  },
+  {
+    "name": "陈娜",
+    "branch": "金峰支行",
+    "role": "counter_manager",
+    "taskId": "merchant",
+    "target": 1
+  },
+  {
+    "name": "陈娜",
+    "branch": "金峰支行",
+    "role": "counter_manager",
+    "taskId": "credit_installment",
+    "target": 20
+  },
+  {
+    "name": "陈娜",
+    "branch": "金峰支行",
+    "role": "counter_manager",
+    "taskId": "credit_new_active",
+    "target": 5
+  },
+  {
+    "name": "陈娜",
+    "branch": "金峰支行",
+    "role": "counter_manager",
+    "taskId": "wechat_welfare",
+    "target": 20
+  },
+  {
+    "name": "耿佳坤",
+    "branch": "金峰支行",
+    "role": "counter_manager",
+    "taskId": "fund_valid",
+    "target": 10
+  },
+  {
+    "name": "耿佳坤",
+    "branch": "金峰支行",
+    "role": "counter_manager",
+    "taskId": "bind_card",
+    "target": 55
+  },
+  {
+    "name": "耿佳坤",
+    "branch": "金峰支行",
+    "role": "counter_manager",
+    "taskId": "insurance",
+    "target": 11
+  },
+  {
+    "name": "耿佳坤",
+    "branch": "金峰支行",
+    "role": "counter_manager",
+    "taskId": "pension_account",
+    "target": 10
+  },
+  {
+    "name": "耿佳坤",
+    "branch": "金峰支行",
+    "role": "counter_manager",
+    "taskId": "merchant",
+    "target": 1
+  },
+  {
+    "name": "耿佳坤",
+    "branch": "金峰支行",
+    "role": "counter_manager",
+    "taskId": "credit_installment",
+    "target": 20
+  },
+  {
+    "name": "耿佳坤",
+    "branch": "金峰支行",
+    "role": "counter_manager",
+    "taskId": "credit_new_active",
+    "target": 5
+  },
+  {
+    "name": "耿佳坤",
+    "branch": "金峰支行",
+    "role": "counter_manager",
+    "taskId": "wechat_welfare",
+    "target": 20
+  },
+  {
+    "name": "刘梦辰",
+    "branch": "进城支行",
+    "role": "counter_manager",
+    "taskId": "fund_valid",
+    "target": 5
+  },
+  {
+    "name": "刘梦辰",
+    "branch": "进城支行",
+    "role": "counter_manager",
+    "taskId": "bind_card",
+    "target": 55
+  },
+  {
+    "name": "刘梦辰",
+    "branch": "进城支行",
+    "role": "counter_manager",
+    "taskId": "insurance",
+    "target": 7
+  },
+  {
+    "name": "刘梦辰",
+    "branch": "进城支行",
+    "role": "counter_manager",
+    "taskId": "pension_account",
+    "target": 10
+  },
+  {
+    "name": "刘梦辰",
+    "branch": "进城支行",
+    "role": "counter_manager",
+    "taskId": "merchant",
+    "target": 1
+  },
+  {
+    "name": "刘梦辰",
+    "branch": "进城支行",
+    "role": "counter_manager",
+    "taskId": "credit_installment",
+    "target": 20
+  },
+  {
+    "name": "刘梦辰",
+    "branch": "进城支行",
+    "role": "counter_manager",
+    "taskId": "credit_new_active",
+    "target": 5
+  },
+  {
+    "name": "刘梦辰",
+    "branch": "进城支行",
+    "role": "counter_manager",
+    "taskId": "wechat_welfare",
+    "target": 20
+  },
+  {
+    "name": "陈伟建",
+    "branch": "江田支行",
+    "role": "counter_manager",
+    "taskId": "fund_valid",
+    "target": 5
+  },
+  {
+    "name": "陈伟建",
+    "branch": "江田支行",
+    "role": "counter_manager",
+    "taskId": "bind_card",
+    "target": 55
+  },
+  {
+    "name": "陈伟建",
+    "branch": "江田支行",
+    "role": "counter_manager",
+    "taskId": "insurance",
+    "target": 7
+  },
+  {
+    "name": "陈伟建",
+    "branch": "江田支行",
+    "role": "counter_manager",
+    "taskId": "pension_account",
+    "target": 10
+  },
+  {
+    "name": "陈伟建",
+    "branch": "江田支行",
+    "role": "counter_manager",
+    "taskId": "merchant",
+    "target": 1
+  },
+  {
+    "name": "陈伟建",
+    "branch": "江田支行",
+    "role": "counter_manager",
+    "taskId": "credit_installment",
+    "target": 20
+  },
+  {
+    "name": "陈伟建",
+    "branch": "江田支行",
+    "role": "counter_manager",
+    "taskId": "credit_new_active",
+    "target": 5
+  },
+  {
+    "name": "陈伟建",
+    "branch": "江田支行",
+    "role": "counter_manager",
+    "taskId": "wechat_welfare",
+    "target": 20
+  },
+  {
+    "name": "林帆",
+    "branch": "漳港支行",
+    "role": "counter_manager",
+    "taskId": "fund_valid",
+    "target": 5
+  },
+  {
+    "name": "林帆",
+    "branch": "漳港支行",
+    "role": "counter_manager",
+    "taskId": "bind_card",
+    "target": 55
+  },
+  {
+    "name": "林帆",
+    "branch": "漳港支行",
+    "role": "counter_manager",
+    "taskId": "insurance",
+    "target": 7
+  },
+  {
+    "name": "林帆",
+    "branch": "漳港支行",
+    "role": "counter_manager",
+    "taskId": "pension_account",
+    "target": 10
+  },
+  {
+    "name": "林帆",
+    "branch": "漳港支行",
+    "role": "counter_manager",
+    "taskId": "merchant",
+    "target": 1
+  },
+  {
+    "name": "林帆",
+    "branch": "漳港支行",
+    "role": "counter_manager",
+    "taskId": "credit_installment",
+    "target": 20
+  },
+  {
+    "name": "林帆",
+    "branch": "漳港支行",
+    "role": "counter_manager",
+    "taskId": "credit_new_active",
+    "target": 5
+  },
+  {
+    "name": "林帆",
+    "branch": "漳港支行",
+    "role": "counter_manager",
+    "taskId": "wechat_welfare",
+    "target": 20
+  },
+  {
+    "name": "詹仕涵",
+    "branch": "玉田支行",
+    "role": "counter_manager",
+    "taskId": "fund_valid",
+    "target": 3
+  },
+  {
+    "name": "詹仕涵",
+    "branch": "玉田支行",
+    "role": "counter_manager",
+    "taskId": "bind_card",
+    "target": 35
+  },
+  {
+    "name": "詹仕涵",
+    "branch": "玉田支行",
+    "role": "counter_manager",
+    "taskId": "insurance",
+    "target": 5
+  },
+  {
+    "name": "詹仕涵",
+    "branch": "玉田支行",
+    "role": "counter_manager",
+    "taskId": "pension_account",
+    "target": 10
+  },
+  {
+    "name": "詹仕涵",
+    "branch": "玉田支行",
+    "role": "counter_manager",
+    "taskId": "merchant",
+    "target": 1
+  },
+  {
+    "name": "詹仕涵",
+    "branch": "玉田支行",
+    "role": "counter_manager",
+    "taskId": "credit_installment",
+    "target": 20
+  },
+  {
+    "name": "詹仕涵",
+    "branch": "玉田支行",
+    "role": "counter_manager",
+    "taskId": "credit_new_active",
+    "target": 5
+  },
+  {
+    "name": "詹仕涵",
+    "branch": "玉田支行",
+    "role": "counter_manager",
+    "taskId": "wechat_welfare",
+    "target": 20
+  },
+  {
+    "name": "蔡敏",
+    "branch": "玉田支行",
+    "role": "counter_manager",
+    "taskId": "fund_valid",
+    "target": 3
+  },
+  {
+    "name": "蔡敏",
+    "branch": "玉田支行",
+    "role": "counter_manager",
+    "taskId": "bind_card",
+    "target": 35
+  },
+  {
+    "name": "蔡敏",
+    "branch": "玉田支行",
+    "role": "counter_manager",
+    "taskId": "insurance",
+    "target": 5
+  },
+  {
+    "name": "蔡敏",
+    "branch": "玉田支行",
+    "role": "counter_manager",
+    "taskId": "pension_account",
+    "target": 10
+  },
+  {
+    "name": "蔡敏",
+    "branch": "玉田支行",
+    "role": "counter_manager",
+    "taskId": "merchant",
+    "target": 1
+  },
+  {
+    "name": "蔡敏",
+    "branch": "玉田支行",
+    "role": "counter_manager",
+    "taskId": "credit_installment",
+    "target": 20
+  },
+  {
+    "name": "蔡敏",
+    "branch": "玉田支行",
+    "role": "counter_manager",
+    "taskId": "credit_new_active",
+    "target": 5
+  },
+  {
+    "name": "蔡敏",
+    "branch": "玉田支行",
+    "role": "counter_manager",
+    "taskId": "wechat_welfare",
+    "target": 20
+  },
+  {
+    "name": "林凤玲",
+    "branch": "营业厅",
+    "role": "counter_manager",
+    "taskId": "fund_valid",
+    "target": 10
+  },
+  {
+    "name": "林凤玲",
+    "branch": "营业厅",
+    "role": "counter_manager",
+    "taskId": "bind_card",
+    "target": 55
+  },
+  {
+    "name": "林凤玲",
+    "branch": "营业厅",
+    "role": "counter_manager",
+    "taskId": "insurance",
+    "target": 11
+  },
+  {
+    "name": "林凤玲",
+    "branch": "营业厅",
+    "role": "counter_manager",
+    "taskId": "pension_account",
+    "target": 10
+  },
+  {
+    "name": "林凤玲",
+    "branch": "营业厅",
+    "role": "counter_manager",
+    "taskId": "merchant",
+    "target": 1
+  },
+  {
+    "name": "林凤玲",
+    "branch": "营业厅",
+    "role": "counter_manager",
+    "taskId": "credit_installment",
+    "target": 20
+  },
+  {
+    "name": "林凤玲",
+    "branch": "营业厅",
+    "role": "counter_manager",
+    "taskId": "credit_new_active",
+    "target": 5
+  },
+  {
+    "name": "林凤玲",
+    "branch": "营业厅",
+    "role": "counter_manager",
+    "taskId": "wechat_welfare",
+    "target": 20
+  },
+  {
+    "name": "李思琪",
+    "branch": "营业厅",
+    "role": "counter_manager",
+    "taskId": "fund_valid",
+    "target": 10
+  },
+  {
+    "name": "李思琪",
+    "branch": "营业厅",
+    "role": "counter_manager",
+    "taskId": "bind_card",
+    "target": 55
+  },
+  {
+    "name": "李思琪",
+    "branch": "营业厅",
+    "role": "counter_manager",
+    "taskId": "insurance",
+    "target": 11
+  },
+  {
+    "name": "李思琪",
+    "branch": "营业厅",
+    "role": "counter_manager",
+    "taskId": "pension_account",
+    "target": 10
+  },
+  {
+    "name": "李思琪",
+    "branch": "营业厅",
+    "role": "counter_manager",
+    "taskId": "merchant",
+    "target": 1
+  },
+  {
+    "name": "李思琪",
+    "branch": "营业厅",
+    "role": "counter_manager",
+    "taskId": "credit_installment",
+    "target": 20
+  },
+  {
+    "name": "李思琪",
+    "branch": "营业厅",
+    "role": "counter_manager",
+    "taskId": "credit_new_active",
+    "target": 5
+  },
+  {
+    "name": "李思琪",
+    "branch": "营业厅",
+    "role": "counter_manager",
+    "taskId": "wechat_welfare",
+    "target": 20
+  },
+  {
+    "name": "刘勤文",
+    "branch": "营业厅",
+    "role": "counter_manager",
+    "taskId": "fund_valid",
+    "target": 10
+  },
+  {
+    "name": "刘勤文",
+    "branch": "营业厅",
+    "role": "counter_manager",
+    "taskId": "bind_card",
+    "target": 55
+  },
+  {
+    "name": "刘勤文",
+    "branch": "营业厅",
+    "role": "counter_manager",
+    "taskId": "insurance",
+    "target": 11
+  },
+  {
+    "name": "刘勤文",
+    "branch": "营业厅",
+    "role": "counter_manager",
+    "taskId": "pension_account",
+    "target": 10
+  },
+  {
+    "name": "刘勤文",
+    "branch": "营业厅",
+    "role": "counter_manager",
+    "taskId": "merchant",
+    "target": 1
+  },
+  {
+    "name": "刘勤文",
+    "branch": "营业厅",
+    "role": "counter_manager",
+    "taskId": "credit_installment",
+    "target": 20
+  },
+  {
+    "name": "刘勤文",
+    "branch": "营业厅",
+    "role": "counter_manager",
+    "taskId": "credit_new_active",
+    "target": 5
+  },
+  {
+    "name": "刘勤文",
+    "branch": "营业厅",
+    "role": "counter_manager",
+    "taskId": "wechat_welfare",
+    "target": 20
+  },
+  {
+    "name": "林泽盛",
+    "branch": "营业厅",
+    "role": "counter_manager",
+    "taskId": "fund_valid",
+    "target": 10
+  },
+  {
+    "name": "林泽盛",
+    "branch": "营业厅",
+    "role": "counter_manager",
+    "taskId": "bind_card",
+    "target": 55
+  },
+  {
+    "name": "林泽盛",
+    "branch": "营业厅",
+    "role": "counter_manager",
+    "taskId": "insurance",
+    "target": 11
+  },
+  {
+    "name": "林泽盛",
+    "branch": "营业厅",
+    "role": "counter_manager",
+    "taskId": "pension_account",
+    "target": 10
+  },
+  {
+    "name": "林泽盛",
+    "branch": "营业厅",
+    "role": "counter_manager",
+    "taskId": "merchant",
+    "target": 1
+  },
+  {
+    "name": "林泽盛",
+    "branch": "营业厅",
+    "role": "counter_manager",
+    "taskId": "credit_installment",
+    "target": 20
+  },
+  {
+    "name": "林泽盛",
+    "branch": "营业厅",
+    "role": "counter_manager",
+    "taskId": "credit_new_active",
+    "target": 5
+  },
+  {
+    "name": "林泽盛",
+    "branch": "营业厅",
+    "role": "counter_manager",
+    "taskId": "wechat_welfare",
+    "target": 20
+  },
+  {
+    "name": "潘晓宇",
+    "branch": "西洋支行",
+    "role": "counter_manager",
+    "taskId": "fund_valid",
+    "target": 3
+  },
+  {
+    "name": "潘晓宇",
+    "branch": "西洋支行",
+    "role": "counter_manager",
+    "taskId": "bind_card",
+    "target": 28
+  },
+  {
+    "name": "潘晓宇",
+    "branch": "西洋支行",
+    "role": "counter_manager",
+    "taskId": "insurance",
+    "target": 4
+  },
+  {
+    "name": "潘晓宇",
+    "branch": "西洋支行",
+    "role": "counter_manager",
+    "taskId": "pension_account",
+    "target": 5
+  },
+  {
+    "name": "潘晓宇",
+    "branch": "西洋支行",
+    "role": "counter_manager",
+    "taskId": "merchant",
+    "target": 1
+  },
+  {
+    "name": "潘晓宇",
+    "branch": "西洋支行",
+    "role": "counter_manager",
+    "taskId": "credit_installment",
+    "target": 20
+  },
+  {
+    "name": "潘晓宇",
+    "branch": "西洋支行",
+    "role": "counter_manager",
+    "taskId": "credit_new_active",
+    "target": 5
+  },
+  {
+    "name": "潘晓宇",
+    "branch": "西洋支行",
+    "role": "counter_manager",
+    "taskId": "wechat_welfare",
+    "target": 20
+  },
+  {
+    "name": "潘萧毅",
+    "branch": "进城支行",
+    "role": "counter_manager",
+    "taskId": "fund_valid",
+    "target": 5
+  },
+  {
+    "name": "潘萧毅",
+    "branch": "进城支行",
+    "role": "counter_manager",
+    "taskId": "bind_card",
+    "target": 55
+  },
+  {
+    "name": "潘萧毅",
+    "branch": "进城支行",
+    "role": "counter_manager",
+    "taskId": "insurance",
+    "target": 8
+  },
+  {
+    "name": "潘萧毅",
+    "branch": "进城支行",
+    "role": "counter_manager",
+    "taskId": "pension_account",
+    "target": 10
+  },
+  {
+    "name": "潘萧毅",
+    "branch": "进城支行",
+    "role": "counter_manager",
+    "taskId": "merchant",
+    "target": 1
+  },
+  {
+    "name": "潘萧毅",
+    "branch": "进城支行",
+    "role": "counter_manager",
+    "taskId": "credit_installment",
+    "target": 20
+  },
+  {
+    "name": "潘萧毅",
+    "branch": "进城支行",
+    "role": "counter_manager",
+    "taskId": "credit_new_active",
+    "target": 5
+  },
+  {
+    "name": "潘萧毅",
+    "branch": "进城支行",
+    "role": "counter_manager",
+    "taskId": "wechat_welfare",
+    "target": 20
+  },
+  {
+    "name": "黄佳怡",
+    "branch": "进城支行",
+    "role": "counter_manager",
+    "taskId": "fund_valid",
+    "target": 5
+  },
+  {
+    "name": "黄佳怡",
+    "branch": "进城支行",
+    "role": "counter_manager",
+    "taskId": "bind_card",
+    "target": 55
+  },
+  {
+    "name": "黄佳怡",
+    "branch": "进城支行",
+    "role": "counter_manager",
+    "taskId": "insurance",
+    "target": 8
+  },
+  {
+    "name": "黄佳怡",
+    "branch": "进城支行",
+    "role": "counter_manager",
+    "taskId": "pension_account",
+    "target": 10
+  },
+  {
+    "name": "黄佳怡",
+    "branch": "进城支行",
+    "role": "counter_manager",
+    "taskId": "merchant",
+    "target": 1
+  },
+  {
+    "name": "黄佳怡",
+    "branch": "进城支行",
+    "role": "counter_manager",
+    "taskId": "credit_installment",
+    "target": 20
+  },
+  {
+    "name": "黄佳怡",
+    "branch": "进城支行",
+    "role": "counter_manager",
+    "taskId": "credit_new_active",
+    "target": 5
+  },
+  {
+    "name": "黄佳怡",
+    "branch": "进城支行",
+    "role": "counter_manager",
+    "taskId": "wechat_welfare",
+    "target": 20
+  },
+  {
+    "name": "刘芷欣",
+    "branch": "郑和支行",
+    "role": "counter_manager",
+    "taskId": "fund_valid",
+    "target": 5
+  },
+  {
+    "name": "刘芷欣",
+    "branch": "郑和支行",
+    "role": "counter_manager",
+    "taskId": "bind_card",
+    "target": 55
+  },
+  {
+    "name": "刘芷欣",
+    "branch": "郑和支行",
+    "role": "counter_manager",
+    "taskId": "insurance",
+    "target": 8
+  },
+  {
+    "name": "刘芷欣",
+    "branch": "郑和支行",
+    "role": "counter_manager",
+    "taskId": "pension_account",
+    "target": 10
+  },
+  {
+    "name": "刘芷欣",
+    "branch": "郑和支行",
+    "role": "counter_manager",
+    "taskId": "merchant",
+    "target": 1
+  },
+  {
+    "name": "刘芷欣",
+    "branch": "郑和支行",
+    "role": "counter_manager",
+    "taskId": "credit_installment",
+    "target": 20
+  },
+  {
+    "name": "刘芷欣",
+    "branch": "郑和支行",
+    "role": "counter_manager",
+    "taskId": "credit_new_active",
+    "target": 5
+  },
+  {
+    "name": "刘芷欣",
+    "branch": "郑和支行",
+    "role": "counter_manager",
+    "taskId": "wechat_welfare",
+    "target": 20
+  },
+  {
+    "name": "何晨烨",
+    "branch": "锦江支行",
+    "role": "counter_manager",
+    "taskId": "fund_valid",
+    "target": 5
+  },
+  {
+    "name": "何晨烨",
+    "branch": "锦江支行",
+    "role": "counter_manager",
+    "taskId": "bind_card",
+    "target": 55
+  },
+  {
+    "name": "何晨烨",
+    "branch": "锦江支行",
+    "role": "counter_manager",
+    "taskId": "insurance",
+    "target": 8
+  },
+  {
+    "name": "何晨烨",
+    "branch": "锦江支行",
+    "role": "counter_manager",
+    "taskId": "pension_account",
+    "target": 10
+  },
+  {
+    "name": "何晨烨",
+    "branch": "锦江支行",
+    "role": "counter_manager",
+    "taskId": "merchant",
+    "target": 1
+  },
+  {
+    "name": "何晨烨",
+    "branch": "锦江支行",
+    "role": "counter_manager",
+    "taskId": "credit_installment",
+    "target": 20
+  },
+  {
+    "name": "何晨烨",
+    "branch": "锦江支行",
+    "role": "counter_manager",
+    "taskId": "credit_new_active",
+    "target": 5
+  },
+  {
+    "name": "何晨烨",
+    "branch": "锦江支行",
+    "role": "counter_manager",
+    "taskId": "wechat_welfare",
+    "target": 20
+  },
+  {
+    "name": "陈倩琳",
+    "branch": "胪峰支行",
+    "role": "counter_manager",
+    "taskId": "fund_valid",
+    "target": 5
+  },
+  {
+    "name": "陈倩琳",
+    "branch": "胪峰支行",
+    "role": "counter_manager",
+    "taskId": "bind_card",
+    "target": 55
+  },
+  {
+    "name": "陈倩琳",
+    "branch": "胪峰支行",
+    "role": "counter_manager",
+    "taskId": "insurance",
+    "target": 8
+  },
+  {
+    "name": "陈倩琳",
+    "branch": "胪峰支行",
+    "role": "counter_manager",
+    "taskId": "pension_account",
+    "target": 10
+  },
+  {
+    "name": "陈倩琳",
+    "branch": "胪峰支行",
+    "role": "counter_manager",
+    "taskId": "merchant",
+    "target": 1
+  },
+  {
+    "name": "陈倩琳",
+    "branch": "胪峰支行",
+    "role": "counter_manager",
+    "taskId": "credit_installment",
+    "target": 20
+  },
+  {
+    "name": "陈倩琳",
+    "branch": "胪峰支行",
+    "role": "counter_manager",
+    "taskId": "credit_new_active",
+    "target": 5
+  },
+  {
+    "name": "陈倩琳",
+    "branch": "胪峰支行",
+    "role": "counter_manager",
+    "taskId": "wechat_welfare",
+    "target": 20
+  },
+  {
+    "name": "姚铭",
+    "branch": "振兴支行",
+    "role": "counter_manager",
+    "taskId": "fund_valid",
+    "target": 5
+  },
+  {
+    "name": "姚铭",
+    "branch": "振兴支行",
+    "role": "counter_manager",
+    "taskId": "bind_card",
+    "target": 55
+  },
+  {
+    "name": "姚铭",
+    "branch": "振兴支行",
+    "role": "counter_manager",
+    "taskId": "insurance",
+    "target": 8
+  },
+  {
+    "name": "姚铭",
+    "branch": "振兴支行",
+    "role": "counter_manager",
+    "taskId": "pension_account",
+    "target": 10
+  },
+  {
+    "name": "姚铭",
+    "branch": "振兴支行",
+    "role": "counter_manager",
+    "taskId": "merchant",
+    "target": 1
+  },
+  {
+    "name": "姚铭",
+    "branch": "振兴支行",
+    "role": "counter_manager",
+    "taskId": "credit_installment",
+    "target": 20
+  },
+  {
+    "name": "姚铭",
+    "branch": "振兴支行",
+    "role": "counter_manager",
+    "taskId": "credit_new_active",
+    "target": 5
+  },
+  {
+    "name": "姚铭",
+    "branch": "振兴支行",
+    "role": "counter_manager",
+    "taskId": "wechat_welfare",
+    "target": 20
+  },
+  {
+    "name": "李家豪",
+    "branch": "振兴支行",
+    "role": "counter_manager",
+    "taskId": "fund_valid",
+    "target": 5
+  },
+  {
+    "name": "李家豪",
+    "branch": "振兴支行",
+    "role": "counter_manager",
+    "taskId": "bind_card",
+    "target": 55
+  },
+  {
+    "name": "李家豪",
+    "branch": "振兴支行",
+    "role": "counter_manager",
+    "taskId": "insurance",
+    "target": 8
+  },
+  {
+    "name": "李家豪",
+    "branch": "振兴支行",
+    "role": "counter_manager",
+    "taskId": "pension_account",
+    "target": 10
+  },
+  {
+    "name": "李家豪",
+    "branch": "振兴支行",
+    "role": "counter_manager",
+    "taskId": "merchant",
+    "target": 1
+  },
+  {
+    "name": "李家豪",
+    "branch": "振兴支行",
+    "role": "counter_manager",
+    "taskId": "credit_installment",
+    "target": 20
+  },
+  {
+    "name": "李家豪",
+    "branch": "振兴支行",
+    "role": "counter_manager",
+    "taskId": "credit_new_active",
+    "target": 5
+  },
+  {
+    "name": "李家豪",
+    "branch": "振兴支行",
+    "role": "counter_manager",
+    "taskId": "wechat_welfare",
+    "target": 20
+  },
+  {
+    "name": "陈震鑫",
+    "branch": "潭头支行",
+    "role": "counter_manager",
+    "taskId": "fund_valid",
+    "target": 3
+  },
+  {
+    "name": "陈震鑫",
+    "branch": "潭头支行",
+    "role": "counter_manager",
+    "taskId": "bind_card",
+    "target": 35
+  },
+  {
+    "name": "陈震鑫",
+    "branch": "潭头支行",
+    "role": "counter_manager",
+    "taskId": "insurance",
+    "target": 5
+  },
+  {
+    "name": "陈震鑫",
+    "branch": "潭头支行",
+    "role": "counter_manager",
+    "taskId": "pension_account",
+    "target": 10
+  },
+  {
+    "name": "陈震鑫",
+    "branch": "潭头支行",
+    "role": "counter_manager",
+    "taskId": "merchant",
+    "target": 1
+  },
+  {
+    "name": "陈震鑫",
+    "branch": "潭头支行",
+    "role": "counter_manager",
+    "taskId": "credit_installment",
+    "target": 20
+  },
+  {
+    "name": "陈震鑫",
+    "branch": "潭头支行",
+    "role": "counter_manager",
+    "taskId": "credit_new_active",
+    "target": 5
+  },
+  {
+    "name": "陈震鑫",
+    "branch": "潭头支行",
+    "role": "counter_manager",
+    "taskId": "wechat_welfare",
+    "target": 20
+  },
+  {
+    "name": "刘佳琳",
+    "branch": "漳港支行",
+    "role": "counter_manager",
+    "taskId": "fund_valid",
+    "target": 3
+  },
+  {
+    "name": "刘佳琳",
+    "branch": "漳港支行",
+    "role": "counter_manager",
+    "taskId": "bind_card",
+    "target": 35
+  },
+  {
+    "name": "刘佳琳",
+    "branch": "漳港支行",
+    "role": "counter_manager",
+    "taskId": "insurance",
+    "target": 5
+  },
+  {
+    "name": "刘佳琳",
+    "branch": "漳港支行",
+    "role": "counter_manager",
+    "taskId": "pension_account",
+    "target": 10
+  },
+  {
+    "name": "刘佳琳",
+    "branch": "漳港支行",
+    "role": "counter_manager",
+    "taskId": "merchant",
+    "target": 1
+  },
+  {
+    "name": "刘佳琳",
+    "branch": "漳港支行",
+    "role": "counter_manager",
+    "taskId": "credit_installment",
+    "target": 20
+  },
+  {
+    "name": "刘佳琳",
+    "branch": "漳港支行",
+    "role": "counter_manager",
+    "taskId": "credit_new_active",
+    "target": 5
+  },
+  {
+    "name": "刘佳琳",
+    "branch": "漳港支行",
+    "role": "counter_manager",
+    "taskId": "wechat_welfare",
+    "target": 20
+  },
+  {
+    "name": "阮宇欣",
+    "branch": "江田支行",
+    "role": "counter_manager",
+    "taskId": "fund_valid",
+    "target": 5
+  },
+  {
+    "name": "阮宇欣",
+    "branch": "江田支行",
+    "role": "counter_manager",
+    "taskId": "bind_card",
+    "target": 55
+  },
+  {
+    "name": "阮宇欣",
+    "branch": "江田支行",
+    "role": "counter_manager",
+    "taskId": "insurance",
+    "target": 8
+  },
+  {
+    "name": "阮宇欣",
+    "branch": "江田支行",
+    "role": "counter_manager",
+    "taskId": "pension_account",
+    "target": 10
+  },
+  {
+    "name": "阮宇欣",
+    "branch": "江田支行",
+    "role": "counter_manager",
+    "taskId": "merchant",
+    "target": 1
+  },
+  {
+    "name": "阮宇欣",
+    "branch": "江田支行",
+    "role": "counter_manager",
+    "taskId": "credit_installment",
+    "target": 20
+  },
+  {
+    "name": "阮宇欣",
+    "branch": "江田支行",
+    "role": "counter_manager",
+    "taskId": "credit_new_active",
+    "target": 5
+  },
+  {
+    "name": "阮宇欣",
+    "branch": "江田支行",
+    "role": "counter_manager",
+    "taskId": "wechat_welfare",
+    "target": 20
+  },
+  {
+    "name": "江轶涵",
+    "branch": "江田支行",
+    "role": "counter_manager",
+    "taskId": "fund_valid",
+    "target": 5
+  },
+  {
+    "name": "江轶涵",
+    "branch": "江田支行",
+    "role": "counter_manager",
+    "taskId": "bind_card",
+    "target": 55
+  },
+  {
+    "name": "江轶涵",
+    "branch": "江田支行",
+    "role": "counter_manager",
+    "taskId": "insurance",
+    "target": 8
+  },
+  {
+    "name": "江轶涵",
+    "branch": "江田支行",
+    "role": "counter_manager",
+    "taskId": "pension_account",
+    "target": 10
+  },
+  {
+    "name": "江轶涵",
+    "branch": "江田支行",
+    "role": "counter_manager",
+    "taskId": "merchant",
+    "target": 1
+  },
+  {
+    "name": "江轶涵",
+    "branch": "江田支行",
+    "role": "counter_manager",
+    "taskId": "credit_installment",
+    "target": 20
+  },
+  {
+    "name": "江轶涵",
+    "branch": "江田支行",
+    "role": "counter_manager",
+    "taskId": "credit_new_active",
+    "target": 5
+  },
+  {
+    "name": "江轶涵",
+    "branch": "江田支行",
+    "role": "counter_manager",
+    "taskId": "wechat_welfare",
+    "target": 20
+  },
+  {
+    "name": "王子杰",
+    "branch": "滨海支行",
+    "role": "counter_manager",
+    "taskId": "fund_valid",
+    "target": 5
+  },
+  {
+    "name": "王子杰",
+    "branch": "滨海支行",
+    "role": "counter_manager",
+    "taskId": "bind_card",
+    "target": 55
+  },
+  {
+    "name": "王子杰",
+    "branch": "滨海支行",
+    "role": "counter_manager",
+    "taskId": "insurance",
+    "target": 8
+  },
+  {
+    "name": "王子杰",
+    "branch": "滨海支行",
+    "role": "counter_manager",
+    "taskId": "pension_account",
+    "target": 10
+  },
+  {
+    "name": "王子杰",
+    "branch": "滨海支行",
+    "role": "counter_manager",
+    "taskId": "merchant",
+    "target": 1
+  },
+  {
+    "name": "王子杰",
+    "branch": "滨海支行",
+    "role": "counter_manager",
+    "taskId": "credit_installment",
+    "target": 20
+  },
+  {
+    "name": "王子杰",
+    "branch": "滨海支行",
+    "role": "counter_manager",
+    "taskId": "credit_new_active",
+    "target": 5
+  },
+  {
+    "name": "王子杰",
+    "branch": "滨海支行",
+    "role": "counter_manager",
+    "taskId": "wechat_welfare",
+    "target": 20
+  },
+  {
+    "name": "陈晨珊",
+    "branch": "漳港支行",
+    "role": "counter_manager",
+    "taskId": "fund_valid",
+    "target": 5
+  },
+  {
+    "name": "陈晨珊",
+    "branch": "漳港支行",
+    "role": "counter_manager",
+    "taskId": "bind_card",
+    "target": 55
+  },
+  {
+    "name": "陈晨珊",
+    "branch": "漳港支行",
+    "role": "counter_manager",
+    "taskId": "insurance",
+    "target": 8
+  },
+  {
+    "name": "陈晨珊",
+    "branch": "漳港支行",
+    "role": "counter_manager",
+    "taskId": "pension_account",
+    "target": 10
+  },
+  {
+    "name": "陈晨珊",
+    "branch": "漳港支行",
+    "role": "counter_manager",
+    "taskId": "merchant",
+    "target": 1
+  },
+  {
+    "name": "陈晨珊",
+    "branch": "漳港支行",
+    "role": "counter_manager",
+    "taskId": "credit_installment",
+    "target": 20
+  },
+  {
+    "name": "陈晨珊",
+    "branch": "漳港支行",
+    "role": "counter_manager",
+    "taskId": "credit_new_active",
+    "target": 5
+  },
+  {
+    "name": "陈晨珊",
+    "branch": "漳港支行",
+    "role": "counter_manager",
+    "taskId": "wechat_welfare",
+    "target": 20
+  },
+  {
+    "name": "曾钰颖",
+    "branch": "鹤上支行",
+    "role": "counter_manager",
+    "taskId": "fund_valid",
+    "target": 5
+  },
+  {
+    "name": "曾钰颖",
+    "branch": "鹤上支行",
+    "role": "counter_manager",
+    "taskId": "bind_card",
+    "target": 55
+  },
+  {
+    "name": "曾钰颖",
+    "branch": "鹤上支行",
+    "role": "counter_manager",
+    "taskId": "insurance",
+    "target": 8
+  },
+  {
+    "name": "曾钰颖",
+    "branch": "鹤上支行",
+    "role": "counter_manager",
+    "taskId": "pension_account",
+    "target": 10
+  },
+  {
+    "name": "曾钰颖",
+    "branch": "鹤上支行",
+    "role": "counter_manager",
+    "taskId": "merchant",
+    "target": 1
+  },
+  {
+    "name": "曾钰颖",
+    "branch": "鹤上支行",
+    "role": "counter_manager",
+    "taskId": "credit_installment",
+    "target": 20
+  },
+  {
+    "name": "曾钰颖",
+    "branch": "鹤上支行",
+    "role": "counter_manager",
+    "taskId": "credit_new_active",
+    "target": 5
+  },
+  {
+    "name": "曾钰颖",
+    "branch": "鹤上支行",
+    "role": "counter_manager",
+    "taskId": "wechat_welfare",
+    "target": 20
+  }
+]

@@ -24,11 +24,29 @@ const STATS_TTL = 30 * 1000;
 
 function invalidateWriteCache(userId, period) {
   // 失效该用户所有 submissions 和 monthlyStats 缓存
-  Object.keys(cache.submissions).forEach(k => { if (k.startsWith(userId)) delete cache.submissions[k]; });
-  Object.keys(cache.monthlyStats).forEach(k => { if (k.startsWith(userId)) delete cache.monthlyStats[k]; });
+  const userIdStr = String(userId);
+  Object.keys(cache.submissions).forEach(k => { if (k.startsWith(userIdStr)) delete cache.submissions[k]; });
+  Object.keys(cache.monthlyStats).forEach(k => { if (k.startsWith(userIdStr)) delete cache.monthlyStats[k]; });
   // 失效对应 period 的排名缓存
   if (period) delete cache.rankings[period];
   else Object.keys(cache.rankings).forEach(k => delete cache.rankings[k]);
+}
+
+/**
+ * 清除所有缓存
+ */
+export function invalidateAllCache() {
+  cache.tasks = null;
+  cache.rankings = {};
+  cache.submissions = {};
+  cache.monthlyStats = {};
+}
+
+/**
+ * 清除任务缓存（业务配置变更时调用）
+ */
+export function invalidateTasksCache() {
+  cache.tasks = null;
 }
 
 async function callApi(action, payload = {}) {
@@ -45,14 +63,15 @@ async function callApi(action, payload = {}) {
  * @returns {Promise<Array>}
  */
 export async function getPFTasks(params = {}) {
-  // 无筛选条件时走缓存
-  if (!params.category && params.isActive !== false) {
-    if (cache.tasks) return cache.tasks;
-    const data = await callApi('getPFTasks', params);
-    cache.tasks = data;
-    return data;
+  // 管理后台获取所有业务时不走缓存
+  if (params.isActive === undefined) {
+    return callApi('getPFTasks', params);
   }
-  return callApi('getPFTasks', params);
+  // 工作台获取启用业务时走缓存
+  if (cache.tasks) return cache.tasks;
+  const data = await callApi('getPFTasks', params);
+  cache.tasks = data;
+  return data;
 }
 
 export async function getPFMonthlyStats(userId, period) {
@@ -82,15 +101,23 @@ export async function getPFSubmissions(params = {}) {
 
 export async function updatePFSubmission(submissionId, value) {
   const user = getCurrentUser();
-  const result = await callApi('updatePFSubmission', { submissionId, value, user });
+  const result = await callApi('updatePFSubmission', { submissionId, value, userId: user.id });
+  // 清除当前用户和被修改用户的缓存
   invalidateWriteCache(user.id || user._id);
+  if (result.affectedUserId) {
+    invalidateWriteCache(result.affectedUserId);
+  }
   return result;
 }
 
 export async function deletePFSubmission(submissionId) {
   const user = getCurrentUser();
   const result = await callApi('deletePFSubmission', { submissionId, user });
+  // 清除当前用户和被删除记录用户的缓存
   invalidateWriteCache(user.id || user._id);
+  if (result.affectedUserId) {
+    invalidateWriteCache(result.affectedUserId);
+  }
   return result;
 }
 
@@ -113,6 +140,10 @@ export async function updatePFSettings(settings) {
 
 export async function getAllPFSubmissions(period) {
   return callApi('getAllPFSubmissions', { period });
+}
+
+export async function getEmployeeTasks(employeeId, period) {
+  return callApi('getEmployeeTasks', { employeeId, period });
 }
 
 /**

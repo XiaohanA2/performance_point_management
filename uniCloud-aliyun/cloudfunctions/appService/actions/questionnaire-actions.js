@@ -452,17 +452,13 @@ async function exportQuestionnaireData(payload) {
   const questions = questionnaire[0].questions;
   const exportData = responses.map(r => {
     const row = {
-      '提交时间': new Date(r.submittedAt).toLocaleString('zh-CN'),
-      '姓名': r.userName || '',
-      '手机号': r.userPhone || '',
-      '网点/部门': r.userBranch || ''
+      '提交时间': new Date(r.submittedAt).toLocaleString('zh-CN')
     };
 
-    // 导出 answers 数组中的所有问题（排除已在顶层的隐私字段）
-    const privacyTitles = ['姓名', '手机号', '网点', '部门', '网点/部门'];
+    // 严格按问卷回复表的 answers 导出
     r.answers.forEach(answer => {
       const question = questions.find(q => q.id === answer.questionId);
-      if (question && !privacyTitles.includes(question.title)) {
+      if (question) {
         row[question.title] = Array.isArray(answer.value) ? answer.value.join('、') : (answer.value || '');
       }
     });

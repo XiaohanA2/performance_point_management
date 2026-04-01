@@ -412,17 +412,27 @@ export default {
         const title = (this.questionnaire ? this.questionnaire.title : '问卷').replace(/[/\\:*?"<>|]/g, '_');
         const date = new Date().toLocaleDateString('zh-CN').replace(/\//g, '');
         const fileName = `${title}_${date}.csv`;
-        const fs = uni.getFileSystemManager();
-        const filePath = `${wx.env.USER_DATA_PATH}/${fileName}`;
-        fs.writeFileSync(filePath, csvContent, 'utf8');
 
-        wx.shareFileMessage({
-          filePath,
-          fileName,
-          fail(e) {
-            uni.showToast({ title: '分享失败：' + (e.errMsg || ''), icon: 'none' });
-          }
-        });
+        try {
+          const fs = uni.getFileSystemManager();
+          const filePath = `${wx.env.USER_DATA_PATH}/${fileName}`;
+          fs.writeFileSync(filePath, csvContent, 'utf8');
+
+          wx.shareFileMessage({
+            filePath,
+            fileName,
+            success: () => {
+              console.log('分享成功');
+            },
+            fail(e) {
+              console.error('分享失败', e);
+              uni.showToast({ title: '分享失败：' + (e.errMsg || ''), icon: 'none' });
+            }
+          });
+        } catch (e) {
+          console.error('导出失败', e);
+          uni.showToast({ title: '导出失败：' + e.message, icon: 'none' });
+        }
       } catch (error) {
         uni.hideLoading();
         uni.showToast({ title: error.message || '导出失败', icon: 'none' });

@@ -1,0 +1,11 @@
+{
+  "indexes": [
+    {
+      "IndexName": "_id_",
+      "MgoKeySchema": {
+        "MgoIndexKeys": [{ "_id": "1" }],
+        "MgoIsUnique": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+[{
+  "IndexName": "roleCode",
+  "MgoKeySchema": {
+    "MgoIndexKeys": [{
+      "Name": "roleCode",
+      "Direction": "1"
+    }],
+    "MgoIsUnique": true
+  }
+}, {
+  "IndexName": "createdAt",
+  "MgoKeySchema": {
+    "MgoIndexKeys": [{
+      "Name": "createdAt",
+      "Direction": "1"
+    }],
+    "MgoIsUnique": false
+  }
+}]

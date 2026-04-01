@@ -112,10 +112,6 @@ export default {
     };
   },
   computed: {
-    isAdmin() {
-      const user = StoreService.getCurrentUser();
-      return user && ['admin', 'super_admin', 'credit_admin'].includes(user.role);
-    },
     userSubmissions() {
       let filtered = this.submissions
         .filter(sub => sub.employeeId === this.employeeId); // 移除季度筛选，查看所有历史记录
@@ -203,7 +199,6 @@ export default {
       };
     },
     canModify(sub) {
-      if (!this.isAdmin) return false;
       return !sub.archived;
     },
     formatDate(date, format = 'date') {
@@ -256,7 +251,10 @@ export default {
           try {
             await StoreService.deleteSubmission(this.editingSubmission.id);
             uni.showToast({ title: '删除成功', icon: 'success' });
-            await this.fetchData();
+            await StoreService.bootstrap({ force: true });
+            this.submissions = StoreService.getSubmissions();
+            this.settings = StoreService.getSettings();
+            this.rules = StoreService.getRules();
             this.showEditModal = false;
           } catch (error) {
             uni.showToast({ title: error.message || '删除失败', icon: 'none' });
@@ -272,7 +270,10 @@ export default {
           type: editData.type
         });
         uni.showToast({ title: '修改成功', icon: 'success' });
-        await this.fetchData();
+        await StoreService.bootstrap({ force: true });
+        this.submissions = StoreService.getSubmissions();
+        this.settings = StoreService.getSettings();
+        this.rules = StoreService.getRules();
         this.showEditModal = false;
       } catch (error) {
         uni.showToast({ title: error.message || '修改失败', icon: 'none' });

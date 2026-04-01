@@ -4,6 +4,11 @@
   "description": "绩效积分系统云函数",
   "main": "index.js",
   "dependencies": {
-    "xlsx": "^0.18.5"
+    "xlsx": "^0.18.5",
+    "axios": "^1.6.0",
+    "mammoth": "^1.6.0"
+  },
+  "cloudfunction-config": {
+    "timeout": 120
   }
 }

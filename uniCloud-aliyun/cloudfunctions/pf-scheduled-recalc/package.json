@@ -1,0 +1,9 @@
+{
+  "name": "pf-scheduled-recalc",
+  "version": "1.0.0",
+  "description": "个金积分定时重算",
+  "main": "index.js",
+  "cloudfunction-config": {
+    "triggers": ["cron:0 0 0,12 * * *"]
+  }
+}

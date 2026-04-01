@@ -98,11 +98,6 @@
       </view>
     </scroll-view>
 
-    <view v-if="!isAdmin" class="unauth">
-      <text>{{ (!currentUser || (currentUser && currentUser.role === 'guest')) ? '请先登录' : '仅管理员可访问此页面' }}</text>
-      <button class="light-btn" @click="gotoLogin">{{ (!currentUser || (currentUser && currentUser.role === 'guest')) ? '立即登录' : '切换账号' }}</button>
-    </view>
-
     <!-- 编辑弹框 -->
     <SubmissionEditModal
       v-if="showEditModal"
@@ -123,7 +118,6 @@ export default {
   components: { SubmissionEditModal },
   data() {
     return {
-      currentUser: StoreService.getCurrentUser(),
       searchKeyword: '',
       startDate: '',
       endDate: '',
@@ -146,9 +140,6 @@ export default {
     };
   },
   computed: {
-    isAdmin() {
-      return this.currentUser && ['admin', 'super_admin', 'credit_admin', 'branch_leader'].includes(this.currentUser.role);
-    },
     filteredSubmissions() {
       let filtered = this.allSubmissions;
       
@@ -240,8 +231,6 @@ export default {
       this.hasMore = true;
       try {
         await StoreService.ensureReady();
-        this.currentUser = StoreService.getCurrentUser();
-        if (!this.isAdmin) return;
         this.allSubmissions = StoreService.getSubmissions();
         this.users = StoreService.getUsers();
         this.rules = StoreService.getRules();
@@ -394,23 +383,18 @@ export default {
       this.showEditModal = false;
       this.editingSubmission = null;
     },
-    async confirmEdit() {
-      if (!this.editForm.count || Number(this.editForm.count) <= 0) {
-        uni.showToast({ title: '请输入有效的笔数', icon: 'none' });
-        return;
-      }
-      if (Number(this.editForm.amount) < 0) {
-        uni.showToast({ title: '请输入正确的金额', icon: 'none' });
-        return;
-      }
+    async confirmEdit(editData) {
       try {
         await StoreService.updateSubmission(this.editingSubmission.id, {
-          count: Number(this.editForm.count),
-          amount: Number(this.editForm.amount) || 0,
-          type: this.editForm.type
+          count: editData.count,
+          amount: editData.amount,
+          type: editData.type
         });
         uni.showToast({ title: '修改成功', icon: 'success' });
-        await this.initData();
+        await StoreService.bootstrap({ force: true });
+        this.allSubmissions = StoreService.getSubmissions();
+        this.users = StoreService.getUsers();
+        this.rules = StoreService.getRules();
         this.showEditModal = false;
       } catch (error) {
         uni.showToast({ title: error.message || '修改失败', icon: 'none' });
@@ -426,7 +410,10 @@ export default {
           try {
             await StoreService.deleteSubmission(this.editingSubmission.id);
             uni.showToast({ title: '删除成功', icon: 'success' });
-            await this.initData();
+            await StoreService.bootstrap({ force: true });
+            this.allSubmissions = StoreService.getSubmissions();
+            this.users = StoreService.getUsers();
+            this.rules = StoreService.getRules();
             this.showEditModal = false;
           } catch (error) {
             uni.showToast({ title: error.message || '删除失败', icon: 'none' });

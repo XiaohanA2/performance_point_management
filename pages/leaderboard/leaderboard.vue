@@ -1,55 +1,54 @@
 <template>
   <view class="leaderboard-page">
     <view class="leaderboard-hero">
-      <view class="hero-icon">
-        <image src="/static/rank.png" mode="aspectFill" style="width: 64rpx; height: 64rpx;" />
+      <!-- 居中标题 -->
+      <view class="hero-header">
+        <image src="/static/rank.png" mode="aspectFill" class="hero-icon" />
+        <text class="hero-title">{{ systemMode === 'pf' ? '排行榜' : '龙虎榜' }}</text>
       </view>
-      <text class="hero-title">{{ systemMode === 'pf' ? '月度排名' : '龙虎榜' }}</text>
+      <!-- 系统标签居中 -->
       <view class="system-badge">{{ systemMode === 'pf' ? '岗位穿透' : '信贷系统' }}</view>
 
-      <view class="filter-section">
-        <!-- 个贷：季度/月份切换 -->
-        <template v-if="systemMode === 'credit'">
+      <!-- 个贷筛选 -->
+      <template v-if="systemMode === 'credit'">
+        <view class="filter-bar">
           <view class="filter-tabs">
-            <view class="filter-tab" :class="{ active: filterType === 'quarter' }" @click="setFilterType('quarter')">按季度</view>
-            <view class="filter-tab" :class="{ active: filterType === 'month' }" @click="setFilterType('month')">按月份</view>
+            <view class="filter-tab" :class="{ active: filterType === 'quarter' }" @click="setFilterType('quarter')">季度</view>
+            <view class="filter-tab" :class="{ active: filterType === 'month' }" @click="setFilterType('month')">月份</view>
           </view>
-          <view class="filter-row">
-            <view v-if="filterType === 'quarter'" class="date-picker-container">
-              <picker :range="quarterOptions" :value="quarterOptions.indexOf(selectedQuarter)" @change="handleQuarterChange">
-                <view class="date-picker-btn"><text class="icon">📅</text><text>{{ selectedQuarter || '选择季度' }}</text></view>
-              </picker>
-            </view>
-            <view v-if="filterType === 'month'" class="date-picker-container">
-              <picker mode="date" :fields="'month'" @change="handleMonthChange" :value="monthValue">
-                <view class="date-picker-btn"><text class="icon">📅</text><text>{{ formatMonth(selectedMonth) || '选择月份' }}</text></view>
-              </picker>
-            </view>
-            <text class="rank-label">积分排名</text>
-          </view>
-        </template>
-        <!-- 个金：月份选择 -->
-        <template v-if="systemMode === 'pf'">
-          <view class="filter-row">
-            <picker mode="date" :fields="'month'" @change="handlePFMonthChange" :value="pfMonthPickerValue">
-              <view class="date-picker-btn"><text class="icon">📅</text><text>{{ formatPeriod(pfSelectedPeriod) }}</text></view>
+          <view v-if="filterType === 'quarter'">
+            <picker :range="quarterOptions" :value="quarterOptions.indexOf(selectedQuarter)" @change="handleQuarterChange">
+              <view class="date-picker-btn">{{ selectedQuarter || '选择季度' }}</view>
             </picker>
-            <text class="rank-label">积分排名</text>
           </view>
-          <!-- 角色筛选tabs -->
-          <view class="role-filter-tabs">
-            <view
-              v-for="roleFilter in pfRoleFilters"
-              :key="roleFilter.value"
-              class="role-tab"
-              :class="{ active: pfSelectedRole === roleFilter.value }"
-              @click="pfSelectedRole = roleFilter.value"
-            >
-              {{ roleFilter.label }}
-            </view>
+          <view v-if="filterType === 'month'">
+            <picker mode="date" :fields="'month'" @change="handleMonthChange" :value="monthValue">
+              <view class="date-picker-btn">{{ formatMonth(selectedMonth) || '选择月份' }}</view>
+            </picker>
           </view>
-        </template>
-      </view>
+        </view>
+      </template>
+
+      <!-- 个金筛选 -->
+      <template v-if="systemMode === 'pf'">
+        <view class="filter-bar">
+          <picker mode="date" :fields="'month'" @change="handlePFMonthChange" :value="pfMonthPickerValue">
+            <view class="date-picker-btn">{{ formatPeriod(pfSelectedPeriod) }}</view>
+          </picker>
+          <text class="rank-label">必选业务积分排名</text>
+        </view>
+        <view class="role-filter-tabs">
+          <view
+            v-for="roleFilter in pfRoleFilters"
+            :key="roleFilter.value"
+            class="role-tab"
+            :class="{ active: pfSelectedRole === roleFilter.value }"
+            @click="pfSelectedRole = roleFilter.value"
+          >
+            {{ roleFilter.label }}
+          </view>
+        </view>
+      </template>
     </view>
 
     <view v-if="isLoading" class="loading-state">
@@ -64,7 +63,7 @@
           <button class="light-btn" @click="gotoDashboard">前往工作台</button>
         </view>
         <view v-for="entry in leaderboard" :key="`${filterType}_${selectedQuarter}_${dateRange.start}_${entry.employeeId}`" class="leaderboard-card"
-          :class="{ 'rank-1': entry.rank===1, 'rank-2': entry.rank===2, 'rank-3': entry.rank===3 }">
+          :class="{ 'rank-1': entry.rank===1, 'rank-2': entry.rank===2, 'rank-3': entry.rank===3, 'highlight': currentUser && entry.employeeId === currentUser.id }">
           <view class="rank-badge">
             <uni-icons v-if="entry.rank===1" type="medal" :color="rankColor(1)" size="26" />
             <uni-icons v-else-if="entry.rank===2" type="medal" :color="rankColor(2)" size="26" />
@@ -94,7 +93,7 @@
           <text>暂无榜单数据，先去提报业务赚积分吧</text>
           <button class="light-btn" @click="gotoDashboard">前往工作台</button>
         </view>
-        <view v-for="(item, index) in filteredPFRankings" :key="item.userId" class="leaderboard-card"
+        <view v-for="(item, index) in filteredPFRankings" :key="`${pfSelectedPeriod}_${pfSelectedRole}_${item.userId}`" class="leaderboard-card"
           :class="{ 'rank-1': index===0, 'rank-2': index===1, 'rank-3': index===2, 'highlight': currentUser && item.userId === currentUser.id }">
           <view class="rank-badge">
             <uni-icons v-if="index===0" type="medal" :color="rankColor(1)" size="26" />
@@ -106,10 +105,6 @@
             <text class="employee-name">{{ item.userName }}</text>
             <view class="employee-meta">
               <text class="employee-branch">{{ item.branchName || item.branch || '未设置支行' }}</text>
-              <view class="score-chips">
-                <view class="chip blue">必选 {{ item.requiredScore }}</view>
-                <view class="chip teal">加分 {{ item.bonusScore }}</view>
-              </view>
             </view>
           </view>
           <view class="score-total">
@@ -149,7 +144,8 @@ export default {
         { label: '大堂经理', value: 'lobby_manager' },
         { label: '弹性柜面', value: 'elastic_counter' },
         { label: '柜面经理', value: 'counter_manager' }
-      ]
+      ],
+      refreshTimer: null
     };
   },
   computed: {
@@ -172,8 +168,29 @@ export default {
   },
   async onShow() {
     await this.fetchData();
+    // 个金系统启动自动刷新（每30秒）
+    if (this.systemMode === 'pf') {
+      this.startAutoRefresh();
+    }
+  },
+  onHide() {
+    this.stopAutoRefresh();
   },
   methods: {
+    startAutoRefresh() {
+      this.stopAutoRefresh();
+      this.refreshTimer = setInterval(() => {
+        if (this.systemMode === 'pf') {
+          this.loadPFLeaderboard();
+        }
+      }, 30000);
+    },
+    stopAutoRefresh() {
+      if (this.refreshTimer) {
+        clearInterval(this.refreshTimer);
+        this.refreshTimer = null;
+      }
+    },
     async fetchData() {
       this.isLoading = true;
       try {
@@ -200,6 +217,13 @@ export default {
       this.currentQuarter = StoreService.getCurrentQuarter();
     },
     async loadPFLeaderboard() {
+      // 根据当前用户角色自动选中对应标签
+      const validRoles = ['manager', 'lobby_manager', 'elastic_counter', 'counter_manager'];
+      if (this.currentUser && validRoles.includes(this.currentUser.role)) {
+        this.pfSelectedRole = this.currentUser.role;
+      } else {
+        this.pfSelectedRole = 'manager';
+      }
       this.pfRankings = await getPFRankings(this.pfSelectedPeriod, 500);
     },
     setFilterType(type) {
@@ -258,114 +282,66 @@ export default {
 }
 
 .leaderboard-hero {
-  padding: 40rpx 32rpx 30rpx;
-  text-align: center;
+  padding: 48rpx 32rpx 32rpx;
   color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-/* 移除顶部图标，优化布局 */
-/* .hero-icon {
-  width: 96rpx;
-  height: 96rpx;
-  border-radius: 999rpx;
-  background: rgba(255, 255, 255, 0.15);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 20rpx;
-} */
-
-.hero-icon {
-  width: 70rpx;
-  height: 70rpx;
-  margin: 0 auto 16rpx;
+.hero-header {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
+  gap: 16rpx;
+  margin-bottom: 16rpx;
+}
+
+.hero-icon {
+  width: 64rpx;
+  height: 64rpx;
+  flex-shrink: 0;
 }
 
 .hero-title {
-  display: block;
-  font-size: 48rpx;
+  font-size: 52rpx;
   font-weight: 700;
+  letter-spacing: 2rpx;
 }
 
 .system-badge {
-  display: inline-block;
-  margin: 12rpx auto 0;
-  background: rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.18);
   color: rgba(255,255,255,0.9);
-  font-size: 22rpx;
-  padding: 6rpx 20rpx;
+  font-size: 24rpx;
+  padding: 7rpx 26rpx;
   border-radius: 999rpx;
   border: 1rpx solid rgba(255,255,255,0.3);
+  margin-bottom: 28rpx;
 }
 
-.leaderboard-card.highlight {
-  border: 2rpx solid #0f766e;
-  background: #f0fdfa;
-}
-
-/* 时间段筛选样式 */
-.filter-section {
-  margin-top: 32rpx;
-  margin-bottom: 20rpx;
+/* 筛选栏 */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+  margin-bottom: 16rpx;
+  flex-wrap: wrap;
 }
 
 .filter-tabs {
   display: flex;
   background: rgba(255, 255, 255, 0.15);
-  border-radius: 16rpx;
-  padding: 8rpx;
-  max-width: 400rpx;
-  margin: 0 auto 20rpx;
-}
-
-.filter-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16rpx;
-  margin-top: 20rpx;
-}
-
-.date-picker-container {
-  display: flex;
-  align-items: center;
-}
-
-.date-picker-btn {
-  display: flex;
-  align-items: center;
-  gap: 12rpx;
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 20rpx;
-  padding: 16rpx 24rpx;
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 24rpx;
-  transition: all 0.2s ease;
-  height: 60rpx;
-  line-height: 60rpx;
-}
-
-.rank-label {
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 24rpx;
-  font-weight: 600;
-  height: 60rpx;
-  line-height: 60rpx;
-  margin-top: 0;
+  border-radius: 12rpx;
+  padding: 4rpx;
 }
 
 .filter-tab {
-  flex: 1;
-  padding: 12rpx 0;
+  padding: 12rpx 24rpx;
   text-align: center;
-  font-size: 24rpx;
+  font-size: 26rpx;
   color: rgba(255, 255, 255, 0.7);
-  border-radius: 12rpx;
+  border-radius: 10rpx;
   transition: all 0.2s ease;
 }
 
@@ -375,30 +351,22 @@ export default {
   font-weight: 600;
 }
 
-.date-picker-container {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20rpx;
-}
-
 .date-picker-btn {
-  display: flex;
-  align-items: center;
-  gap: 12rpx;
   background: rgba(255, 255, 255, 0.15);
-  border-radius: 20rpx;
-  padding: 16rpx 24rpx;
+  border-radius: 12rpx;
+  padding: 12rpx 24rpx;
   color: rgba(255, 255, 255, 0.9);
-  font-size: 24rpx;
-  transition: all 0.2s ease;
-}
-
-.date-picker-btn .icon {
-  font-size: 24rpx;
+  font-size: 26rpx;
 }
 
 .date-picker-btn:active {
   background: rgba(255, 255, 255, 0.25);
+}
+
+.rank-label {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 26rpx;
+  font-weight: 500;
 }
 
 .leaderboard-content {
@@ -461,6 +429,14 @@ export default {
 
 .leaderboard-card.rank-3 {
   border: 2rpx solid #fed7aa;
+}
+
+.leaderboard-card.highlight {
+  background: #f0fdfa;
+}
+
+.leaderboard-card.highlight:not(.rank-1):not(.rank-2):not(.rank-3) {
+  border: 2rpx solid #0f766e;
 }
 
 .employee-info {
@@ -586,19 +562,19 @@ export default {
 /* 个金角色筛选tabs */
 .role-filter-tabs {
   display: flex;
-  gap: 12rpx;
-  margin-top: 24rpx;
-  justify-content: center;
+  gap: 10rpx;
   flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 24rpx;
 }
 
 .role-tab {
   flex-shrink: 0;
   padding: 12rpx 28rpx;
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 20rpx;
-  font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 10rpx;
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.75);
   transition: all 0.2s ease;
 }
 

@@ -86,6 +86,22 @@
     "pf_submissions": {
       "description": "个金提报记录表",
       "required": ["userId", "userName", "branchId", "taskId", "period", "date", "value"],
+      "indexes": [
+        {
+          "IndexName": "userId_period_taskId",
+          "MgoKeySchema": {
+            "MgoIndexKeys": [{"Name": "userId", "Direction": "1"}, {"Name": "period", "Direction": "1"}, {"Name": "taskId", "Direction": "1"}],
+            "MgoIsUnique": false
+          }
+        },
+        {
+          "IndexName": "period_userId",
+          "MgoKeySchema": {
+            "MgoIndexKeys": [{"Name": "period", "Direction": "1"}, {"Name": "userId", "Direction": "1"}],
+            "MgoIsUnique": false
+          }
+        }
+      ],
       "properties": {
         "_id": {
           "bsonType": "string",
@@ -140,6 +156,22 @@
     "pf_monthly_stats": {
       "description": "个金月度统计表",
       "required": ["userId", "userName", "branchId", "period"],
+      "indexes": [
+        {
+          "IndexName": "userId_period",
+          "MgoKeySchema": {
+            "MgoIndexKeys": [{"Name": "userId", "Direction": "1"}, {"Name": "period", "Direction": "1"}],
+            "MgoIsUnique": true
+          }
+        },
+        {
+          "IndexName": "period_totalScore",
+          "MgoKeySchema": {
+            "MgoIndexKeys": [{"Name": "period", "Direction": "1"}, {"Name": "totalScore", "Direction": "-1"}],
+            "MgoIsUnique": false
+          }
+        }
+      ],
       "properties": {
         "_id": {
           "bsonType": "string",
@@ -190,7 +222,7 @@
         },
         "bonusTasks": {
           "bsonType": "array",
-          "description": "加分业务统计",
+          "description": "加分业务统计（仅记录完成量，不计分）",
           "items": {
             "bsonType": "object",
             "properties": {
@@ -203,10 +235,6 @@
               "totalValue": {
                 "bsonType": "number",
                 "description": "月度累计完成数"
-              },
-              "score": {
-                "bsonType": "number",
-                "description": "得分"
               }
             }
           }
@@ -215,17 +243,144 @@
           "bsonType": "number",
           "description": "必选业务总分"
         },
-        "bonusScore": {
-          "bsonType": "number",
-          "description": "加分业务总分"
-        },
         "totalScore": {
           "bsonType": "number",
-          "description": "总分"
+          "description": "总分（等于必选业务总分）"
         },
         "rank": {
           "bsonType": "int",
           "description": "排名"
+        },
+        "groupSize": {
+          "bsonType": "int",
+          "description": "组内总人数"
+        },
+        "updatedAt": {
+          "bsonType": "number",
+          "description": "更新时间戳"
+        }
+      }
+    },
+    "opendb-pf-employees": {
+      "description": "个金员工表",
+      "required": ["userId", "name", "branch", "role"],
+      "properties": {
+        "_id": {
+          "bsonType": "string",
+          "description": "文档ID"
+        },
+        "userId": {
+          "bsonType": "string",
+          "description": "关联uni-id-users的_id"
+        },
+        "name": {
+          "bsonType": "string",
+          "description": "姓名"
+        },
+        "branch": {
+          "bsonType": "string",
+          "description": "支行"
+        },
+        "role": {
+          "bsonType": "string",
+          "enum": ["manager", "lobby_manager", "elastic_counter", "counter_manager"],
+          "description": "角色"
+        },
+        "status": {
+          "bsonType": "string",
+          "enum": ["active", "inactive"],
+          "description": "状态"
+        },
+        "createdAt": {
+          "bsonType": "number",
+          "description": "创建时间戳"
+        },
+        "updatedAt": {
+          "bsonType": "number",
+          "description": "更新时间戳"
+        }
+      }
+    },
+    "opendb-pf-employee-tasks": {
+      "description": "个金员工任务配置表",
+      "required": ["employeeId", "taskId", "target", "period"],
+      "properties": {
+        "_id": {
+          "bsonType": "string",
+          "description": "文档ID"
+        },
+        "employeeId": {
+          "bsonType": "string",
+          "description": "员工ID，关联opendb-pf-employees"
+        },
+        "taskId": {
+          "bsonType": "string",
+          "description": "业务ID，关联pf_tasks"
+        },
+        "target": {
+          "bsonType": "number",
+          "description": "个人任务数"
+        },
+        "period": {
+          "bsonType": "string",
+          "description": "月度周期，格式: 2026-03"
+        },
+        "createdAt": {
+          "bsonType": "number",
+          "description": "创建时间戳"
+        },
+        "updatedAt": {
+          "bsonType": "number",
+          "description": "更新时间戳"
+        }
+      }
+    },
+    "pf_user_task_totals": {
+      "description": "个金用户任务月度聚合表",
+      "required": ["userId", "taskId", "period", "totalValue"],
+      "indexes": [
+        {
+          "IndexName": "userId_taskId_period_unique",
+          "MgoKeySchema": {
+            "MgoIndexKeys": [
+              {"Name": "userId", "Direction": "1"},
+              {"Name": "taskId", "Direction": "1"},
+              {"Name": "period", "Direction": "1"}
+            ],
+            "MgoIsUnique": true
+          }
+        },
+        {
+          "IndexName": "userId_period",
+          "MgoKeySchema": {
+            "MgoIndexKeys": [
+              {"Name": "userId", "Direction": "1"},
+              {"Name": "period", "Direction": "1"}
+            ],
+            "MgoIsUnique": false
+          }
+        }
+      ],
+      "properties": {
+        "_id": {
+          "bsonType": "string",
+          "description": "文档ID"
+        },
+        "userId": {
+          "bsonType": "string",
+          "description": "用户ID"
+        },
+        "taskId": {
+          "bsonType": "string",
+          "description": "业务ID"
+        },
+        "period": {
+          "bsonType": "string",
+          "description": "月度周期，格式: 2026-03"
+        },
+        "totalValue": {
+          "bsonType": "number",
+          "description": "月度累计完成数"
         },
         "updatedAt": {
           "bsonType": "number",

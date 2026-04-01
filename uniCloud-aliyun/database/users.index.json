@@ -1,0 +1,43 @@
+[{
+  "IndexName": "phone_status",
+  "MgoKeySchema": {
+    "MgoIndexKeys": [{
+      "Name": "phone",
+      "Direction": "1"
+    }, {
+      "Name": "status",
+      "Direction": "1"
+    }],
+    "MgoIsUnique": false
+  }
+}, {
+  "IndexName": "role_status",
+  "MgoKeySchema": {
+    "MgoIndexKeys": [{
+      "Name": "role",
+      "Direction": "1"
+    }, {
+      "Name": "status",
+      "Direction": "1"
+    }],
+    "MgoIsUnique": false
+  }
+}, {
+  "IndexName": "branch",
+  "MgoKeySchema": {
+    "MgoIndexKeys": [{
+      "Name": "branch",
+      "Direction": "1"
+    }],
+    "MgoIsUnique": false
+  }
+}, {
+  "IndexName": "branchId",
+  "MgoKeySchema": {
+    "MgoIndexKeys": [{
+      "Name": "branchId",
+      "Direction": "1"
+    }],
+    "MgoIsUnique": false
+  }
+}]

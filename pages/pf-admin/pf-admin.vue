@@ -33,14 +33,17 @@
       <!-- 业绩汇总 -->
       <view v-if="activeTab === 'overview'" class="tab-panel">
         <view class="panel">
-          <view class="panel-header panel-header--actions">
+          <view class="panel-header">
             <view class="title-with-quarter">
               <text class="panel-title">个金业绩汇总</text>
               <picker :range="pfPeriodOptions" :value="pfPeriodOptions.indexOf(pfSelectedPeriod)" @change="handlePFPeriodChange" class="quarter-picker">
                 <view class="picker-value">{{ formatPeriod(pfSelectedPeriod) }}</view>
               </picker>
             </view>
+          </view>
+          <view style="display: flex; gap: 12rpx; align-items: center; margin-bottom: 20rpx;">
             <input class="search-input" placeholder="搜索姓名/支行" v-model="pfSearchKeyword" />
+            <button class="recalc-btn" @tap="showRecalcModal = true">更新积分</button>
           </view>
           <!-- 角色筛选 -->
           <view class="role-filter">
@@ -61,9 +64,7 @@
                 <text class="col-rank">排名</text>
                 <text class="col-name">姓名</text>
                 <text class="col-branch">支行</text>
-                <text class="col-score">总分</text>
-                <text class="col-score">必选</text>
-                <text class="col-score">加分</text>
+                <text class="col-score">总分（必选业务）</text>
               </view>
               <view
                 v-for="(item, index) in filteredPFOverviewData"
@@ -75,8 +76,6 @@
                 <text class="col-name employee-name">{{ item.userName }}</text>
                 <text class="col-branch">{{ item.branch || item.branchName || '-' }}</text>
                 <text class="col-score highlight">{{ item.totalScore }}</text>
-                <text class="col-score">{{ item.requiredScore }}</text>
-                <text class="col-score">{{ item.bonusScore }}</text>
               </view>
               <view v-if="filteredPFOverviewData.length === 0" class="empty-hint">暂无数据</view>
             </view>
@@ -91,22 +90,28 @@
             <text class="panel-title">必选业务</text>
             <button class="primary-btn small" @click="pfTaskCategory = 'required'; openPFTaskModal()">新增</button>
           </view>
+          <text class="panel-tip">提示：停用的业务不会在工作台显示，但历史数据保留；删除会永久移除业务及所有相关数据</text>
           <view class="pf-task-list">
             <view v-for="task in pfRequiredTasks" :key="task.taskId" class="pf-task-card">
               <view class="pf-task-main">
-                <text class="pf-task-name">{{ task.taskName }}</text>
-                <text v-if="!task.isActive" class="disabled-badge">已停用</text>
+                <view class="pf-task-header">
+                  <text class="pf-task-name">{{ task.taskName }}</text>
+                  <text v-if="!task.isActive" class="disabled-badge">已停用</text>
+                </view>
                 <text class="pf-task-meta">
                   单位：{{ task.unit }} · 权重 {{ task.scoreConfig.weightScore }}分 · 封顶 {{ task.scoreConfig.maxScore }}分
                 </text>
-                <text class="pf-task-meta" v-if="task.targetByRole">
-                  目标：客户经理 {{ task.targetByRole.manager }} / 大堂 {{ task.targetByRole.lobby_manager }} / 弹性 {{ task.targetByRole.elastic_counter }} / 柜面 {{ task.targetByRole.counter_manager }}
-                </text>
               </view>
               <view class="pf-task-actions">
-                <button class="link-btn" @click="openPFTaskModal(task)">编辑</button>
-                <button class="link-btn" @click="togglePFTaskStatus(task)">{{ task.isActive ? '停用' : '启用' }}</button>
-                <button class="link-btn danger" @click="deletePFTask(task)">删除</button>
+                <button class="action-icon-btn" @click="openPFTaskModal(task)">
+                  <uni-icons type="compose" :size="18" color="#0f766e" />
+                </button>
+                <button class="action-icon-btn" @click="togglePFTaskStatus(task)">
+                  <uni-icons :type="task.isActive ? 'eye-slash' : 'eye'" :size="18" :color="task.isActive ? '#64748b' : '#0f766e'" />
+                </button>
+                <button class="action-icon-btn danger" @click="deletePFTask(task)">
+                  <uni-icons type="trash" :size="18" color="#ef4444" />
+                </button>
               </view>
             </view>
             <view v-if="pfRequiredTasks.length === 0" class="empty-hint">暂无必选业务</view>
@@ -124,18 +129,96 @@
                 <text class="pf-task-name">{{ task.taskName }}</text>
                 <text v-if="!task.isActive" class="disabled-badge">已停用</text>
                 <text class="pf-task-meta">
-                  单位：{{ task.unit }} · {{ task.scoreConfig.unitPrice }}分/{{ task.unit }}
-                  <text v-if="task.scoreConfig.maxScore"> · 上限 {{ task.scoreConfig.maxScore }}分</text>
+                  单位：{{ task.unit }}
                 </text>
               </view>
               <view class="pf-task-actions">
-                <button class="link-btn" @click="openPFTaskModal(task)">编辑</button>
-                <button class="link-btn" @click="togglePFTaskStatus(task)">{{ task.isActive ? '停用' : '启用' }}</button>
-                <button class="link-btn danger" @click="deletePFTask(task)">删除</button>
+                <button class="action-icon-btn" @click="openPFTaskModal(task)">
+                  <uni-icons type="compose" :size="18" color="#0f766e" />
+                </button>
+                <button class="action-icon-btn" @click="togglePFTaskStatus(task)">
+                  <uni-icons :type="task.isActive ? 'eye-slash' : 'eye'" :size="18" :color="task.isActive ? '#64748b' : '#0f766e'" />
+                </button>
+                <button class="action-icon-btn danger" @click="deletePFTask(task)">
+                  <uni-icons type="trash" :size="18" color="#ef4444" />
+                </button>
               </view>
             </view>
             <view v-if="pfBonusTasks.length === 0" class="empty-hint">暂无加分业务</view>
           </view>
+        </view>
+      </view>
+
+      <!-- 任务分配 -->
+      <view v-else-if="activeTab === 'assignment'" class="tab-panel">
+        <view class="panel">
+          <view class="panel-header">
+            <text class="panel-title">任务分配</text>
+            <view class="assignment-mode-tabs">
+              <view class="mode-tab" :class="{ active: assignmentMode === 'by-business' }" @click="assignmentMode = 'by-business'">按业务</view>
+              <view class="mode-tab" :class="{ active: assignmentMode === 'by-employee' }" @click="assignmentMode = 'by-employee'">按员工</view>
+            </view>
+          </view>
+
+          <view class="assignment-filters">
+            <picker :range="pfPeriodOptions" :value="pfPeriodOptions.indexOf(assignmentPeriod)" @change="handleAssignmentPeriodChange">
+              <view class="filter-picker">{{ formatPeriod(assignmentPeriod) }}</view>
+            </picker>
+            <picker :range="branchFilterOptions" :range-key="'name'" :value="branchFilterIndex" @change="handleBranchFilterChange">
+              <view class="filter-picker">{{ branchFilterOptions[branchFilterIndex].name }}</view>
+            </picker>
+            <picker :range="assignmentRoleOptions" :range-key="'label'" :value="assignmentRoleIndex" @change="handleRoleFilterChange">
+              <view class="filter-picker">{{ assignmentRoleOptions[assignmentRoleIndex].label }}</view>
+            </picker>
+          </view>
+          <view class="assignment-search">
+            <input class="search-input" placeholder="搜索姓名或支行" v-model="assignmentSearchKeyword" />
+            <view class="filter-toggle" :class="{ active: showUnassignedOnly }" @click="toggleUnassignedFilter">仅看未分配</view>
+          </view>
+
+          <!-- 按业务分配 -->
+          <view v-if="assignmentMode === 'by-business'" class="assignment-by-business">
+            <view class="business-selector">
+              <view
+                v-for="task in filteredRequiredTasks"
+                :key="task.taskId"
+                class="business-chip"
+                :class="{ active: selectedTaskId === task.taskId }"
+                @click="selectedTaskId = task.taskId"
+              >
+                {{ task.taskName }}
+              </view>
+            </view>
+            <scroll-view v-if="selectedTaskId" scroll-y class="employee-assignment-list" @scrolltolower="onScrollToLower">
+              <view v-for="(emp, index) in filteredEmployees" :key="emp._id" class="assignment-card">
+                <text class="assignment-card-index">{{ index + 1 }}</text>
+                <view class="assignment-card-info">
+                  <text class="assignment-card-name">{{ emp.name }}</text>
+                  <text class="assignment-card-meta">{{ emp.branch }} · {{ getRoleDisplay(emp.role) }}</text>
+                </view>
+                <view class="assignment-card-input">
+                  <input class="target-input" type="number" :value="getEmployeeTarget(emp._id, selectedTaskId)" @blur="e => saveTarget(emp._id, selectedTaskId, e.detail.value)" placeholder="0" />
+                  <text class="input-unit">{{ pfRequiredTasks.find(t => t.taskId === selectedTaskId)?.unit || '' }}</text>
+                </view>
+              </view>
+              <view v-if="hasMoreEmployees" class="load-more-tip">向下滚动加载更多...</view>
+            </scroll-view>
+          </view>
+
+          <!-- 按员工分配 -->
+          <scroll-view v-else scroll-y class="assignment-by-employee" @scrolltolower="onScrollToLower">
+            <view v-for="(emp, index) in filteredEmployees" :key="emp._id" class="employee-card" @click="openEmployeeTaskModal(emp)">
+              <view class="emp-card-index">{{ index + 1 }}</view>
+              <view class="emp-card-info">
+                <text class="emp-card-name">{{ emp.name }}</text>
+                <text class="emp-card-meta">{{ emp.branch }} · {{ getRoleDisplay(emp.role) }}</text>
+              </view>
+              <view class="emp-card-arrow">
+                <uni-icons type="right" :size="20" color="#94a3b8" />
+              </view>
+            </view>
+            <view v-if="hasMoreEmployees" class="load-more-tip">向下滚动加载更多...</view>
+          </scroll-view>
         </view>
       </view>
 
@@ -161,7 +244,7 @@
               <uni-icons type="arrowup" :size="16" color="#64748b" />
             </view>
           </view>
-          <text class="panel-tip">提示：停用的员工将不会进行业务统计</text>
+          <text class="panel-tip">共 {{ filteredUsers.length }} 名员工 · 停用的员工将不会进行业务统计</text>
           <view class="user-card" v-for="user in filteredUsers" :key="user.id">
             <view>
               <text class="user-name">{{ user.name }}</text>
@@ -274,9 +357,9 @@
           </view>
 
           <!-- 积分配置 -->
-          <view class="score-section">
+          <view v-if="pfTaskForm.category === 'required'" class="score-section">
             <text class="score-section-title">积分配置</text>
-            <view v-if="pfTaskForm.category === 'required'" class="score-row">
+            <view class="score-row">
               <view class="score-field">
                 <text class="score-field-label">权重分</text>
                 <view class="score-input-wrap">
@@ -291,46 +374,6 @@
                   <input class="score-input" type="digit" v-model="pfTaskForm.scoreConfig.maxScore" placeholder="0" />
                   <text class="score-unit">分</text>
                 </view>
-              </view>
-            </view>
-            <view v-else class="score-row">
-              <view class="score-field">
-                <text class="score-field-label">单位分数</text>
-                <view class="score-input-wrap">
-                  <input class="score-input" type="digit" v-model="pfTaskForm.scoreConfig.unitPrice" placeholder="0" />
-                  <text class="score-unit">分/{{ pfTaskForm.unit }}</text>
-                </view>
-              </view>
-              <view class="score-divider" />
-              <view class="score-field">
-                <text class="score-field-label">上限分</text>
-                <view class="score-input-wrap">
-                  <input class="score-input" type="digit" v-model="pfTaskForm.scoreConfig.maxScore" placeholder="不限" />
-                  <text class="score-unit">分</text>
-                </view>
-              </view>
-            </view>
-          </view>
-
-          <!-- 角色月度目标 -->
-          <view v-if="pfTaskForm.category === 'required'" class="target-section">
-            <text class="score-section-title">各角色月度目标</text>
-            <view class="target-grid">
-              <view class="target-cell">
-                <text class="target-cell-label">客户经理</text>
-                <input class="target-cell-input" type="digit" v-model="pfTaskForm.targetByRole.manager" placeholder="0" />
-              </view>
-              <view class="target-cell">
-                <text class="target-cell-label">大堂经理</text>
-                <input class="target-cell-input" type="digit" v-model="pfTaskForm.targetByRole.lobby_manager" placeholder="0" />
-              </view>
-              <view class="target-cell">
-                <text class="target-cell-label">弹性柜面</text>
-                <input class="target-cell-input" type="digit" v-model="pfTaskForm.targetByRole.elastic_counter" placeholder="0" />
-              </view>
-              <view class="target-cell">
-                <text class="target-cell-label">柜面经理</text>
-                <input class="target-cell-input" type="digit" v-model="pfTaskForm.targetByRole.counter_manager" placeholder="0" />
               </view>
             </view>
           </view>
@@ -416,6 +459,7 @@
               v-model="section.itemsText"
               placeholder="每行一条规则说明，支持直接换行"
               :auto-height="true"
+              :maxlength="-1"
             />
           </view>
           <view class="rule-edit-add" @tap="addPFRuleSection">
@@ -429,18 +473,69 @@
         </view>
       </view>
     </view>
+
+    <!-- 员工任务配置弹窗 -->
+    <view v-if="showEmployeeTaskModal" class="modal-overlay" @tap.self="closeEmployeeTaskModal">
+      <view class="sheet-modal" @tap.stop>
+        <view class="sheet-header">
+          <view class="sheet-header-left">
+            <text class="sheet-title">{{ selectedEmployee?.name }} - 任务配置</text>
+            <text class="sheet-subtitle">{{ selectedEmployee?.branch }} · {{ getRoleDisplay(selectedEmployee?.role) }}</text>
+          </view>
+          <view class="sheet-close" @tap="closeEmployeeTaskModal">
+            <uni-icons type="closeempty" :size="20" color="#64748b" />
+          </view>
+        </view>
+        <scroll-view scroll-y class="sheet-body">
+          <view v-for="task in pfRequiredTasks" :key="task.taskId" class="task-config-row">
+            <text class="task-config-name">{{ task.taskName }}</text>
+            <view class="task-config-input-group">
+              <input class="task-config-input" type="number" :value="getEmployeeTarget(selectedEmployee?._id, task.taskId)" @blur="e => saveTarget(selectedEmployee?._id, task.taskId, e.detail.value)" placeholder="0" />
+              <text class="task-config-unit">{{ task.unit }}</text>
+            </view>
+          </view>
+        </scroll-view>
+      </view>
+    </view>
+
+    <!-- 重算积分模态框 -->
+    <view v-if="showRecalcModal" class="modal-overlay" @tap.self="showRecalcModal = false">
+      <view class="modal" @tap.stop>
+        <view class="modal-header">
+          <text>更新积分</text>
+          <view class="modal-close" @tap="showRecalcModal = false">
+            <uni-icons type="closeempty" :size="28" color="#fff" />
+          </view>
+        </view>
+        <view class="modal-body">
+          <view class="form-item">
+            <text class="form-label">选择角色</text>
+            <picker :range="pfRoleDisplayOptions" :value="recalcRoleIndex" @change="e => recalcRoleIndex = e.detail.value">
+              <view class="picker-value">{{ pfRoleDisplayOptions[recalcRoleIndex] }}</view>
+            </picker>
+          </view>
+        </view>
+        <view class="modal-footer">
+          <button class="ghost-btn" @tap="handleRecalc('role')">重算该角色</button>
+          <button class="primary-btn" @tap="handleRecalc('all')">重算全部</button>
+        </view>
+      </view>
+    </view>
   </view>
 </template>
 
 <script>
 import { StoreService } from '../../services/store.js';
+import { invalidateAllCache } from '../../services/pf-service.js';
 import * as tabMixins from '../admin/mixins';
+import pfAssignmentMixin from '../admin/mixins/pf-assignment-mixin.js';
 
 export default {
   mixins: [
     tabMixins.pfAdminMixin,
     tabMixins.usersTabMixin,
-    tabMixins.branchesTabMixin
+    tabMixins.branchesTabMixin,
+    pfAssignmentMixin
   ],
   data() {
     return {
@@ -448,19 +543,40 @@ export default {
       activeTab: 'overview',
       tabs: [
         { key: 'overview', label: '业绩汇总' },
-        { key: 'tasks', label: '业务管理' },
         { key: 'users', label: '用户管理' },
+        { key: 'tasks', label: '业务管理' },
+        { key: 'assignment', label: '任务分配' },
         { key: 'rules', label: '规则管理' },
         { key: 'settings', label: '系统设置' }
       ],
       pfRoleDisplayOptions: ['客户经理', '大堂经理', '弹性柜面', '柜面经理'],
-      pfRoleValueOptions: ['manager', 'lobby_manager', 'elastic_counter', 'counter_manager']
+      pfRoleValueOptions: ['manager', 'lobby_manager', 'elastic_counter', 'counter_manager'],
+      showRecalcModal: false,
+      recalcRoleIndex: 0
     };
   },
   async onShow() {
     await this.refresh();
   },
   methods: {
+    toggleUnassignedFilter() {
+      if (!this.showUnassignedOnly && this.assignmentEmployees.length > 50) {
+        uni.showLoading({ title: '计算中...', mask: true });
+        this.$nextTick(() => {
+          this.showUnassignedOnly = true;
+          uni.hideLoading();
+        });
+      } else {
+        this.showUnassignedOnly = !this.showUnassignedOnly;
+      }
+    },
+    handleTabChange(tabKey) {
+      if (tabKey === 'overview') this.loadPFOverview();
+      if (tabKey === 'tasks') this.refreshPFTasks();
+      if (tabKey === 'settings') this.loadPFSettings();
+      if (tabKey === 'rules') this.loadPFRuleContent();
+      if (tabKey === 'assignment') this.loadAssignmentData();
+    },
     async refresh() {
       try {
         await StoreService.ensureReady();
@@ -477,6 +593,36 @@ export default {
         ]);
       } catch (error) {
         uni.showToast({ title: error.message || '数据加载失败', icon: 'none' });
+      }
+    },
+    async handleRecalc(type) {
+      try {
+        uni.showLoading({ title: '正在重算积分...', mask: true });
+        const period = this.pfSelectedPeriod;
+        if (type === 'role') {
+          const role = this.pfRoleValueOptions[this.recalcRoleIndex];
+          await uniCloud.callFunction({
+            name: 'appService',
+            data: { action: 'recalcByRole', payload: { role, period, user: this.currentUser } }
+          });
+        } else {
+          await uniCloud.callFunction({
+            name: 'appService',
+            data: { action: 'recalcAll', payload: { period, user: this.currentUser } }
+          });
+        }
+
+        // 清除缓存并重新加载数据
+        invalidateAllCache();
+        StoreService.clearCache();
+        await this.loadPFOverview();
+
+        uni.hideLoading();
+        uni.showToast({ title: '重算完成', icon: 'success' });
+        this.showRecalcModal = false;
+      } catch (error) {
+        uni.hideLoading();
+        uni.showToast({ title: error.message || '重算失败', icon: 'none' });
       }
     }
   }
@@ -520,7 +666,7 @@ export default {
 .panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20rpx; }
 .panel-header--actions { flex-direction: column; align-items: stretch; gap: 16rpx; }
 .search-row { margin-bottom: 16rpx; }
-.panel-title { font-size: 32rpx; font-weight: 700; color: #0f172a; }
+.panel-title { font-size: 32rpx; font-weight: 700; color: #0f172a; flex: 1; }
 .panel-tip { display: block; font-size: 24rpx; color: #94a3b8; margin-bottom: 16rpx; }
 .title-with-quarter { display: flex; align-items: center; gap: 16rpx; }
 .quarter-picker { flex-shrink: 0; }
@@ -530,6 +676,7 @@ export default {
 
 /* 搜索框 */
 .search-input { display: block; width: 100%; height: 72rpx; line-height: 72rpx; padding: 0 24rpx; background: #f1f5f9; border-radius: 12rpx; font-size: 28rpx; box-sizing: border-box; }
+.recalc-btn { flex-shrink: 0; height: 72rpx; padding: 0 24rpx; background: #0f766e; color: #fff; border: none; border-radius: 12rpx; font-size: 26rpx; font-weight: 600; white-space: nowrap; display: flex; align-items: center; justify-content: center; }
 
 /* 角色筛选 */
 .role-filter-wrap { display: flex; align-items: flex-start; gap: 12rpx; background: #fff; border-radius: 12rpx; padding: 16rpx; margin-bottom: 16rpx; }
@@ -543,16 +690,14 @@ export default {
 /* 表格 */
 .table-wrapper { overflow-x: auto; }
 .table { min-width: 500rpx; }
-.table-row { display: flex; align-items: center; padding: 16rpx 12rpx; border-bottom: 1rpx solid #f1f5f9; font-size: 26rpx; color: #475569; }
+.table-row { display: flex; align-items: center; padding: 20rpx 16rpx; border-bottom: 1rpx solid #f1f5f9; font-size: 26rpx; color: #475569; }
 .overview-row { }
-.table-header { font-size: 22rpx; color: #94a3b8; font-weight: 600; background: #f8fafc; border-radius: 8rpx; border-bottom: none; padding: 12rpx 12rpx; }
+.table-header { font-size: 24rpx; color: #64748b; font-weight: 600; background: #f8fafc; border-radius: 8rpx; border-bottom: none; padding: 16rpx 16rpx; }
 /* 列宽定义 */
-.col-rank { width: 60rpx; flex-shrink: 0; text-align: center; }
-.col-name { width: 120rpx; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.col-branch { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 26rpx; padding: 0 4rpx; }
-.col-score { width: 72rpx; flex-shrink: 0; text-align: center; font-size: 26rpx; }
-.col-score:nth-child(4) { margin-left: -16rpx; }
-.col-score:nth-child(5) { margin-left: 8rpx; }
+.col-rank { width: 80rpx; flex-shrink: 0; text-align: center; }
+.col-name { width: 150rpx; flex-shrink: 0; font-weight: 600; text-align: center; }
+.col-branch { flex: 1; min-width: 140rpx; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center;}
+.col-score { width: 200rpx; flex-shrink: 0; text-align: center; font-weight: 600; white-space: nowrap; }
 .employee-name { color: #0f766e; font-weight: 600; }
 .highlight { color: #0f766e; font-weight: 700; font-size: 28rpx; }
 .clickable:active { background: #f0fdf4; }
@@ -564,12 +709,15 @@ export default {
 
 /* 任务卡片 */
 .pf-task-list { display: flex; flex-direction: column; gap: 16rpx; }
-.pf-task-card { background: #f8fafc; border-radius: 16rpx; padding: 24rpx; border: 1rpx solid #e2e8f0; display: flex; justify-content: space-between; align-items: flex-start; gap: 20rpx; }
+.pf-task-card { background: #fff; border-radius: 16rpx; padding: 24rpx; border: 1rpx solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; gap: 20rpx; }
 .pf-task-main { flex: 1; min-width: 0; }
-.pf-task-name { display: block; font-size: 30rpx; font-weight: 700; color: #0f172a; margin-bottom: 10rpx; }
-.pf-task-meta { display: block; font-size: 24rpx; color: #64748b; margin-top: 8rpx; line-height: 1.6; }
-.pf-task-actions { display: flex; flex-direction: column; gap: 8rpx; flex-shrink: 0; align-items: flex-end; }
-.disabled-badge { display: inline-block; font-size: 20rpx; color: #ef4444; background: #fee2e2; padding: 2rpx 10rpx; border-radius: 6rpx; margin-left: 12rpx; vertical-align: middle; }
+.pf-task-header { display: flex; align-items: center; gap: 12rpx; margin-bottom: 8rpx; }
+.pf-task-name { font-size: 28rpx; font-weight: 600; color: #0f172a; }
+.pf-task-meta { font-size: 24rpx; color: #64748b; line-height: 1.5; }
+.pf-task-actions { display: flex; gap: 8rpx; flex-shrink: 0; }
+.action-icon-btn { width: 56rpx; height: 56rpx; border-radius: 12rpx; background: #f8fafc; border: 1rpx solid #e2e8f0; display: flex; align-items: center; justify-content: center; padding: 0; }
+.action-icon-btn.danger { background: #fef2f2; border-color: #fecaca; }
+.disabled-badge { font-size: 20rpx; padding: 4rpx 12rpx; background: #f1f5f9; color: #64748b; border-radius: 999rpx; }
 
 /* 目标配置网格 */
 .target-role-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16rpx; margin-top: 8rpx; }
@@ -634,8 +782,9 @@ export default {
   background: #fff; border-radius: 24rpx 24rpx 0 0;
   border-bottom: 1rpx solid #f1f5f9;
 }
-.sheet-header-left { display: flex; align-items: center; gap: 12rpx; }
+.sheet-header-left { display: flex; flex-direction: column; align-items: flex-start; gap: 6rpx; }
 .sheet-title { font-size: 30rpx; font-weight: 700; color: #0f172a; }
+.sheet-subtitle { font-size: 24rpx; color: #64748b; }
 .sheet-type-tag { font-size: 20rpx; font-weight: 600; padding: 4rpx 14rpx; border-radius: 20rpx; }
 .tag-required { background: #ecfdf5; color: #0f766e; }
 .tag-bonus { background: #fffbeb; color: #d97706; }
@@ -645,8 +794,8 @@ export default {
   display: flex; gap: 16rpx; padding: 16rpx 28rpx 40rpx;
   background: #fff; border-top: 1rpx solid #f1f5f9;
 }
-.sheet-btn-cancel { flex: 1; height: 84rpx; background: #f1f5f9; color: #64748b; border: none; border-radius: 16rpx; font-size: 28rpx; }
-.sheet-btn-confirm { flex: 2; height: 84rpx; background: #0f766e; color: #fff; border: none; border-radius: 16rpx; font-size: 28rpx; font-weight: 600; }
+.sheet-btn-cancel { flex: 1; height: 84rpx; background: #f1f5f9; color: #64748b; border: none; border-radius: 16rpx; font-size: 28rpx; display: flex; align-items: center; justify-content: center; }
+.sheet-btn-confirm { flex: 2; height: 84rpx; background: #0f766e; color: #fff; border: none; border-radius: 16rpx; font-size: 28rpx; font-weight: 600; display: flex; align-items: center; justify-content: center; }
 
 /* 紧凑区块 */
 .compact-section { background: #fff; margin-bottom: 12rpx; padding: 0 28rpx; }
@@ -707,7 +856,58 @@ export default {
 .rule-edit-index { width: 40rpx; height: 40rpx; border-radius: 50%; background: #0f766e; color: #fff; font-size: 22rpx; font-weight: 700; text-align: center; line-height: 40rpx; flex-shrink: 0; }
 .rule-edit-title-input { flex: 1; font-size: 28rpx; font-weight: 600; color: #0f172a; background: transparent; }
 .rule-edit-del { width: 48rpx; height: 48rpx; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.rule-edit-textarea { display: block; width: 100%; min-height: 160rpx; padding: 20rpx; font-size: 26rpx; color: #475569; line-height: 1.8; box-sizing: border-box; background: #fff; }
+.rule-edit-textarea { display: block; width: 100%; min-height: 120rpx; padding: 20rpx; font-size: 26rpx; color: #475569; line-height: 1.8; box-sizing: border-box; background: #fff; }
 .rule-edit-add { display: flex; align-items: center; justify-content: center; gap: 10rpx; margin: 20rpx 24rpx; height: 80rpx; border: 2rpx dashed #0f766e; border-radius: 16rpx; background: #f0fdf4; }
 .rule-edit-add-text { font-size: 26rpx; color: #0f766e; font-weight: 600; }
+
+/* 任务分配 */
+.assignment-mode-tabs { display: flex; gap: 8rpx; background: rgba(15, 118, 110, 0.1); border-radius: 12rpx; padding: 4rpx; }
+.mode-tab { flex: 1; padding: 10rpx 24rpx; text-align: center; font-size: 24rpx; color: #64748b; border-radius: 8rpx; transition: all 0.2s; }
+.mode-tab.active { background: #0f766e; color: #fff; font-weight: 600; }
+
+.assignment-filters { display: flex; gap: 16rpx; margin: 24rpx 0; }
+.filter-picker { flex: 1; padding: 20rpx; background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 2rpx solid #e2e8f0; border-radius: 16rpx; font-size: 26rpx; font-weight: 600; color: #0f172a; text-align: center; box-shadow: 0 2rpx 8rpx rgba(15, 118, 110, 0.08); }
+.assignment-search { margin-bottom: 24rpx; display: flex; align-items: center; gap: 16rpx; }
+.assignment-search .search-input { flex: 1; height: 80rpx; line-height: 80rpx; padding: 0 24rpx; background: #f8fafc; border: 2rpx solid #e2e8f0; border-radius: 16rpx; font-size: 26rpx; color: #0f172a; box-sizing: border-box; }
+.filter-toggle { flex-shrink: 0; height: 80rpx; line-height: 80rpx; padding: 0 24rpx; background: #f8fafc; border: 2rpx solid #e2e8f0; border-radius: 16rpx; font-size: 26rpx; color: #64748b; white-space: nowrap; }
+.filter-toggle.active { background: #0f766e; color: #fff; font-weight: 600; }
+
+.business-selector { display: flex; flex-wrap: wrap; gap: 12rpx; margin-bottom: 24rpx; }
+.business-chip { padding: 12rpx 24rpx; background: #f1f5f9; border-radius: 20rpx; font-size: 24rpx; color: #64748b; border: 2rpx solid transparent; }
+.business-chip.active { background: #e0f2f1; color: #0f766e; border-color: #0f766e; font-weight: 600; }
+
+.employee-assignment-list { height: 800rpx; display: flex; flex-direction: column; gap: 12rpx; padding-bottom: 20rpx; }
+.load-more-tip { text-align: center; padding: 20rpx; font-size: 24rpx; color: #94a3b8; }
+.assignment-card { display: flex; align-items: center; gap: 16rpx; background: #f8fafc; border-radius: 12rpx; padding: 20rpx; border: 1rpx solid #e2e8f0; }
+.assignment-card-index { width: 48rpx; height: 48rpx; border-radius: 50%; background: #e0f2f1; color: #0f766e; font-size: 22rpx; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.assignment-card-info { flex: 1; }
+.assignment-card-name { display: block; font-size: 28rpx; font-weight: 600; color: #0f172a; }
+.assignment-card-meta { display: block; font-size: 24rpx; color: #64748b; margin-top: 4rpx; }
+.assignment-card-input { display: flex; align-items: center; gap: 12rpx; }
+.target-input { width: 140rpx; padding: 16rpx; border: 1rpx solid #e2e8f0; border-radius: 8rpx; text-align: center; font-size: 28rpx; background: #fff; }
+.input-unit { font-size: 24rpx; color: #64748b; min-width: 40rpx; }
+
+.employee-assignment-card { background: #fff; border-radius: 16rpx; padding: 20rpx; margin-bottom: 16rpx; }
+.emp-header { margin-bottom: 16rpx; }
+.emp-meta { font-size: 24rpx; color: #64748b; margin-top: 4rpx; }
+.task-targets { display: flex; flex-direction: column; gap: 12rpx; }
+.task-target-row { display: flex; align-items: center; gap: 12rpx; }
+.task-name { flex: 1; font-size: 26rpx; color: #475569; }
+.task-unit { font-size: 24rpx; color: #94a3b8; width: 60rpx; }
+
+.assignment-by-employee { height: 800rpx; padding-bottom: 20rpx; }
+.employee-card { display: flex; align-items: center; gap: 20rpx; padding: 24rpx; background: #fff; border-radius: 16rpx; margin-bottom: 16rpx; cursor: pointer; }
+.employee-card:active { background: #f8fafc; }
+.emp-card-index { width: 56rpx; height: 56rpx; border-radius: 50%; background: #e0f2f1; color: #0f766e; font-size: 24rpx; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.emp-card-info { flex: 1; }
+.emp-card-name { display: block; font-size: 28rpx; font-weight: 600; color: #0f172a; margin-bottom: 6rpx; }
+.emp-card-meta { font-size: 24rpx; color: #64748b; }
+.emp-card-arrow { flex-shrink: 0; }
+
+.task-config-row { display: flex; align-items: center; justify-content: space-between; padding: 16rpx 24rpx; background: #fff; border-bottom: 1rpx solid #f1f5f9; }
+.task-config-row:last-child { border-bottom: none; }
+.task-config-name { font-size: 28rpx; font-weight: 500; color: #0f172a; }
+.task-config-input-group { display: flex; align-items: center; gap: 12rpx; }
+.task-config-input { width: 120rpx; padding: 12rpx; border: 1rpx solid #cbd5e1; border-radius: 8rpx; text-align: center; font-size: 28rpx; font-weight: 600; background: #fff; }
+.task-config-unit { font-size: 24rpx; color: #64748b; min-width: 40rpx; }
 </style>

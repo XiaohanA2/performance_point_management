@@ -103,6 +103,22 @@
 			}
 		},
 		{
+			"path": "pages/knowledge/knowledge-smart-import",
+			"style": {
+				"navigationBarTitleText": "智能导入",
+				"navigationBarBackgroundColor": "#0f766e",
+				"navigationBarTextStyle": "white"
+			}
+		},
+		{
+			"path": "pages/knowledge/knowledge-batch-import",
+			"style": {
+				"navigationBarTitleText": "批量导入",
+				"navigationBarBackgroundColor": "#0f766e",
+				"navigationBarTextStyle": "white"
+			}
+		},
+		{
 			"path": "pages/questionnaire/questionnaire-list",
 			"style": {
 				"navigationBarTitleText": "问卷调查",

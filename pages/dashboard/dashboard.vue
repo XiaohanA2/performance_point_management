@@ -134,15 +134,17 @@
     <template v-if="systemMode === 'pf'">
       <ScoreDial
         v-if="currentUser"
-        :total-score="pfStats.totalScore"
+        :total-score="pfStats.requiredScore"
         :personal-score="pfStats.requiredScore"
-        :micro-score="pfStats.bonusScore"
+        :micro-score="0"
         :hide-bonus="true"
+        :hide-micro="true"
         :name="currentUser ? currentUser.name : ''"
         :rank="pfMyRank"
         :quarter="pfCurrentPeriod"
         :personal-label="'必选业务分'"
-        :micro-label="'加分业务分'"
+        :micro-label="'加分业务'"
+        :show-update-tip="true"
       />
 
       <view v-if="currentUser && currentUser.role === 'guest'" class="guest-banner">
@@ -179,7 +181,7 @@
           <text>必选业务</text>
           <text class="pf-tab-badge">{{ pfRequiredTasks.length }}</text>
         </view>
-        <view class="pf-tab" :class="{ active: pfActiveTab === 'bonus' }" @tap="pfActiveTab = 'bonus'">
+        <view class="pf-tab" :class="{ active: pfActiveTab === 'bonus', 'active-bonus': pfActiveTab === 'bonus' }" @tap="pfActiveTab = 'bonus'">
           <text>加分业务</text>
           <text class="pf-tab-badge bonus">{{ pfBonusTasks.length }}</text>
         </view>
@@ -188,19 +190,28 @@
       <!-- 必选业务网格 -->
       <view v-if="pfActiveTab === 'required'" class="pf-grid">
         <view v-for="task in pfRequiredTasks" :key="task.taskId" class="pf-grid-card" @tap="openPFModal(task)">
-          <view class="pf-grid-card__top">
+          <!-- 头部：图标 + 名称 + 已得分 -->
+          <view class="pf-grid-card__header">
             <view class="pf-grid-card__icon required">
-              <uni-icons type="star" :size="18" color="#0f766e" />
+              <uni-icons type="star" :size="20" color="#0f766e" />
             </view>
-            <text class="pf-grid-card__name">{{ task.taskName }}</text>
+            <view class="pf-grid-card__title-block">
+              <text class="pf-grid-card__name">{{ task.taskName }}</text>
+            </view>
+            <view class="pf-grid-card__score-block">
+              <text class="pf-grid-card__score-label">已得分</text>
+              <text class="pf-grid-card__score-value">{{ (task.score || 0).toFixed(1) }}</text>
+            </view>
           </view>
-          <!-- 进度：xx/xx 单位 · xx% -->
+
+          <!-- 进度行：完成/目标 + 百分比 -->
           <view class="pf-grid-card__progress-row">
             <text class="pf-grid-card__value">{{ task.totalValue || 0 }}</text>
             <text class="pf-grid-card__sep">/</text>
             <text class="pf-grid-card__target">{{ task.target || '?' }} {{ task.unit }}</text>
             <text class="pf-grid-card__pct" v-if="task.target"> · {{ Math.min(100, Math.round((task.totalValue || 0) / task.target * 100)) }}%</text>
           </view>
+
           <!-- 进度条 -->
           <view class="pf-grid-card__bar-wrap">
             <view class="pf-grid-card__bar-fill"
@@ -208,13 +219,12 @@
               :class="{ done: task.target && (task.totalValue || 0) >= task.target }"
             />
           </view>
-          <!-- 得分 + 排名 -->
-          <view class="pf-grid-card__foot">
-            <view class="pf-grid-card__score-block">
-              <text class="pf-grid-card__score">得 {{ (task.score || 0).toFixed(1) }} 分</text>
-              <text class="pf-grid-card__cap" v-if="task.scoreConfig && task.scoreConfig.maxScore">上限 {{ task.scoreConfig.maxScore }} 分</text>
-            </view>
-            <text class="pf-grid-card__rank" v-if="pfMyRank > 0 && pfGroupSize > 0">组内 {{ pfMyRank }}/{{ pfGroupSize }}</text>
+
+          <!-- 底部标签：组内平均 + 权重 + 封顶 -->
+          <view class="pf-grid-card__footer">
+            <text class="pf-grid-card__tag avg">组内平均 {{ task.groupAvg || 0 }} {{ task.unit }}</text>
+            <text class="pf-grid-card__tag" v-if="task.scoreConfig && task.scoreConfig.weightScore">权重 {{ task.scoreConfig.weightScore }} 分</text>
+            <text class="pf-grid-card__tag" v-if="task.scoreConfig && task.scoreConfig.maxScore">封顶 {{ task.scoreConfig.maxScore }} 分</text>
           </view>
         </view>
       </view>
@@ -222,22 +232,17 @@
       <!-- 加分业务网格 -->
       <view v-if="pfActiveTab === 'bonus'" class="pf-grid">
         <view v-for="task in pfBonusTasks" :key="task.taskId" class="pf-grid-card bonus" @tap="openPFModal(task)">
-          <view class="pf-grid-card__top">
+          <view class="pf-grid-card__header">
             <view class="pf-grid-card__icon bonus">
-              <uni-icons type="gift" :size="18" color="#f97316" />
+              <uni-icons type="gift" :size="20" color="#f97316" />
             </view>
-            <text class="pf-grid-card__name">{{ task.taskName }}</text>
-          </view>
-          <!-- 完成量 -->
-          <view class="pf-grid-card__progress-row">
-            <text class="pf-grid-card__value bonus">{{ task.totalValue || 0 }}</text>
-            <text class="pf-grid-card__target"> {{ task.unit }}</text>
-          </view>
-          <!-- 得分 + 上限 -->
-          <view class="pf-grid-card__foot">
-            <view class="pf-grid-card__score-block">
-              <text class="pf-grid-card__score bonus">+{{ (task.score || 0).toFixed(1) }} 分</text>
-              <text class="pf-grid-card__cap" v-if="task.scoreConfig && task.scoreConfig.maxScore">上限 {{ task.scoreConfig.maxScore }} 分</text>
+            <view class="pf-grid-card__title-block">
+              <text class="pf-grid-card__name">{{ task.taskName }}</text>
+              <text class="pf-grid-card__hint">仅记录 · 不计入系统积分</text>
+            </view>
+            <view class="pf-grid-card__bonus-value">
+              <text class="pf-grid-card__bonus-num">{{ task.totalValue || 0 }}</text>
+              <text class="pf-grid-card__bonus-unit">{{ task.unit }}</text>
             </view>
           </view>
         </view>
@@ -254,7 +259,7 @@
               </view>
               <text class="pf-submit-modal__title">{{ pfModalTask.taskName }}</text>
             </view>
-            <view class="pf-submit-modal__close" @tap="pfModalTask = null">
+            <view class="pf-submit-modal__close" @tap="closePFModal">
               <uni-icons type="closeempty" :size="20" color="rgba(255,255,255,0.7)" />
             </view>
           </view>
@@ -262,20 +267,22 @@
           <view class="pf-submit-modal__body">
             <!-- 必选业务：进度卡片 -->
             <view v-if="pfModalTask.category === 'required'" class="pf-submit-modal__progress-card">
-              <view class="pf-progress-row">
+              <view class="pf-progress-grid">
                 <view class="pf-progress-stat">
-                  <text class="pf-progress-stat__value">{{ pfModalTask.totalValue || 0 }}</text>
+                  <text class="pf-progress-stat__value">{{ pfModalTask.totalValue || 0 }} {{ pfModalTask.unit }}</text>
                   <text class="pf-progress-stat__label">已完成</text>
                 </view>
-                <view class="pf-progress-divider" />
                 <view class="pf-progress-stat">
-                  <text class="pf-progress-stat__value">{{ pfModalTask.target || '-' }}</text>
+                  <text class="pf-progress-stat__value">{{ pfModalTask.target || '-' }} {{ pfModalTask.unit }}</text>
                   <text class="pf-progress-stat__label">月度目标</text>
                 </view>
-                <view class="pf-progress-divider" />
                 <view class="pf-progress-stat">
-                  <text class="pf-progress-stat__value">{{ pfModalTask.unit }}</text>
-                  <text class="pf-progress-stat__label">单位</text>
+                  <text class="pf-progress-stat__value accent">{{ (pfModalTask.score || 0).toFixed(1) }} 分</text>
+                  <text class="pf-progress-stat__label">已得分</text>
+                </view>
+                <view class="pf-progress-stat">
+                  <text class="pf-progress-stat__value">{{ pfModalTask.scoreConfig?.weightScore || '-' }} 分</text>
+                  <text class="pf-progress-stat__label">权重分</text>
                 </view>
               </view>
               <view class="pf-progress-bar-wrap">
@@ -286,15 +293,15 @@
               </view>
             </view>
 
-            <!-- 加分业务：积分规则卡片 -->
-            <view v-else class="pf-submit-modal__rule-card">
-              <view class="pf-rule-item">
-                <text class="pf-rule-item__label">计分规则</text>
-                <text class="pf-rule-item__value">{{ pfModalTask.scoreConfig && pfModalTask.scoreConfig.unitPrice }} 分 / {{ pfModalTask.unit }}</text>
+            <!-- 加分业务：简洁卡片 -->
+            <view v-else class="pf-submit-modal__bonus-card">
+              <view class="pf-bonus-card__row">
+                <text class="pf-bonus-card__label">业务单位</text>
+                <text class="pf-bonus-card__value">{{ pfModalTask.unit }}</text>
               </view>
-              <view v-if="pfModalTask.scoreConfig && pfModalTask.scoreConfig.maxScore" class="pf-rule-item">
-                <text class="pf-rule-item__label">单项上限</text>
-                <text class="pf-rule-item__value accent">{{ pfModalTask.scoreConfig.maxScore }} 分</text>
+              <view class="pf-bonus-card__row">
+                <text class="pf-bonus-card__label">已完成</text>
+                <text class="pf-bonus-card__value accent">{{ pfModalTask.totalValue || 0 }} {{ pfModalTask.unit }}</text>
               </view>
             </view>
 
@@ -311,25 +318,6 @@
                 />
                 <text class="pf-submit-modal__unit">{{ pfModalTask.unit }}</text>
               </view>
-            </view>
-
-            <!-- 加分业务实时预览 -->
-            <view v-if="pfModalValue && parseFloat(pfModalValue) > 0 && pfModalTask.category === 'bonus'" class="pf-submit-modal__preview">
-              <text class="pf-submit-modal__preview-label">预计获得积分</text>
-              <text class="pf-submit-modal__preview-score">
-                +{{ (pfModalTask.scoreConfig && pfModalTask.scoreConfig.maxScore != null
-                  ? Math.min(pfModalTask.scoreConfig.maxScore, parseFloat(pfModalValue) * (pfModalTask.scoreConfig.unitPrice || 0))
-                  : parseFloat(pfModalValue) * (pfModalTask.scoreConfig && pfModalTask.scoreConfig.unitPrice || 0)
-                ).toFixed(1) }}
-              </text>
-            </view>
-
-            <!-- 必选业务提报后预览 -->
-            <view v-if="pfModalValue && parseFloat(pfModalValue) > 0 && pfModalTask.category === 'required'" class="pf-submit-modal__preview">
-              <text class="pf-submit-modal__preview-label">提报后累计完成</text>
-              <text class="pf-submit-modal__preview-score">
-                {{ (pfModalTask.totalValue || 0) + parseFloat(pfModalValue) }} {{ pfModalTask.unit }}
-              </text>
             </view>
           </view>
 
@@ -413,7 +401,7 @@ import QuestionnaireFloatButton from '../../components/QuestionnaireFloatButton.
 import { StoreService } from '../../services/store.js';
 import { getQuestionnaires } from '../../services/questionnaire-service.js';
 import { canSwitchSystem, getUserDefaultSystem } from '../../services/permission-service.js';
-import { getPFTasks, getPFMonthlyStats, submitPFRecord, getCurrentPeriod, formatPeriod, getPFSettings } from '../../services/pf-service.js';
+import { getPFTasks, getPFMonthlyStats, submitPFRecord, getCurrentPeriod, formatPeriod, getPFSettings, getEmployeeTasks, invalidateAllCache, getPFSubmissions } from '../../services/pf-service.js';
 
 export default {
   components: { ScoreDial, TaskCard, QuestionnaireFloatButton },
@@ -437,10 +425,11 @@ export default {
       newQuestionnaireCount: 0,
       myResponses: {},
       // 个金数据
-      pfStats: { totalScore: 0, requiredScore: 0, bonusScore: 0 },
+      pfStats: { totalScore: 0, requiredScore: 0 },
       pfMyRank: 0,
       pfGroupSize: 0,
       pfSelectedPeriod: getCurrentPeriod(),
+      pfUpdating: false,
       pfCurrentPeriod: formatPeriod(getCurrentPeriod()),
       pfRequiredTasks: [],
       pfBonusTasks: [],
@@ -448,6 +437,7 @@ export default {
       pfActiveTab: 'required',
       pfModalTask: null,
       pfModalValue: '',
+      pfSubmitting: false,
       keyboardHeight: 0,
       showPFRuleModal: false,
       pfRuleSections: [],
@@ -535,28 +525,46 @@ export default {
     async loadPFData() {
       if (!this.currentUser || !this.currentUser.id) return;
       try {
-        // 短暂延迟确保云函数重算完成
-        await new Promise(resolve => setTimeout(resolve, 300));
-        const [tasks, stats] = await Promise.all([
+        const [tasks, stats, employeeTasks, submissions] = await Promise.all([
           getPFTasks({ isActive: true }),
-          getPFMonthlyStats(this.currentUser.id, this.pfSelectedPeriod)
+          getPFMonthlyStats(this.currentUser.id, this.pfSelectedPeriod),
+          getEmployeeTasks(this.currentUser.id, this.pfSelectedPeriod),
+          getPFSubmissions({ userId: this.currentUser.id, period: this.pfSelectedPeriod })
         ]);
-        this.pfRequiredTasks = tasks.filter(t => t.category === 'required').map(t => ({ ...t, totalValue: 0, score: 0, benchmarkValue: 0 }));
-        this.pfBonusTasks = tasks.filter(t => t.category === 'bonus').map(t => ({ ...t, totalValue: 0, score: 0 }));
-        this.pfStats = { totalScore: stats.totalScore || 0, requiredScore: stats.requiredScore || 0, bonusScore: stats.bonusScore || 0 };
+
+        // 统计每个任务的完成数
+        const completionMap = {};
+        submissions.forEach(sub => {
+          completionMap[sub.taskId] = (completionMap[sub.taskId] || 0) + (sub.value || 0);
+        });
+
+        console.log('[Dashboard] completionMap:', completionMap);
+
+        // 构建任务目标映射
+        const targetMap = {};
+        employeeTasks.forEach(et => {
+          targetMap[et.taskId] = et.target;
+        });
+
+        this.pfRequiredTasks = tasks.filter(t => t.category === 'required').map(t => {
+          const target = targetMap[t.taskId] || (t.targetByRole ? t.targetByRole[this.currentUser.role] : null);
+          const totalValue = completionMap[t.taskId] || 0;
+          return { ...t, target, totalValue, score: 0, benchmarkValue: 0 };
+        });
+        this.pfBonusTasks = tasks.filter(t => t.category === 'bonus').map(t => {
+          const totalValue = completionMap[t.taskId] || 0;
+          return { ...t, totalValue };
+        });
+        this.pfStats = { totalScore: stats.requiredScore || 0, requiredScore: stats.requiredScore || 0 };
         this.pfMyRank = stats.rank || 0;
         this.pfGroupSize = stats.groupSize || 0;
         this.pfCurrentPeriod = formatPeriod(this.pfSelectedPeriod);
+
+        // 更新积分（来自 stats）
         if (stats.requiredTasks) {
           this.pfRequiredTasks = this.pfRequiredTasks.map(t => {
             const s = stats.requiredTasks.find(x => x.taskId === t.taskId);
-            return s ? { ...t, totalValue: s.totalValue, score: s.score, benchmarkValue: s.benchmarkValue } : t;
-          });
-        }
-        if (stats.bonusTasks) {
-          this.pfBonusTasks = this.pfBonusTasks.map(t => {
-            const s = stats.bonusTasks.find(x => x.taskId === t.taskId);
-            return s ? { ...t, totalValue: s.totalValue, score: s.score } : t;
+            return s ? { ...t, score: s.score, benchmarkValue: s.benchmarkValue, groupAvg: s.groupAvg } : t;
           });
         }
       } catch (error) {
@@ -591,11 +599,37 @@ export default {
       };
     },
     async handlePFSubmit(task, payload) {
+      // 防重复提交
+      if (this.pfSubmitting) {
+        uni.showToast({ title: '提交中，请稍候...', icon: 'none' });
+        return;
+      }
+
       try {
-        await submitPFRecord({ taskId: task.taskId, date: payload.date || new Date().toISOString().split('T')[0], value: payload.value });
+        this.pfSubmitting = true;
+
+        // 提交到云端
+        const result = await submitPFRecord({
+          taskId: task.taskId,
+          date: payload.date || new Date().toISOString().split('T')[0],
+          value: payload.value
+        });
+
+        if (result.duplicate) {
+          uni.showToast({ title: '今日已提报该业务', icon: 'none' });
+          this.pfSubmitting = false;
+          return;
+        }
+
         uni.showToast({ title: '提交成功', icon: 'success' });
+
+        // 立即刷新数据
+        invalidateAllCache();
+        StoreService.clearCache();
         await this.loadPFData();
+        this.pfSubmitting = false;
       } catch (error) {
+        this.pfSubmitting = false;
         uni.showToast({ title: error.message || '提交失败', icon: 'none' });
       }
     },
@@ -637,29 +671,57 @@ export default {
       }
       this.showPFRuleModal = true;
     },
+    updatePFTaskOptimistic(taskId, value) {
+      // 乐观更新：立即更新本地任务完成数
+      const requiredTask = this.pfRequiredTasks.find(t => t.taskId === taskId);
+      if (requiredTask) {
+        requiredTask.completed = (requiredTask.completed || 0) + value;
+      }
+      const bonusTask = this.pfBonusTasks.find(t => t.taskId === taskId);
+      if (bonusTask) {
+        bonusTask.completed = (bonusTask.completed || 0) + value;
+      }
+    },
     async confirmPFModalSubmit() {
       if (!this.pfModalValue || parseFloat(this.pfModalValue) <= 0) {
         uni.showToast({ title: '请输入有效数量', icon: 'none' });
         return;
       }
       try {
-        uni.showLoading({ title: '提报中...' });
-        await submitPFRecord({
+        console.log('[提报] 开始提报:', this.pfModalTask.taskId, this.pfModalValue);
+        uni.showLoading({ title: '提报中...', mask: true });
+
+        const result = await submitPFRecord({
           taskId: this.pfModalTask.taskId,
           value: parseFloat(this.pfModalValue),
           date: new Date().toISOString().split('T')[0],
           period: this.pfSelectedPeriod
         });
-        uni.showToast({ title: '提报成功', icon: 'success' });
-        this.pfModalTask = null;
-        this.pfModalValue = '';
-        this.keyboardHeight = 0;
-        uni.offKeyboardHeightChange();
+
+        console.log('[提报] 提报成功，返回结果:', result);
+
+        const isRequired = this.pfModalTask.category === 'required';
+        const totalValue = result.totalValue || 0;
+        const unit = this.pfModalTask.unit || '';
+
+        this.closePFModal();
         await this.loadPFData();
-      } catch (error) {
-        uni.showToast({ title: error.message || '提报失败', icon: 'none' });
-      } finally {
         uni.hideLoading();
+
+        if (isRequired) {
+          uni.showModal({
+            title: '提报成功',
+            content: `已完成 ${totalValue}${unit}，积分将在每天12:00和24:00更新`,
+            showCancel: false,
+            confirmText: '知道了'
+          });
+        } else {
+          uni.showToast({ title: '提报成功', icon: 'success' });
+        }
+      } catch (error) {
+        console.error('[提报] 提报失败:', error);
+        uni.hideLoading();
+        uni.showToast({ title: error.message || '提报失败', icon: 'none' });
       }
     },
     formatPeriod,
@@ -914,6 +976,23 @@ export default {
 .pf-task-arrow.collapsed { transform: rotate(-90deg); }
 .pf-task-body { margin-top: 16rpx; }
 
+/* 加分业务说明 */
+.bonus-tip {
+  margin: 0 32rpx 16rpx;
+  padding: 16rpx 20rpx;
+  background: #fffbeb;
+  border: 1rpx solid #fbbf24;
+  border-radius: 12rpx;
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+.bonus-tip-text {
+  font-size: 24rpx;
+  color: #92400e;
+  line-height: 1.5;
+}
+
 /* 个金 Tab */
 .pf-tabs {
   display: flex;
@@ -939,6 +1018,9 @@ export default {
   font-weight: 600;
   box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.08);
 }
+.pf-tab.active-bonus {
+  color: #f97316;
+}
 .pf-tab-badge {
   font-size: 22rpx;
   background: #e2e8f0;
@@ -946,86 +1028,135 @@ export default {
   padding: 2rpx 10rpx;
   border-radius: 999rpx;
 }
+.pf-tab-badge.bonus {
+  background: #e2e8f0;
+  color: #64748b;
+}
 .pf-tab.active .pf-tab-badge {
   background: #dcfce7;
   color: #0f766e;
 }
-.pf-tab-badge.bonus { background: #ffedd5; color: #f97316; }
+.pf-tab.active .pf-tab-badge.bonus {
+  background: #ffedd5;
+  color: #f97316;
+}
 
 /* 个金网格卡片 */
 .pf-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  display: flex;
+  flex-direction: column;
   gap: 16rpx;
   padding: 0 32rpx;
 }
 .pf-grid-card {
   background: #fff;
-  border-radius: 20rpx;
+  border-radius: 24rpx;
   padding: 20rpx;
-  box-shadow: 0 4rpx 12rpx rgba(15,118,110,0.07);
+  box-shadow: 0 8rpx 24rpx rgba(15,118,110,0.08);
   display: flex;
   flex-direction: column;
-  gap: 8rpx;
+  gap: 10rpx;
   cursor: pointer;
   border: 2rpx solid transparent;
 }
 .pf-grid-card:active { opacity: 0.85; }
-.pf-grid-card.bonus { box-shadow: 0 4rpx 12rpx rgba(249,115,22,0.07); }
+.pf-grid-card.bonus {
+  box-shadow: 0 8rpx 24rpx rgba(249,115,22,0.08);
+  padding: 32rpx 28rpx;
+}
 
-.pf-grid-card__top {
+.pf-grid-card__header {
   display: flex;
   align-items: center;
-  gap: 8rpx;
+  gap: 16rpx;
 }
 .pf-grid-card__icon {
-  width: 40rpx;
-  height: 40rpx;
-  border-radius: 10rpx;
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 18rpx;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
-.pf-grid-card__icon.required { background: rgba(15,118,110,0.1); }
-.pf-grid-card__icon.bonus { background: rgba(249,115,22,0.1); }
+.pf-grid-card__icon.required { background: rgba(15,118,110,0.12); }
+.pf-grid-card__icon.bonus { background: rgba(249,115,22,0.12); }
 
-.pf-grid-card__name {
-  font-size: 26rpx;
-  font-weight: 600;
-  color: #0f172a;
-  line-height: 1.3;
+.pf-grid-card__title-block {
   flex: 1;
   min-width: 0;
 }
+.pf-grid-card__name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #0f172a;
+  line-height: 1.4;
+  display: block;
+}
+.pf-grid-card__hint {
+  font-size: 22rpx;
+  color: #94a3b8;
+  margin-top: 4rpx;
+  display: block;
+}
+.pf-grid-card__score-block {
+  text-align: right;
+  flex-shrink: 0;
+}
+.pf-grid-card__score-label {
+  display: block;
+  font-size: 24rpx;
+  color: #94a3b8;
+  margin-bottom: 4rpx;
+}
+.pf-grid-card__score-value {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #0f766e;
+}
+
 .pf-grid-card__progress-row {
   display: flex;
   align-items: baseline;
-  gap: 2rpx;
+  gap: 4rpx;
   flex-wrap: nowrap;
 }
 .pf-grid-card__value {
-  font-size: 30rpx;
+  font-size: 36rpx;
   font-weight: 700;
   color: #0f766e;
 }
 .pf-grid-card__value.bonus { color: #f97316; }
 .pf-grid-card__sep {
-  font-size: 22rpx;
+  font-size: 26rpx;
   color: #cbd5e1;
-  margin: 0 1rpx;
+  margin: 0 2rpx;
 }
 .pf-grid-card__target {
-  font-size: 22rpx;
+  font-size: 26rpx;
+  color: #94a3b8;
+}
+.pf-grid-card__bonus-value {
+  text-align: right;
+  flex-shrink: 0;
+}
+.pf-grid-card__bonus-num {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #f97316;
+  margin-right: 4rpx;
+}
+.pf-grid-card__bonus-unit {
+  font-size: 24rpx;
   color: #94a3b8;
 }
 .pf-grid-card__pct {
-  font-size: 22rpx;
+  font-size: 26rpx;
   color: #64748b;
   font-weight: 500;
 }
 .pf-grid-card__bar-wrap {
-  height: 6rpx;
+  height: 8rpx;
   background: #f1f5f9;
   border-radius: 999rpx;
   overflow: hidden;
@@ -1037,44 +1168,26 @@ export default {
   transition: width 0.3s ease;
 }
 .pf-grid-card__bar-fill.done { background: #10b981; }
-.pf-grid-card__foot {
+
+.pf-grid-card__footer {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8rpx;
-  flex-wrap: nowrap;
+  gap: 12rpx;
+  flex-wrap: wrap;
 }
-.pf-grid-card__score-block {
-  display: flex;
-  align-items: center;
-  gap: 8rpx;
-  flex-wrap: nowrap;
-  flex: 1;
-  min-width: 0;
-}
-.pf-grid-card__score {
+.pf-grid-card__tag {
   font-size: 22rpx;
-  color: #0f766e;
-  font-weight: 600;
-  white-space: nowrap;
-}
-.pf-grid-card__score.bonus { color: #f97316; }
-.pf-grid-card__cap {
-  font-size: 20rpx;
-  color: #94a3b8;
-  background: #f8fafc;
-  border-radius: 6rpx;
-  padding: 2rpx 8rpx;
-  white-space: nowrap;
-}
-.pf-grid-card__rank {
-  font-size: 20rpx;
   color: #64748b;
   background: #f1f5f9;
-  border-radius: 6rpx;
-  padding: 2rpx 8rpx;
+  border-radius: 8rpx;
+  padding: 6rpx 14rpx;
   white-space: nowrap;
-  flex-shrink: 0;
+  border: 1rpx solid #e2e8f0;
+}
+.pf-grid-card__tag.avg {
+  color: #0f766e;
+  background: #ecfdf5;
+  border-color: #a7f3d0;
 }
 
 /* 个金提报弹窗 */
@@ -1163,35 +1276,37 @@ export default {
   border: 1rpx solid #bbf7d0;
 }
 
-.pf-progress-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  margin-bottom: 20rpx;
+.pf-progress-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20rpx;
+  margin-bottom: 24rpx;
 }
 
 .pf-progress-stat {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6rpx;
+  gap: 8rpx;
+  padding: 16rpx;
+  background: rgba(255,255,255,0.5);
+  border-radius: 12rpx;
 }
 
 .pf-progress-stat__value {
-  font-size: 40rpx;
+  font-size: 32rpx;
   font-weight: 700;
   color: #0f766e;
+}
+
+.pf-progress-stat__value.accent {
+  color: #f97316;
+  font-size: 36rpx;
 }
 
 .pf-progress-stat__label {
   font-size: 22rpx;
   color: #6b7280;
-}
-
-.pf-progress-divider {
-  width: 1rpx;
-  height: 48rpx;
-  background: #d1fae5;
 }
 
 .pf-progress-bar-wrap {
@@ -1221,6 +1336,45 @@ export default {
   color: #0f766e;
   min-width: 60rpx;
   text-align: right;
+}
+
+/* 加分业务简洁卡片 */
+.pf-submit-modal__bonus-card {
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 24rpx;
+  border: 1rpx solid #fbbf24;
+}
+
+.pf-bonus-card__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12rpx 0;
+}
+
+.pf-bonus-card__row + .pf-bonus-card__row {
+  border-top: 1rpx solid #fde68a;
+  margin-top: 8rpx;
+  padding-top: 20rpx;
+}
+
+.pf-bonus-card__label {
+  font-size: 26rpx;
+  color: #92400e;
+  font-weight: 500;
+}
+
+.pf-bonus-card__value {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #78350f;
+}
+
+.pf-bonus-card__value.accent {
+  color: #f59e0b;
+  font-size: 36rpx;
 }
 
 /* 加分业务规则卡片 */
@@ -1487,6 +1641,115 @@ export default {
   background: linear-gradient(135deg, #0f766e, #0ea5e9);
   color: #fff;
   box-shadow: 0 8rpx 20rpx rgba(15, 118, 110, 0.25);
+}
+
+/* 个贷分类区域 */
+.category-section {
+  padding: 0 32rpx;
+  margin-bottom: 32rpx;
+}
+.category-section__title {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 16rpx;
+  font-size: 28rpx;
+  color: #0f766e;
+  font-weight: 600;
+}
+
+/* 个贷网格卡片 */
+.credit-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+.credit-card {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 24rpx;
+  box-shadow: 0 4rpx 12rpx rgba(15,118,110,0.08);
+  cursor: pointer;
+}
+.credit-card:active { opacity: 0.85; }
+
+.credit-card__header {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 16rpx;
+}
+.credit-card__icon {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 14rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.credit-card__name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #0f172a;
+  flex: 1;
+}
+
+.credit-card__stats {
+  display: flex;
+  gap: 24rpx;
+}
+.credit-card__stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+.credit-card__stat-label {
+  font-size: 22rpx;
+  color: #94a3b8;
+}
+.credit-card__stat-value {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #0f766e;
+}
+
+/* 个贷提报弹窗 */
+.credit-submit-modal {
+  width: 90%;
+  max-width: 680rpx;
+  background: #fff;
+  border-radius: 28rpx;
+  overflow: hidden;
+  box-shadow: 0 20rpx 60rpx rgba(0,0,0,0.15);
+}
+.credit-submit-modal__header {
+  background: linear-gradient(135deg, #0f766e 0%, #0ea5e9 100%);
+  color: #fff;
+  padding: 28rpx 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.credit-submit-modal__title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #fff;
+  flex: 1;
+}
+.credit-submit-modal__close {
+  width: 56rpx;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  flex-shrink: 0;
+}
+.credit-submit-modal__body {
+  padding: 0;
 }
 
 </style>

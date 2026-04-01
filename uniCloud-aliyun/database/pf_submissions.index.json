@@ -1,0 +1,28 @@
+[{
+  "IndexName": "userId_period_taskId",
+  "MgoKeySchema": {
+    "MgoIndexKeys": [{
+      "Name": "userId",
+      "Direction": "1"
+    }, {
+      "Name": "period",
+      "Direction": "1"
+    }, {
+      "Name": "taskId",
+      "Direction": "1"
+    }],
+    "MgoIsUnique": false
+  }
+}, {
+  "IndexName": "period_userId",
+  "MgoKeySchema": {
+    "MgoIndexKeys": [{
+      "Name": "period",
+      "Direction": "1"
+    }, {
+      "Name": "userId",
+      "Direction": "1"
+    }],
+    "MgoIsUnique": false
+  }
+}]

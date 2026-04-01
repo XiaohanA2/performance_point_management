@@ -45,8 +45,14 @@
           <text class="task-card__title">{{ rule.name }}</text>
         </view>
         <view class="task-card__score">
-          <text class="task-card__score-label">笔数分</text>
-          <text class="task-card__score-value">{{ currentPointConfig.item }}/笔</text>
+          <view class="task-card__score-item">
+            <text class="task-card__score-label">笔数分</text>
+            <text class="task-card__score-value">{{ currentPointConfig.item }}/笔</text>
+          </view>
+          <view class="task-card__score-item">
+            <text class="task-card__score-label">金额分</text>
+            <text class="task-card__score-value">{{ currentPointConfig.million }}/百万</text>
+          </view>
         </view>
       </view>
 
@@ -225,7 +231,7 @@ export default {
   border-radius: 28rpx;
   padding: 32rpx;
   box-shadow: 0 20rpx 60rpx rgba(15, 118, 110, 0.08);
-  margin-bottom: 32rpx;
+  margin-bottom: 16rpx;
 }
 
 .task-card__header {
@@ -255,6 +261,11 @@ export default {
 }
 
 .task-card__score {
+  display: flex;
+  gap: 16rpx;
+}
+
+.task-card__score-item {
   text-align: right;
 }
 

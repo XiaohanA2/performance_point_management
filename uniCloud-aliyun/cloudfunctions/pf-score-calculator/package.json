@@ -1,0 +1,6 @@
+{
+  "name": "pf-score-calculator",
+  "triggers": [{
+    "type": "message"
+  }]
+}

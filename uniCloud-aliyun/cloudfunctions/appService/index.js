@@ -21,6 +21,9 @@ const hasRole = (user, ...roleList) => {
 // 导入个金业务默认配置
 const { DEFAULT_PF_TASKS } = require('./constants/pf-default-tasks.js');
 
+// 导入迁移脚本
+const { migrateBranchId } = require('./migrations/add-branch-id-to-users.js');
+
 // 导入action模块
 const permissionActions = require('./actions/permission.js');
 const roleActions = require('./actions/role-actions.js');
@@ -43,7 +46,8 @@ const collections = {
   // 个金业务集合
   pfTasks: db.collection('pf_tasks'),
   pfSubmissions: db.collection('pf_submissions'),
-  pfMonthlyStats: db.collection('pf_monthly_stats')
+  pfMonthlyStats: db.collection('pf_monthly_stats'),
+  pfEmployeeTasks: db.collection('pf_employee_tasks')
 };
 
 const sanitizeUser = user => {
@@ -132,8 +136,8 @@ async function getAllData(collection, query = {}) {
     if (Object.keys(whereCondition).length > 0) {
       q = q.where(whereCondition);
     }
-    
-    const res = await q.limit(1000).get();
+
+    const res = await q.orderBy('_id', 'asc').limit(1000).get();
     if (res.data.length === 0) {
       hasMore = false;
     } else {
@@ -181,16 +185,13 @@ async function bootstrap() {
     settingsDoc.currentQuarter = currentQuarter;
   }
   
-  // 构建 branchId -> branchName 映射，join 到用户对象
+  // 确保 branch 字段与 branchId 同步
   const branchMap = {};
   branchesData.forEach(b => { branchMap[b.id] = b.name; });
   const usersWithBranch = usersData.map(user => {
     const sanitized = sanitizeUser(user);
-    if (sanitized.branchId) {
-      sanitized.branchName = branchMap[sanitized.branchId] || sanitized.branch || '';
-    } else {
-      // 兼容旧数据：没有 branchId 时直接用 branch 字段
-      sanitized.branchName = sanitized.branch || '';
+    if (sanitized.branchId && branchMap[sanitized.branchId]) {
+      sanitized.branch = branchMap[sanitized.branchId];
     }
     return sanitized;
   });
@@ -272,12 +273,21 @@ async function updateUser(payload) {
       .count();
     if (exists.total > 0) throw new Error('手机号已存在');
   }
+
+  // 删除 branchName 字段（这是计算字段，不应存储）
+  const cleanUpdates = { ...updates };
+  delete cleanUpdates.branchName;
+
   await collections.users.doc(id).update({
-    ...updates,
+    ...cleanUpdates,
     updatedAt: Date.now()
   });
   const { data } = await collections.users.doc(id).get();
-  return sanitizeUser(data[0]);
+  const user = sanitizeUser(data[0]);
+
+  // 删除计算字段，避免前端缓存
+  delete user.branchName;
+  return user;
 }
 
 async function toggleUserStatus({ id }) {
@@ -335,6 +345,12 @@ async function updateBranch(payload) {
     if (exists.total > 0) throw new Error('支行编号或名称已存在');
   }
   await collections.branches.where({ id }).update({ id: nextId, name: nextName });
+
+  // 同步更新用户表的支行名称（保持 branch 字段用于显示）
+  if (nextName !== data[0].name) {
+    await collections.users.where({ branchId: id }).update({ branch: nextName });
+  }
+
   return { id: nextId, name: nextName };
 }
 
@@ -384,12 +400,16 @@ async function addSubmission(payload) {
   return doc;
 }
 
-async function updateSubmission(payload, context) {
-  const { id, updates } = payload;
-  const user = context?.user;
+async function updateSubmission(payload) {
+  const { id, updates, userId } = payload;
 
   if (!id) throw new Error('缺少提报ID');
-  if (!user) throw new Error('未登录');
+  if (!userId) throw new Error('未登录');
+
+  // 获取当前用户信息
+  const { data: userData } = await collections.users.doc(userId).get();
+  if (!userData || userData.length === 0) throw new Error('用户不存在');
+  const user = userData[0];
 
   // 获取原记录
   const { data } = await collections.submissions.doc(id).get();
@@ -417,12 +437,16 @@ async function updateSubmission(payload, context) {
   return updatedData[0];
 }
 
-async function deleteSubmission(payload, context) {
-  const { id } = payload;
-  const user = context?.user;
+async function deleteSubmission(payload) {
+  const { id, userId } = payload;
 
   if (!id) throw new Error('缺少提报ID');
-  if (!user) throw new Error('未登录');
+  if (!userId) throw new Error('未登录');
+
+  // 获取当前用户信息
+  const { data: userData } = await collections.users.doc(userId).get();
+  if (!userData || userData.length === 0) throw new Error('用户不存在');
+  const user = userData[0];
 
   // 获取原记录
   const { data } = await collections.submissions.doc(id).get();
@@ -545,6 +569,9 @@ exports.main = async (event, context) => {
       case 'checkDefaultPassword':
         data = await checkDefaultPassword(payload);
         break;
+      case 'migrateBranchId':
+        data = await migrateBranchId();
+        break;
       case 'addBranch':
         data = await addBranch(payload);
         break;
@@ -567,10 +594,10 @@ exports.main = async (event, context) => {
         data = await addSubmission(payload);
         break;
       case 'updateSubmission':
-        data = await updateSubmission(payload, context);
+        data = await updateSubmission(payload);
         break;
       case 'deleteSubmission':
-        data = await deleteSubmission(payload, context);
+        data = await deleteSubmission(payload);
         break;
       case 'switchQuarter':
         data = await switchQuarter(payload);
@@ -646,8 +673,24 @@ exports.main = async (event, context) => {
       case 'importKnowledge':
         data = await knowledgeActions.importKnowledge(payload);
         break;
+      case 'smartImportKnowledge':
+        data = await knowledgeActions.smartImportKnowledge(payload);
+        break;
+      case 'parseDocumentFile':
+        data = await knowledgeActions.parseDocumentFile(payload);
+        break;
+      case 'batchParseKnowledge':
+        data = await knowledgeActions.batchParseKnowledge(payload);
+        break;
+      case 'parseExcelForBatch':
+        data = await knowledgeActions.parseExcelForBatch(payload);
+        break;
       case 'incrementKnowledgeViews':
         data = await knowledgeActions.incrementKnowledgeViews(payload);
+        break;
+      case 'importKnowledgeData':
+        const importScript = require('./import-knowledge-data.js');
+        data = await importScript.main(event, context);
         break;
 
       // 问卷管理相关actions
@@ -752,8 +795,23 @@ exports.main = async (event, context) => {
       case 'getAllPFSubmissions':
         data = await pfActions.getAllPFSubmissions(payload, context);
         break;
+      case 'exportPFData':
+        data = await pfActions.exportPFData(payload, context);
+        break;
       case 'recalculatePFStats':
         data = await pfActions.recalculatePFStats(payload, context);
+        break;
+      case 'recalcByRole':
+        data = await pfActions.recalcByRole(payload, context);
+        break;
+      case 'recalcAll':
+        data = await pfActions.recalcAll(payload, context);
+        break;
+      case 'rebuildUserTaskTotals':
+        data = await pfActions.rebuildUserTaskTotals(payload, context);
+        break;
+      case 'cleanPeriodData':
+        data = await pfActions.cleanPeriodData(payload, context);
         break;
       case 'getLobbyManagers':
         data = await db.collection('users').where({ role: 'lobby_manager', status: 'active' }).field({ _id: true, name: true, branch: true }).get().then(r => r.data);
@@ -767,6 +825,39 @@ exports.main = async (event, context) => {
       case 'migratePFTasks': {
         const { migratePFTasks } = require('./fix-pf-tasks.js');
         data = await migratePFTasks();
+        break;
+      }
+      case 'getEmployees':
+        data = await pfActions.getEmployees(payload, context);
+        break;
+      case 'saveEmployeeTask':
+        data = await pfActions.saveEmployeeTask(payload, context);
+        break;
+      case 'getEmployeeTasks':
+        data = await pfActions.getEmployeeTasks(payload, context);
+        break;
+      case 'batchSaveEmployeeTasks':
+        data = await pfActions.batchSaveEmployeeTasks(payload, context);
+        break;
+      case 'clearEmployeeTasks':
+        data = await pfActions.clearEmployeeTasks(payload, context);
+        break;
+      case 'copyPreviousMonthTasks':
+        data = await pfActions.copyPreviousMonthTasks(payload, context);
+        break;
+      case 'importEmployeeTasks': {
+        const { importEmployeeTasks } = require('./import-tasks.js');
+        data = await importEmployeeTasks(payload);
+        break;
+      }
+      case 'generatePfTestData': {
+        const { generatePfTestData } = require('./generate-pf-test-data.js');
+        data = await generatePfTestData();
+        break;
+      }
+      case 'cleanAndRecalculatePFStats': {
+        const { cleanAndRecalculatePFStats } = require('./clean-pf-stats.js');
+        data = await cleanAndRecalculatePFStats(payload);
         break;
       }
 

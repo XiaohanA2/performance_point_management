@@ -96,10 +96,12 @@
           </view>
           <view class="form-item">
             <text class="form-label">所属支行</text>
-            <picker class="form-picker" @change="onBranchChange" :value="selectedBranchIndex" :range="branchList">
-              <view class="picker-content">
-                {{ editForm.branch || '请选择所属支行' }}
-                <uni-icons type="arrowdown" :size="16" color="#64748b" />
+            <picker @change="onBranchChange" :value="selectedBranchIndex" :range="branchList">
+              <view class="form-picker">
+                <view class="picker-content">
+                  {{ editForm.branch || '请选择所属支行' }}
+                  <uni-icons type="arrowdown" :size="16" color="#64748b" />
+                </view>
               </view>
             </picker>
           </view>

@@ -1,4 +1,4 @@
-import { getPFTasks, getPFRankings, getCurrentPeriod, formatPeriod, getPFSettings, updatePFSettings } from '../../../services/pf-service.js';
+import { getPFTasks, getPFRankings, getCurrentPeriod, formatPeriod, getPFSettings, updatePFSettings, invalidateTasksCache } from '../../../services/pf-service.js';
 import { StoreService } from '../../../services/store.js';
 
 const PF_RULE_DEFAULT_SECTIONS = [
@@ -196,6 +196,7 @@ export const pfAdminMixin = {
           data: { action, payload }
         });
         if (result.result.error) throw new Error(result.result.error);
+        invalidateTasksCache();
         uni.showToast({ title: '保存成功', icon: 'success' });
         this.closePFTaskModal();
         await this.refreshPFTasks();
@@ -217,6 +218,7 @@ export const pfAdminMixin = {
           }
         });
         if (result.result.error) throw new Error(result.result.error);
+        invalidateTasksCache();
         uni.showToast({ title: task.isActive ? '已停用' : '已启用', icon: 'success' });
         await this.refreshPFTasks();
       } catch (e) {
@@ -243,6 +245,7 @@ export const pfAdminMixin = {
               }
             });
             if (result.result.error) throw new Error(result.result.error);
+            invalidateTasksCache();
             uni.showToast({ title: '已删除', icon: 'success' });
             await this.refreshPFTasks();
           } catch (e) {
@@ -282,22 +285,111 @@ export const pfAdminMixin = {
     },
 
     // ========== 导出 ==========
-    exportPFOverview() {
-      if (this.filteredPFOverviewData.length === 0) {
+    async exportPFOverview() {
+      if (this.pfOverviewData.length === 0) {
         uni.showToast({ title: '暂无数据可导出', icon: 'none' });
         return;
       }
-      const header = '排名,姓名,支行,角色,必选分,加分分,总分';
-      const rows = this.filteredPFOverviewData.map((item, i) =>
-        `${i + 1},${item.userName},${item.branch || item.branchName || '-'},${this.getRoleLabel(item.role)},${item.requiredScore},${item.bonusScore},${item.totalScore}`
-      );
-      const csv = [header, ...rows].join('\n');
-      this.savePFExport(csv, `个金业绩汇总_${this.pfSelectedPeriod}.csv`);
+      try {
+        uni.showLoading({ title: '正在生成...' });
+
+        // 确保任务列表已加载
+        if (!this.pfTasks || this.pfTasks.length === 0) {
+          await this.refreshPFTasks();
+        }
+
+        // 使用优化的导出接口（基于聚合表）
+        const result = await uniCloud.callFunction({
+          name: 'appService',
+          data: { action: 'exportPFData', payload: { period: this.pfSelectedPeriod } }
+        });
+
+        // 云函数返回结构: { data: { data: [...] } }
+        const exportData = result.result?.data?.data || [];
+
+        if (exportData.length === 0) {
+          uni.showToast({ title: '暂无数据', icon: 'none' });
+          return;
+        }
+
+        // 按角色分组用户
+        const roleGroups = {
+          manager: { label: '客户经理', users: [] },
+          lobby_manager: { label: '大堂经理', users: [] },
+          elastic_counter: { label: '弹性柜面', users: [] },
+          counter_manager: { label: '柜面经理', users: [] }
+        };
+
+        exportData.forEach((user) => {
+          if (roleGroups[user.role] && user.status === 'active') {
+            roleGroups[user.role].users.push(user);
+          }
+        });
+
+        const csv = this.buildPFExportCsv(roleGroups);
+        const filename = `个金业绩汇总_${this.pfSelectedPeriod}.csv`;
+        this.savePFExport(csv, filename);
+      } catch (e) {
+        uni.showToast({ title: e.message || '导出失败', icon: 'none' });
+      } finally {
+        uni.hideLoading();
+      }
+    },
+
+    buildPFExportCsv(roleGroups) {
+      const lines = [];
+      const requiredTasks = this.pfRequiredTasks || [];
+      const bonusTasks = this.pfBonusTasks || [];
+
+      if (requiredTasks.length === 0) {
+        return '\uFEFF';
+      }
+
+      Object.keys(roleGroups).forEach(roleKey => {
+        const group = roleGroups[roleKey];
+        if (group.users.length === 0) return;
+
+        lines.push('');
+        lines.push(`${group.label}`);
+        lines.push('');
+
+        const headers = ['排名', '姓名', '网点'];
+        requiredTasks.forEach(task => {
+          headers.push(`${task.taskName}-任务数(${task.unit})`, `${task.taskName}-完成`, `${task.taskName}-得分`);
+        });
+        headers.push('必选业务总分');
+        bonusTasks.forEach(task => {
+          headers.push(`${task.taskName}(${task.unit})`);
+        });
+        lines.push(headers.join(','));
+
+        group.users.sort((a, b) => b.totalScore - a.totalScore).forEach((user, idx) => {
+          const row = [idx + 1, user.userName, user.branch || '-'];
+
+          requiredTasks.forEach(task => {
+            const target = user.taskTargets?.[task.taskId] || 0;
+            const completed = user.taskTotals?.[task.taskId] || 0;
+            const score = user.taskScores?.[task.taskId] || 0;
+            row.push(target, completed, score.toFixed(2));
+          });
+
+          row.push((user.requiredScore || 0).toFixed(2));
+
+          bonusTasks.forEach(task => {
+            const completed = user.taskTotals?.[task.taskId] || 0;
+            row.push(completed);
+          });
+
+          lines.push(row.join(','));
+        });
+      });
+
+      return '\uFEFF' + lines.join('\n');
     },
 
     savePFExport(csv, filename) {
       // #ifdef H5
-      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -307,10 +399,65 @@ export const pfAdminMixin = {
       uni.showToast({ title: '导出成功', icon: 'success' });
       // #endif
       // #ifdef MP-WEIXIN
-      uni.setClipboardData({
-        data: csv,
-        success: () => uni.showToast({ title: '数据已复制到剪贴板', icon: 'success' })
-      });
+      try {
+        const fs = wx.getFileSystemManager();
+        const filePath = `${wx.env.USER_DATA_PATH}/${filename}`;
+        console.log('准备写入文件:', filePath);
+        try {
+          const files = fs.readdirSync(wx.env.USER_DATA_PATH) || [];
+          files.filter(name => /\.(csv)$/.test(name)).forEach(name => {
+            try { fs.unlinkSync(`${wx.env.USER_DATA_PATH}/${name}`); } catch (e) {}
+          });
+        } catch (e) {}
+        fs.writeFileSync(filePath, csv, 'utf-8');
+        console.log('文件写入成功');
+
+        // 验证文件是否存在
+        try {
+          const stat = fs.statSync(filePath);
+          console.log('文件大小:', stat.size);
+        } catch (e) {
+          console.error('文件验证失败', e);
+        }
+
+        if (wx.shareFileMessage) {
+          console.log('调用 wx.shareFileMessage');
+          wx.shareFileMessage({
+            filePath: filePath,
+            fileName: filename,
+            success: () => {
+              console.log('分享成功');
+              uni.showToast({ title: '分享成功', icon: 'success' });
+            },
+            fail: (error) => {
+              console.error('wx.shareFileMessage 失败', error);
+              uni.openDocument({
+                filePath,
+                fileType: 'csv',
+                showMenu: true,
+                success: () => uni.showToast({ title: '文件已打开，可手动分享', icon: 'success' }),
+                fail: () => uni.showModal({
+                  title: '导出成功',
+                  content: '文件已生成，可通过"微信-我-设置-通用-文件管理"查看',
+                  showCancel: false
+                })
+              });
+            }
+          });
+        } else {
+          console.log('wx.shareFileMessage 不可用');
+          uni.openDocument({
+            filePath,
+            fileType: 'csv',
+            showMenu: true,
+            success: () => uni.showToast({ title: '文件已打开，可手动分享', icon: 'success' }),
+            fail: () => uni.showToast({ title: '当前微信版本不支持分享', icon: 'none' })
+          });
+        }
+      } catch (error) {
+        console.error('导出异常', error);
+        uni.showToast({ title: '导出失败：' + (error.message || ''), icon: 'none' });
+      }
       // #endif
     },
 

@@ -30,8 +30,14 @@
       <view class="score-dial__divider" />
       <view class="score-dial__meta-item">
         <text class="score-dial__meta-label">{{ microLabel || '小微积分' }}</text>
-        <text class="score-dial__meta-value">{{ microScore }}</text>
+        <text v-if="!hideMicro" class="score-dial__meta-value">{{ microScore }}</text>
+        <text v-else class="score-dial__meta-note">人工汇总</text>
       </view>
+    </view>
+
+    <view v-if="showUpdateTip" class="score-dial__footer">
+      <uni-icons type="info" size="14" color="rgba(255, 255, 255, 0.7)" />
+      <text class="score-dial__footer-text">积分和排名每天12:00和24:00更新</text>
     </view>
   </view>
 </template>
@@ -50,7 +56,8 @@ export default {
     },
     microScore: {
       type: Number,
-      required: true
+      required: false,
+      default: 0
     },
     bonusAmount: {
       type: Number,
@@ -58,6 +65,10 @@ export default {
       default: 0
     },
     hideBonus: {
+      type: Boolean,
+      default: false
+    },
+    hideMicro: {
       type: Boolean,
       default: false
     },
@@ -80,6 +91,10 @@ export default {
     microLabel: {
       type: String,
       default: '小微积分'
+    },
+    showUpdateTip: {
+      type: Boolean,
+      default: false
     }
   }
 };
@@ -248,6 +263,13 @@ export default {
   letter-spacing: 2rpx;
 }
 
+.score-dial__meta-note {
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 600;
+  letter-spacing: 1rpx;
+}
+
 .score-dial__divider {
   width: 2rpx;
   height: 80rpx;
@@ -285,5 +307,22 @@ export default {
   font-size: 40rpx;
   font-weight: 700;
   letter-spacing: 2rpx;
+}
+
+.score-dial__footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  margin-top: -12rpx;
+  margin-bottom: -12rpx;
+  position: relative;
+  z-index: 1;
+}
+
+.score-dial__footer-text {
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 400;
 }
 </style>

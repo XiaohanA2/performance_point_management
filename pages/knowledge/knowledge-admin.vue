@@ -1,20 +1,21 @@
 <template>
   <view class="knowledge-admin-page">
     <!-- 列表视图 -->
-    <view v-if="!showEditor" class="list-view">
+    <view class="list-view">
       <!-- 页面头部 -->
       <view class="page-header">
-        <button class="back-btn-only" @click="goBack">
-          <uni-icons type="logout-icon" :size="20" color="#fff" />
-        </button>
         <view class="header-center">
           <text class="page-title">知识库管理</text>
           <text class="page-subtitle">共 {{ list.length }} 条内容</text>
         </view>
         <view class="header-right">
-          <button class="ghost-btn" @click="showImportDialog = true">
+          <button class="ghost-btn" @click="smartImport">
+            <uni-icons type="star" :size="18" color="#fff" />
+            单条导入
+          </button>
+          <button class="ghost-btn" @click="batchImport">
             <uni-icons type="upload" :size="18" color="#fff" />
-            导入
+            批量导入
           </button>
           <button class="primary-btn" @click="createNew">
             新增
@@ -133,64 +134,6 @@
         </button>
       </view>
     </view>
-
-    <!-- 导入对话框 -->
-    <view v-if="showImportDialog" class="import-dialog-mask" @click="closeImportDialog">
-      <view class="import-dialog" @click.stop>
-        <view class="dialog-header">
-          <text class="dialog-title">批量导入知识库</text>
-          <view class="close-btn" @click="closeImportDialog">
-            <uni-icons type="close" :size="20" color="#999" />
-          </view>
-        </view>
-        <view class="dialog-body">
-          <view class="import-steps">
-            <view class="import-step">
-              <view class="step-number">1</view>
-              <view class="step-content">
-                <text class="step-title">下载模板</text>
-                <text class="step-desc">下载Excel模板文件</text>
-                <button class="step-btn" @click="downloadTemplate">
-                  <uni-icons type="download" :size="16" color="#0f766e" />
-                  下载模板
-                </button>
-              </view>
-            </view>
-            <view class="import-step">
-              <view class="step-number">2</view>
-              <view class="step-content">
-                <text class="step-title">填写内容</text>
-                <text class="step-desc">按模板格式填写知识库内容</text>
-              </view>
-            </view>
-            <view class="import-step">
-              <view class="step-number">3</view>
-              <view class="step-content">
-                <text class="step-title">上传文件</text>
-                <text class="step-desc">上传填写好的Excel文件</text>
-                <button class="step-btn primary" @click="chooseFile">
-                  <uni-icons type="upload-filled" :size="16" color="#fff" />
-                  选择文件
-                </button>
-              </view>
-            </view>
-          </view>
-          <view v-if="importFileName" class="selected-file">
-            <uni-icons type="paperclip" :size="16" color="#0f766e" />
-            <text class="file-name">{{ importFileName }}</text>
-            <view class="remove-file" @click="removeFile">
-              <uni-icons type="close" :size="14" color="#999" />
-            </view>
-          </view>
-        </view>
-        <view class="dialog-footer">
-          <button class="cancel-btn" @click="closeImportDialog">取消</button>
-          <button class="confirm-btn" :disabled="!importFilePath" @click="doImport">
-            开始导入
-          </button>
-        </view>
-      </view>
-    </view>
   </view>
 </template>
 
@@ -207,10 +150,7 @@ export default {
       sortOrder: 'asc',
       sortOptions: ['标题排序', '最新发布', '最早发布'],
       currentSortIndex: 0,
-      searchKeyword: '',
-      showImportDialog: false,
-      importFilePath: '',
-      importFileName: ''
+      searchKeyword: ''
     };
   },
 
@@ -276,10 +216,6 @@ export default {
   },
 
   methods: {
-    goBack() {
-      uni.navigateBack();
-    },
-
     async loadList() {
       try {
         uni.showLoading({ title: '加载中...' });
@@ -326,126 +262,16 @@ export default {
       this.searchKeyword = '';
     },
 
-    closeImportDialog() {
-      this.showImportDialog = false;
-      this.importFilePath = '';
-      this.importFileName = '';
-    },
-
-    downloadTemplate() {
-      // 创建模板数据
-      const template = [
-        ['标题*', '分类*', '关键词', '内容*', '状态'],
-        ['示例：个人贷款申请流程', '个贷业务', '个贷,申请,流程', '## 申请流程\n\n1. 准备材料\n2. 提交申请\n3. 审核通过', 'published'],
-        ['', '', '多个关键词用逗号分隔', '支持Markdown格式', 'published或draft']
-      ];
-
-      // 下载提示
-      uni.showModal({
-        title: '模板说明',
-        content: '模板包含：标题、分类、关键词、内容、状态。\n\n标题、分类、内容为必填项。\n状态可选：published(已发布)或draft(草稿)。',
-        confirmText: '知道了'
+    smartImport() {
+      uni.navigateTo({
+        url: '/pages/knowledge/knowledge-smart-import'
       });
     },
 
-    chooseFile() {
-      // 小程序环境选择文件
-      uni.chooseMessageFile({
-        count: 1,
-        type: 'file',
-        extension: ['.xlsx', '.xls'],
-        success: (res) => {
-          const file = res.tempFiles[0];
-          this.importFilePath = file.path;
-          this.importFileName = file.name;
-        },
-        fail: () => {
-          uni.showToast({ title: '选择文件失败', icon: 'none' });
-        }
+    batchImport() {
+      uni.navigateTo({
+        url: '/pages/knowledge/knowledge-batch-import'
       });
-    },
-
-    removeFile() {
-      this.importFilePath = '';
-      this.importFileName = '';
-    },
-
-    async doImport() {
-      if (!this.importFilePath) {
-        uni.showToast({ title: '请先选择文件', icon: 'none' });
-        return;
-      }
-
-      try {
-        uni.showLoading({ title: '导入中...' });
-
-        // 上传文件到云存储
-        const uploadResult = await uniCloud.uploadFile({
-          filePath: this.importFilePath,
-          cloudPath: `knowledge_import/${Date.now()}_${this.importFileName}`
-        });
-
-        // 调用云函数解析并导入
-        const res = await uniCloud.callFunction({
-          name: 'appService',
-          data: {
-            action: 'importKnowledge',
-            payload: {
-              fileID: uploadResult.fileID
-            }
-          }
-        });
-
-        uni.hideLoading();
-
-        const result = res.result.data;
-
-        if (result.success) {
-          // 显示详细结果
-          let content = `成功导入 ${result.successCount} 条`;
-          if (result.errorCount > 0) {
-            content += `\n失败 ${result.errorCount} 条`;
-            if (result.errors && result.errors.length > 0) {
-              content += '\n\n错误详情：\n' + result.errors.slice(0, 5).join('\n');
-              if (result.hasMoreErrors) {
-                content += `\n...还有 ${result.errorCount - 5} 条错误`;
-              }
-            }
-          }
-
-          uni.showModal({
-            title: '导入完成',
-            content: content,
-            showCancel: false,
-            confirmText: '确定'
-          });
-
-          this.closeImportDialog();
-          this.loadList();
-        } else {
-          // 完全失败
-          let content = result.message || '导入失败';
-          if (result.errors && result.errors.length > 0) {
-            content += '\n\n错误详情：\n' + result.errors.slice(0, 5).join('\n');
-            if (result.hasMoreErrors) {
-              content += '\n...查看更多';
-            }
-          }
-
-          uni.showModal({
-            title: '导入失败',
-            content: content,
-            showCancel: false
-          });
-        }
-      } catch (error) {
-        uni.hideLoading();
-        uni.showModal({
-          title: '导入失败',
-          content: error.message || '请检查文件格式和网络连接',
-          showCancel: false
-        });
-      }
     },
 
     createNew() {

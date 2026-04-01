@@ -1,0 +1,25 @@
+[{
+  "IndexName": "userId_period",
+  "MgoKeySchema": {
+    "MgoIndexKeys": [{
+      "Name": "userId",
+      "Direction": "1"
+    }, {
+      "Name": "period",
+      "Direction": "1"
+    }],
+    "MgoIsUnique": true
+  }
+}, {
+  "IndexName": "period_totalScore",
+  "MgoKeySchema": {
+    "MgoIndexKeys": [{
+      "Name": "period",
+      "Direction": "1"
+    }, {
+      "Name": "totalScore",
+      "Direction": "-1"
+    }],
+    "MgoIsUnique": false
+  }
+}]

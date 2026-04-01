@@ -1,0 +1,13 @@
+[{
+  "IndexName": "status_createdAt",
+  "MgoKeySchema": {
+    "MgoIndexKeys": [{
+      "Name": "status",
+      "Direction": "1"
+    }, {
+      "Name": "createdAt",
+      "Direction": "-1"
+    }],
+    "MgoIsUnique": false
+  }
+}]

@@ -15,26 +15,31 @@ export function parseMarkdown(markdown) {
              .replace(/</g, '&lt;')
              .replace(/>/g, '&gt;');
 
-  // 处理标题 ###
+  // 处理标题
   html = html.replace(/^###\s+(.*)$/gm, '<h3 style="font-size: 28rpx; font-weight: bold; color: #333; margin: 20rpx 0 10rpx;">$1</h3>');
   html = html.replace(/^##\s+(.*)$/gm, '<h2 style="font-size: 32rpx; font-weight: bold; color: #333; margin: 20rpx 0 10rpx;">$1</h2>');
   html = html.replace(/^#\s+(.*)$/gm, '<h1 style="font-size: 36rpx; font-weight: bold; color: #333; margin: 20rpx 0 10rpx;">$1</h1>');
 
-  // 处理加粗 **text**
+  // 处理加粗
   html = html.replace(/\*\*(.*?)\*\*/g, '<strong style="font-weight: bold; color: #333;">$1</strong>');
 
-  // 处理换行
-  html = html.replace(/\n\n/g, '</p><p style="margin: 15rpx 0; line-height: 1.6; color: #666; font-size: 26rpx;">');
-  html = html.replace(/\n/g, '<br/>');
+  // 处理列表（包裹在 ul 中）
+  html = html.replace(/((?:^- .*$\n?)+)/gm, (match) => {
+    const items = match.split('\n').filter(line => line.trim()).map(line =>
+      line.replace(/^- (.*)$/, '<li style="margin: 8rpx 0 8rpx 30rpx; font-size: 26rpx; color: #666;">$1</li>')
+    ).join('');
+    return `<ul style="list-style: disc; padding-left: 20rpx; margin: 10rpx 0;">${items}</ul>`;
+  });
 
-  // 处理列表
-  html = html.replace(/^- (.*)$/gm, '<li style="margin-left: 30rpx; list-style: disc; font-size: 26rpx;">$1</li>');
+  // 处理引用块
+  html = html.replace(/^&gt;\s+(.*)$/gm, '<blockquote style="border-left: 4rpx solid #0f766e; padding-left: 16rpx; margin: 10rpx 0; color: #666; font-size: 24rpx;">$1</blockquote>');
 
   // 处理代码
   html = html.replace(/`([^`]+)`/g, '<code style="background-color: #f5f5f5; padding: 2rpx 6rpx; border-radius: 3rpx; font-size: 24rpx;">$1</code>');
 
-  // 处理分隔线
-  html = html.replace(/^---$/gm, '<hr style="border: none; border-top: 1rpx solid #e5e5e5; margin: 20rpx 0;"/>');
+  // 处理换行
+  html = html.replace(/\n\n/g, '</p><p style="margin: 15rpx 0; line-height: 1.6; color: #666; font-size: 26rpx;">');
+  html = html.replace(/\n/g, '<br/>');
 
   // 包装在段落中
   html = '<p style="margin: 15rpx 0; line-height: 1.6; color: #666; font-size: 26rpx; white-space: pre-wrap;">' + html + '</p>';

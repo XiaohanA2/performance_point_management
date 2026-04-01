@@ -2,73 +2,52 @@
   <view class="detail-page">
     <!-- 用户头部 -->
     <view class="user-header">
-      <view class="user-header__info">
-        <text class="user-header__name">{{ employeeName }}</text>
-        <text class="user-header__meta">{{ branchName }} · {{ getRoleLabel(employeeRole) }}</text>
-      </view>
-      <view class="user-header__stats">
-        <view class="stat-item">
-          <text class="stat-value">{{ monthlyStats.totalScore || 0 }}</text>
-          <text class="stat-label">总分</text>
-        </view>
-        <view class="stat-item">
-          <text class="stat-value">{{ monthlyStats.requiredScore || 0 }}</text>
-          <text class="stat-label">必选</text>
-        </view>
-        <view class="stat-item">
-          <text class="stat-value">{{ monthlyStats.bonusScore || 0 }}</text>
-          <text class="stat-label">加分</text>
-        </view>
-        <view class="stat-item">
-          <text class="stat-value">{{ userSubmissions.length }}</text>
-          <text class="stat-label">提报数</text>
-        </view>
-      </view>
+      <text class="user-header__name">{{ employeeName }}</text>
+      <text class="user-header__meta">{{ branchName }} · {{ getRoleLabel(employeeRole) }}</text>
     </view>
 
     <!-- 筛选区 -->
     <view class="filter-bar">
-      <input class="search-input" placeholder="搜索业务名称" v-model="searchKeyword" />
       <view class="filter-row">
+        <input class="search-input" placeholder="搜索业务" v-model="searchKeyword" />
         <picker :range="periodOptions" :value="periodOptions.indexOf(selectedPeriod)" @change="handlePeriodChange">
           <view class="picker-btn">{{ formatPeriod(selectedPeriod) }}</view>
         </picker>
-        <button class="ghost-btn small" @click="resetFilters">重置</button>
+        <button class="reset-btn" @click="resetFilters">重置</button>
       </view>
     </view>
 
     <!-- 提报列表 -->
     <scroll-view scroll-y class="detail-content">
       <view v-if="userSubmissions.length === 0" class="empty-state">
-        <uni-icons type="refreshempty" size="48" color="#cbd5f5" />
+        <uni-icons type="refreshempty" size="48" color="#cbd5e1" />
         <text class="empty-text">暂无提报记录</text>
       </view>
-      <view v-else>
+      <view v-else class="submission-groups">
         <view v-for="(dateGroup, dateKey) in groupedSubmissions" :key="dateKey" class="date-group">
           <view class="date-header">
             <text class="date-label">{{ dateKey }}</text>
             <text class="date-count">{{ dateGroup.length }} 条</text>
           </view>
-          <view v-for="sub in dateGroup" :key="sub._id" class="sub-card">
-            <view class="sub-card__bar" :class="getTaskCategory(sub.taskId) === 'required' ? 'bar-required' : 'bar-bonus'" />
-            <view class="sub-card__body">
-              <view class="sub-card__info">
-                <text class="sub-card__tag" :class="getTaskCategory(sub.taskId) === 'required' ? 'tag-required' : 'tag-bonus'">
-                  {{ getTaskCategory(sub.taskId) === 'required' ? '必选' : '加分' }}
-                </text>
-                <text class="sub-card__name">{{ getTaskName(sub.taskId) }}</text>
-                <text class="sub-card__time">{{ formatTime(sub.createdAt) }}</text>
-              </view>
-              <view class="sub-card__right">
-                <text class="sub-card__value">{{ sub.value }} {{ getTaskUnit(sub.taskId) }}</text>
-                <view v-if="getTaskCategory(sub.taskId) === 'bonus'" class="sub-card__score">
-                  +{{ calcBonusScore(sub) }}分
+          <view class="submission-list">
+            <view v-for="sub in dateGroup" :key="sub._id" class="submission-item">
+              <view class="submission-item__bar" :class="getTaskCategory(sub.taskId) === 'required' ? 'bar-required' : 'bar-bonus'" />
+              <view class="submission-item__body">
+                <view class="submission-item__info">
+                  <view class="submission-item__info-content">
+                    <view class="submission-rule-info">
+                      <text class="submission-category" :class="getTaskCategory(sub.taskId) === 'required' ? 'category-required' : 'category-bonus'">
+                        {{ getTaskCategory(sub.taskId) === 'required' ? '必选' : '加分' }}
+                      </text>
+                      <text class="submission-item__title">{{ getTaskName(sub.taskId) }}</text>
+                    </view>
+                    <text class="submission-time">{{ formatTime(sub.createdAt) }}</text>
+                  </view>
                 </view>
-                <view v-else class="sub-card__score sub-card__score--dynamic">动态积分</view>
-                <view v-if="isAdmin" class="sub-card__actions">
-                  <button class="link-btn" @click="handleEdit(sub)">编辑</button>
-                  <button class="link-btn danger" @click="handleDelete(sub)">删除</button>
+                <view class="submission-item__stats">
+                  <text class="submission-item__count">{{ sub.value }} {{ getTaskUnit(sub.taskId) }}</text>
                 </view>
+                <button v-if="isAdmin" class="edit-btn" @click="handleEdit(sub)">编辑</button>
               </view>
             </view>
           </view>
@@ -77,7 +56,7 @@
     </scroll-view>
 
     <!-- 编辑弹窗 -->
-    <view v-if="showEditModal" class="modal-overlay" @tap.self="cancelEdit">
+    <view v-if="showEditModal" class="modal-overlay">
       <view class="edit-modal">
         <view class="edit-modal__header">
           <text class="edit-modal__title">编辑提报</text>
@@ -112,6 +91,7 @@
         </view>
         <view class="edit-modal__footer">
           <button class="ghost-btn" @tap="cancelEdit">取消</button>
+          <button class="delete-btn" @tap="handleDelete(editingSub)">删除</button>
           <button class="primary-btn" @tap="confirmEdit">保存</button>
         </view>
       </view>
@@ -121,7 +101,7 @@
 
 <script>
 import { StoreService } from '../../../services/store.js';
-import { getPFSubmissions, getPFTasks, getPFMonthlyStats, updatePFSubmission, deletePFSubmission, getCurrentPeriod, formatPeriod } from '../../../services/pf-service.js';
+import { getPFSubmissions, getPFTasks, getPFMonthlyStats, updatePFSubmission, deletePFSubmission, getCurrentPeriod, formatPeriod, invalidateAllCache } from '../../../services/pf-service.js';
 
 export default {
   data() {
@@ -134,6 +114,7 @@ export default {
       submissions: [],
       tasksMap: {},
       monthlyStats: {},
+      taskScores: {},
       searchKeyword: '',
       selectedPeriod: getCurrentPeriod(),
       periodOptions: [],
@@ -211,6 +192,15 @@ export default {
         this.tasksMap = map;
         this.submissions = submissions;
         this.monthlyStats = stats || {};
+
+        // 构建 taskScores 映射
+        const scores = {};
+        if (stats && stats.requiredTasks) {
+          stats.requiredTasks.forEach(t => {
+            scores[t.taskId] = t.score || 0;
+          });
+        }
+        this.taskScores = scores;
       } catch (e) {
         uni.showToast({ title: e.message || '加载失败', icon: 'none' });
       } finally {
@@ -282,9 +272,15 @@ export default {
       try {
         uni.showLoading({ title: '保存中...' });
         await updatePFSubmission(this.editingSub._id, val);
+
+        // 立即更新本地数据
+        const sub = this.submissions.find(s => s._id === this.editingSub._id);
+        if (sub) sub.value = val;
+
         uni.showToast({ title: '修改成功', icon: 'success' });
         this.cancelEdit();
-        await this.initData();
+        invalidateAllCache();
+        StoreService.clearCache();
       } catch (e) {
         uni.showToast({ title: e.message || '修改失败', icon: 'none' });
       } finally {
@@ -293,16 +289,20 @@ export default {
     },
 
     handleDelete(sub) {
+      const target = sub || this.editingSub;
       uni.showModal({
         title: '确认删除',
-        content: `确定删除「${this.getTaskName(sub.taskId)}」的提报记录？`,
+        content: `确定删除「${this.getTaskName(target.taskId)}」的提报记录？`,
         confirmColor: '#ef4444',
         success: async res => {
           if (!res.confirm) return;
           try {
             uni.showLoading({ title: '删除中...' });
-            await deletePFSubmission(sub._id);
-            uni.showToast({ title: '已删除', icon: 'success' });
+            await deletePFSubmission(target._id);
+            uni.showToast({ title: '已删除，积分计算中...', icon: 'success' });
+            this.cancelEdit();
+            invalidateAllCache();
+            StoreService.clearCache();
             await this.initData();
           } catch (e) {
             uni.showToast({ title: e.message || '删除失败', icon: 'none' });
@@ -319,63 +319,59 @@ export default {
 <style scoped>
 .detail-page { min-height: 100vh; background: #f8fafc; display: flex; flex-direction: column; }
 
-/* 用户头部 */
-.user-header { background: linear-gradient(135deg, #0f766e 0%, #0ea5e9 100%); padding: 40rpx 32rpx 32rpx; color: #fff; }
-.user-header__info { margin-bottom: 24rpx; }
-.user-header__name { font-size: 40rpx; font-weight: 700; display: block; }
-.user-header__meta { font-size: 26rpx; opacity: 0.85; display: block; margin-top: 8rpx; }
-.user-header__stats { display: flex; gap: 16rpx; }
-.stat-item { flex: 1; background: rgba(255,255,255,0.15); border-radius: 12rpx; padding: 16rpx; text-align: center; }
-.stat-value { display: block; font-size: 36rpx; font-weight: 700; }
-.stat-label { display: block; font-size: 22rpx; opacity: 0.8; margin-top: 4rpx; }
+/* 用户头部 - 固定 */
+.user-header { background: linear-gradient(135deg, #0f766e 0%, #0ea5e9 100%); padding: 32rpx; color: #fff; flex-shrink: 0; }
+.user-header__name { font-size: 40rpx; font-weight: 700; display: block; margin-bottom: 8rpx; }
+.user-header__meta { font-size: 26rpx; opacity: 0.85; display: block; }
 
-/* 筛选区 */
-.filter-bar { background: #fff; padding: 20rpx 32rpx; border-bottom: 1rpx solid #e5e7eb; }
-.search-input { width: 100%; height: 72rpx; line-height: 72rpx; padding: 0 24rpx; background: #f1f5f9; border-radius: 12rpx; font-size: 28rpx; box-sizing: border-box; margin-bottom: 16rpx; }
-.filter-row { display: flex; gap: 16rpx; align-items: center; }
-.picker-btn { padding: 12rpx 24rpx; background: #f1f5f9; border-radius: 8rpx; font-size: 26rpx; color: #334155; }
-.ghost-btn { background: #f1f5f9; color: #64748b; border: none; border-radius: 8rpx; font-size: 26rpx; }
-.ghost-btn.small { padding: 12rpx 24rpx; font-size: 24rpx; width: fit-content; }
+/* 筛选区 - 固定 */
+.filter-bar { background: #fff; padding: 20rpx 32rpx; border-bottom: 1rpx solid #e5e7eb; flex-shrink: 0; }
+.filter-row { display: flex; gap: 12rpx; align-items: center; }
+.search-input { flex: 1; height: 64rpx; line-height: 64rpx; padding: 0 20rpx; background: #f1f5f9; border-radius: 12rpx; font-size: 26rpx; box-sizing: border-box; }
+.picker-btn { padding: 12rpx 20rpx; background: #ecfdf5; border: 2rpx solid rgba(15, 118, 110, 0.2); border-radius: 12rpx; font-size: 24rpx; color: #0f766e; font-weight: 600; white-space: nowrap; }
+.reset-btn { padding: 12rpx 20rpx; background: #f1f5f9; color: #64748b; border: none; border-radius: 12rpx; font-size: 24rpx; white-space: nowrap; }
 
-/* 内容区 */
-.detail-content { flex: 1; padding: 24rpx 32rpx; }
+/* 内容区 - 滚动 */
+.detail-content { flex: 1; overflow-y: auto; }
 
 /* 空状态 */
-.empty-state { display: flex; flex-direction: column; align-items: center; padding: 120rpx 0; gap: 24rpx; }
+.empty-state { display: flex; flex-direction: column; align-items: center; padding: 120rpx 0; gap: 20rpx; }
 .empty-text { font-size: 28rpx; color: #94a3b8; }
 
 /* 日期分组 */
-.date-group { margin-bottom: 24rpx; }
-.date-header { display: flex; justify-content: space-between; align-items: center; padding: 16rpx 0; }
-.date-label { font-size: 28rpx; font-weight: 600; color: #1e293b; }
-.date-count { font-size: 24rpx; color: #94a3b8; }
+.submission-groups { display: flex; flex-direction: column; gap: 20rpx; padding: 24rpx; }
+.date-group { background: #fff; border-radius: 16rpx; padding: 20rpx; box-shadow: 0 1rpx 3rpx rgba(0, 0, 0, 0.05); }
+.date-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 12rpx; margin-bottom: 16rpx; border-bottom: 2rpx solid #f1f5f9; }
+.date-label { font-size: 34rpx; font-weight: 700; color: #0f172a; }
+.date-count { font-size: 24rpx; color: #94a3b8; background: #f1f5f9; padding: 4rpx 16rpx; border-radius: 12rpx; }
 
-/* 提报卡片 */
-.sub-card { display: flex; background: #fff; border-radius: 12rpx; margin-bottom: 12rpx; overflow: hidden; box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.04); }
-.sub-card__bar { width: 6rpx; flex-shrink: 0; }
+/* 提报列表 */
+.submission-list { display: flex; flex-direction: column; gap: 12rpx; }
+.submission-item { position: relative; background: #fff; border-radius: 10rpx; padding: 10rpx 16rpx; box-shadow: 0 1rpx 3rpx rgba(0, 0, 0, 0.05); display: flex; justify-content: space-between; align-items: flex-start; }
+.submission-item__bar { position: absolute; left: 0; top: 0; bottom: 0; width: 8rpx; border-top-left-radius: 10rpx; border-bottom-left-radius: 10rpx; }
 .bar-required { background: #0f766e; }
 .bar-bonus { background: #f59e0b; }
-.sub-card__body { flex: 1; padding: 20rpx 24rpx; display: flex; justify-content: space-between; align-items: center; min-width: 0; }
-.sub-card__info { display: flex; flex-direction: column; gap: 8rpx; flex: 1; min-width: 0; }
-.sub-card__tag { font-size: 20rpx; font-weight: 600; padding: 2rpx 12rpx; border-radius: 6rpx; width: fit-content; }
-.tag-required { background: #ecfdf5; color: #0f766e; }
-.tag-bonus { background: #fffbeb; color: #d97706; }
-.sub-card__name { font-size: 28rpx; font-weight: 500; color: #1e293b; }
-.sub-card__time { font-size: 22rpx; color: #94a3b8; }
-.sub-card__right { display: flex; flex-direction: column; align-items: flex-end; gap: 8rpx; flex-shrink: 0; }
-.sub-card__value { font-size: 30rpx; font-weight: 600; color: #0f172a; }
-.sub-card__score { font-size: 24rpx; font-weight: 600; color: #0f766e; }
-.sub-card__score--dynamic { color: #94a3b8; font-weight: 400; font-size: 22rpx; }
-.sub-card__actions { display: flex; gap: 8rpx; }
+.submission-item__body { display: flex; justify-content: space-between; align-items: flex-start; flex: 1; gap: 20rpx; padding-left: 16rpx; }
+.submission-item__info { flex: 1; min-width: 0; }
+.submission-item__info-content { flex: 1; min-width: 0; }
+.submission-rule-info { display: flex; align-items: center; gap: 10rpx; margin-bottom: 6rpx; }
+.submission-category { font-size: 20rpx; font-weight: 600; padding: 4rpx 12rpx; border-radius: 10rpx; flex-shrink: 0; }
+.category-required { background: #ecfdf5; color: #0f766e; }
+.category-bonus { background: #fffbeb; color: #d97706; }
+.submission-item__title { font-size: 28rpx; font-weight: 600; color: #0f172a; display: block; margin-bottom: 6rpx; }
+.submission-time { font-size: 24rpx; color: #94a3b8; }
+.submission-item__stats { display: flex; flex-direction: column; align-items: flex-end; gap: 8rpx; }
+.submission-item__count { font-size: 26rpx; color: #475569; font-weight: 500; }
+.edit-btn { background: #ecfdf5; color: #0f766e; border: 2rpx solid rgba(15, 118, 110, 0.25); border-radius: 8rpx; padding: 8rpx 12rpx; font-size: 22rpx; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; min-width: 80rpx; margin-left: auto; }
 
 /* 按钮 */
-.link-btn { background: none; border: none; color: #0f766e; font-size: 24rpx; padding: 4rpx 12rpx; }
-.link-btn.danger { color: #ef4444; }
-.primary-btn { background: #0f766e; color: #fff; border: none; border-radius: 12rpx; padding: 16rpx 32rpx; font-size: 28rpx; }
+.ghost-btn { background: #f1f5f9; color: #64748b; border: none; border-radius: 16rpx; padding: 22rpx 0; font-size: 30rpx; text-align: center; flex: 1; }
+.delete-btn { background: #fef2f2; color: #ef4444; border: 2rpx solid rgba(239, 68, 68, 0.25); border-radius: 16rpx; padding: 22rpx 0; font-size: 30rpx; font-weight: 600; text-align: center; flex: 1; }
+.primary-btn { background: linear-gradient(135deg, #0f766e 0%, #0ea5e9 100%); color: #fff; border: none; border-radius: 16rpx; padding: 22rpx 0; font-size: 30rpx; text-align: center; flex: 1; }
 
 /* 编辑弹窗 */
-.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-.edit-modal { width: 640rpx; background: #fff; border-radius: 28rpx; overflow: hidden; }
+.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 32rpx; }
+.edit-modal { width: 100%; max-width: 640rpx; background: #fff; border-radius: 28rpx; overflow: hidden; box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.15); }
 .edit-modal__header { background: linear-gradient(135deg, #0f766e 0%, #0ea5e9 100%); padding: 28rpx 32rpx; display: flex; align-items: center; justify-content: space-between; }
 .edit-modal__title { font-size: 32rpx; font-weight: 700; color: #fff; }
 .edit-modal__close { width: 56rpx; height: 56rpx; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(255,255,255,0.15); }
@@ -390,6 +386,4 @@ export default {
 .edit-input { flex: 1; padding: 22rpx 20rpx; font-size: 36rpx; font-weight: 600; color: #0f172a; background: transparent; }
 .edit-unit { padding: 0 20rpx; font-size: 26rpx; color: #94a3b8; border-left: 1rpx solid #e2e8f0; }
 .edit-modal__footer { padding: 20rpx 32rpx 32rpx; display: flex; gap: 16rpx; }
-.edit-modal__footer .ghost-btn { flex: 1; padding: 22rpx 0; border-radius: 16rpx; font-size: 30rpx; text-align: center; }
-.edit-modal__footer .primary-btn { flex: 1; padding: 22rpx 0; border-radius: 16rpx; font-size: 30rpx; text-align: center; }
 </style>

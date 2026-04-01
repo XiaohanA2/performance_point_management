@@ -511,7 +511,8 @@ export const StoreService = {
 
   async updateSubmission(id, updates) {
     await this.ensureReady();
-    const submission = await callApi('updateSubmission', { id, updates });
+    const currentUser = this.getCurrentUser();
+    const submission = await callApi('updateSubmission', { id, updates, userId: currentUser.id });
     const normalized = normalizeSubmission(submission);
     const index = state.submissions.findIndex(item => item.id === id);
     if (index >= 0) {
@@ -523,7 +524,8 @@ export const StoreService = {
 
   async deleteSubmission(id) {
     await this.ensureReady();
-    await callApi('deleteSubmission', { id });
+    const currentUser = this.getCurrentUser();
+    await callApi('deleteSubmission', { id, userId: currentUser.id });
     state.submissions = state.submissions.filter(sub => sub.id !== id);
     this.clearCache(); // 清除缓存
     return true;
