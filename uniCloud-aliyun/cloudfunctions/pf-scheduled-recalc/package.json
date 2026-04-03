@@ -4,6 +4,6 @@
   "description": "个金积分定时重算",
   "main": "index.js",
   "cloudfunction-config": {
-    "triggers": ["cron:0 0 0,12 * * *"]
+    "triggers": ["cron:0 5 0,12 * * *"]
   }
 }

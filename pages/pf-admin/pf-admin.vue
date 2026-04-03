@@ -425,7 +425,7 @@
           </view>
           <view class="form-item">
             <text class="form-label">角色</text>
-            <picker :range="pfRoleDisplayOptions" :value="pfRoleValueOptions.indexOf(userForm.role)" @change="e => userForm.role = pfRoleValueOptions[e.detail.value]">
+            <picker :range="availableRoleDisplayOptions" :value="availableRoleValueOptions.indexOf(userForm.role)" @change="e => userForm.role = availableRoleValueOptions[e.detail.value]">
               <view class="picker-value">{{ getRoleDisplay(userForm.role) || '请选择角色' }}</view>
             </picker>
           </view>
@@ -554,6 +554,27 @@ export default {
       showRecalcModal: false,
       recalcRoleIndex: 0
     };
+  },
+  computed: {
+    availableRoleOptions() {
+      const role = this.currentUser?.role;
+      const allRoles = StoreService.getRoles().map(r => ({ value: r.roleCode, label: r.roleName }));
+
+      if (role === 'super_admin') return allRoles;
+      if (role === 'branch_leader') return allRoles.filter(r => r.value !== 'super_admin');
+      if (role === 'personal_finance_admin') {
+        const pfRoles = ['manager', 'lobby_manager', 'elastic_counter', 'counter_manager', 'personal_finance_admin'];
+        return allRoles.filter(r => pfRoles.includes(r.value));
+      }
+      const businessRoles = ['manager', 'lobby_manager', 'elastic_counter', 'counter_manager'];
+      return allRoles.filter(r => businessRoles.includes(r.value));
+    },
+    availableRoleDisplayOptions() {
+      return this.availableRoleOptions.map(r => r.label);
+    },
+    availableRoleValueOptions() {
+      return this.availableRoleOptions.map(r => r.value);
+    }
   },
   async onShow() {
     await this.refresh();
